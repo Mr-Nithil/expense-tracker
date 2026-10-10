@@ -98,11 +98,179 @@ abstract class AppLocalizations {
   /// **'Expense Tracker'**
   String get appTitle;
 
+  /// Shown after the sign-up confirmation email was sent again
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation email sent. Check your inbox.'**
+  String get authConfirmationResent;
+
+  /// Label of the field that repeats the new password on sign-up
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get authConfirmPasswordLabel;
+
+  /// Label of the optional display-name field on sign-up
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get authDisplayNameLabel;
+
+  /// Label of the email field on the login, sign-up and forgot-password screens
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get authEmailLabel;
+
+  /// Button on the reset-link-sent view that returns to the login screen
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get authForgotPasswordBackToLogin;
+
+  /// Shown after requesting a reset link. Neutral on purpose: never reveals whether the email has an account
+  ///
+  /// In en, this message translates to:
+  /// **'If an account exists for {email}, we\'ve sent a link to reset your password.'**
+  String authForgotPasswordSentMessage(String email);
+
+  /// Title of the view shown after a reset link was requested
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get authForgotPasswordSentTitle;
+
+  /// Submit button of the forgot-password form
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get authForgotPasswordSubmit;
+
+  /// Intro text above the forgot-password form
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your account email and we\'ll send you a link to reset your password.'**
+  String get authForgotPasswordSubtitle;
+
+  /// Title of the forgot-password screen
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get authForgotPasswordTitle;
+
+  /// Tooltip of the button that hides the typed password
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get authHidePassword;
+
+  /// Link on the login screen that opens the forgot-password screen
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get authLoginForgotPassword;
+
+  /// Link on the login screen that opens the sign-up screen
+  ///
+  /// In en, this message translates to:
+  /// **'New here? Create an account'**
+  String get authLoginGoToSignUp;
+
+  /// Submit button of the login form
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authLoginSubmit;
+
+  /// Short intro text above the login form
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back. Sign in to continue.'**
+  String get authLoginSubtitle;
+
   /// Title of the login screen
   ///
   /// In en, this message translates to:
   /// **'Sign in'**
   String get authLoginTitle;
+
+  /// Label of the password field
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPasswordLabel;
+
+  /// Label of the new-password field on the reset-password screen
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get authNewPasswordLabel;
+
+  /// Hint inside the new-password field on sign-up
+  ///
+  /// In en, this message translates to:
+  /// **'At least {minLength} characters'**
+  String authPasswordHint(int minLength);
+
+  /// Snackbar action that sends the sign-up confirmation email again
+  ///
+  /// In en, this message translates to:
+  /// **'Resend email'**
+  String get authResendConfirmation;
+
+  /// Leaves the reset-password screen without changing the password; signs out
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel and sign out'**
+  String get authResetPasswordCancel;
+
+  /// Submit button of the reset-password form
+  ///
+  /// In en, this message translates to:
+  /// **'Save password'**
+  String get authResetPasswordSubmit;
+
+  /// Intro on the reset-password screen opened from the email link
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a new password for {email}.'**
+  String authResetPasswordSubtitle(String email);
+
+  /// Title of the screen opened from a password-reset email link
+  ///
+  /// In en, this message translates to:
+  /// **'Set a new password'**
+  String get authResetPasswordTitle;
+
+  /// Tooltip of the button that reveals the typed password
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get authShowPassword;
+
+  /// Shown after sign-up when the account needs email confirmation
+  ///
+  /// In en, this message translates to:
+  /// **'Account created. Check your email to confirm it, then sign in.'**
+  String get authSignUpConfirmEmailSent;
+
+  /// Submit button of the sign-up form
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get authSignUpSubmit;
+
+  /// Short intro text above the sign-up form
+  ///
+  /// In en, this message translates to:
+  /// **'Track your spending across all your devices.'**
+  String get authSignUpSubtitle;
+
+  /// Title of the sign-up screen
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get authSignUpTitle;
 
   /// Title of the budget tab and its bottom navigation label
   ///
@@ -176,11 +344,71 @@ abstract class AppLocalizations {
   /// **'Dashboard'**
   String get dashboardTitle;
 
-  /// Shown for AuthFailure
+  /// Shown for AuthFailure with no more specific reason
   ///
   /// In en, this message translates to:
-  /// **'Your session has ended. Please sign in again.'**
+  /// **'Authentication failed. Please sign in again.'**
   String get errorAuth;
+
+  /// Sign-up failed because the email is already registered
+  ///
+  /// In en, this message translates to:
+  /// **'An account with this email already exists. Try signing in instead.'**
+  String get errorAuthEmailExists;
+
+  /// Sign-in failed because the email address is not confirmed yet
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm your email first. Check your inbox for the link.'**
+  String get errorAuthEmailNotConfirmed;
+
+  /// Sign-in failed because the email or password is wrong
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect email or password.'**
+  String get errorAuthInvalidCredentials;
+
+  /// An email link (confirmation or password reset) expired or was already used
+  ///
+  /// In en, this message translates to:
+  /// **'This link has expired or was already used. Please request a new one.'**
+  String get errorAuthLinkExpired;
+
+  /// An email link could not be used, e.g. opened on a different device than the one that requested it
+  ///
+  /// In en, this message translates to:
+  /// **'This link can\'t be used here. Open it on the device where you requested it, or request a new one.'**
+  String get errorAuthLinkInvalid;
+
+  /// The auth server rejected the request because of rate limiting
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Please wait a moment and try again.'**
+  String get errorAuthRateLimited;
+
+  /// Setting a new password failed because it equals the current one
+  ///
+  /// In en, this message translates to:
+  /// **'Your new password must be different from the old one.'**
+  String get errorAuthSamePassword;
+
+  /// Sign-up failed because the server rejected the password as weak
+  ///
+  /// In en, this message translates to:
+  /// **'This password is too weak. Choose a stronger one.'**
+  String get errorAuthWeakPassword;
+
+  /// Form field error for a malformed email address
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get errorEmailInvalid;
+
+  /// Form field error for an empty required field
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required.'**
+  String get errorFieldRequired;
 
   /// Shown for NetworkFailure
   ///
@@ -193,6 +421,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We couldn\'t find that item. It may have been deleted.'**
   String get errorNotFound;
+
+  /// Form field error when the confirm-password field differs from the password
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords don\'t match.'**
+  String get errorPasswordMismatch;
+
+  /// Form field error when a new password is shorter than the minimum
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least {minLength} characters.'**
+  String errorPasswordTooShort(int minLength);
 
   /// Shown for StorageFailure
   ///
@@ -211,6 +451,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please check the highlighted fields.'**
   String get errorValidation;
+
+  /// Button that saves the chosen currency and finishes onboarding
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get onboardingContinue;
+
+  /// Example amount shown under each currency; amount is pre-formatted money
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. {amount}'**
+  String onboardingCurrencyExample(String amount);
+
+  /// Line under the currency that matches the device region; amount is pre-formatted money
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested · e.g. {amount}'**
+  String onboardingCurrencySuggestedExample(String amount);
+
+  /// Explanation above the currency list on the onboarding screen
+  ///
+  /// In en, this message translates to:
+  /// **'All amounts in the app use this currency. It can\'t be changed later.'**
+  String get onboardingSubtitle;
+
+  /// Title of the onboarding (currency selection) screen
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your currency'**
+  String get onboardingTitle;
+
+  /// Settings section header for account actions (log out)
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccountLabel;
+
+  /// Settings button and confirm action that signs the user out of this device
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get settingsLogout;
+
+  /// Confirm action of the logout dialog when unsynced changes would be lost
+  ///
+  /// In en, this message translates to:
+  /// **'Log out anyway'**
+  String get settingsLogoutAnyway;
+
+  /// Logout dialog message when everything is synced
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll need to sign in again to use the app on this device.'**
+  String get settingsLogoutConfirmMessage;
+
+  /// Title of the logout confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Log out?'**
+  String get settingsLogoutConfirmTitle;
+
+  /// Logout dialog warning when unsynced local changes would be deleted
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change on this device hasn\'t synced yet. If you log out now, it will be lost.} other{{count} changes on this device haven\'t synced yet. If you log out now, they will be lost.}}'**
+  String settingsLogoutPendingMessage(int count);
 
   /// Theme option: always dark
   ///

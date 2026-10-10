@@ -23,9 +23,28 @@ final class NotFoundFailure extends AppFailure {
   const NotFoundFailure(super.message);
 }
 
+/// Why authentication failed. Presentation maps each reason to a localized message (M1.11).
+enum AuthFailureReason {
+  invalidCredentials,
+  emailAlreadyRegistered,
+  weakPassword,
+  emailNotConfirmed,
+  samePassword,
+
+  /// An email link (confirmation, reset) expired or was already used.
+  linkExpired,
+
+  /// An email link could not be used, e.g. opened on another device than the one that asked for it.
+  linkInvalid,
+  rateLimited,
+  unknown,
+}
+
 /// Authentication failed or the session is missing.
 final class AuthFailure extends AppFailure {
-  const AuthFailure(super.message);
+  const AuthFailure(super.message, {this.reason = AuthFailureReason.unknown});
+
+  final AuthFailureReason reason;
 }
 
 /// The network is unavailable or a remote call failed.

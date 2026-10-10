@@ -1,6 +1,7 @@
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/l10n/failure_l10n.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
+import 'package:expense_tracker/core/utils/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -22,6 +23,25 @@ void main() {
       expect(failure.localize(l10n), message, reason: failure.runtimeType.toString());
     }
     expect(messages.values.toSet(), hasLength(messages.length));
+  });
+
+  test('every auth failure reason has its own message, unknown falls back to errorAuth', () {
+    final messages = {
+      for (final reason in AuthFailureReason.values)
+        reason: AuthFailure('x', reason: reason).localize(l10n),
+    };
+    expect(messages[AuthFailureReason.unknown], l10n.errorAuth);
+    expect(messages[AuthFailureReason.invalidCredentials], l10n.errorAuthInvalidCredentials);
+    expect(messages.values.toSet(), hasLength(AuthFailureReason.values.length));
+  });
+
+  test('every validation error has its own message', () {
+    final messages = ValidationError.values.map((e) => e.localize(l10n)).toSet();
+    expect(messages, hasLength(ValidationError.values.length));
+    expect(
+      ValidationError.passwordTooShort.localize(l10n),
+      contains('${Validators.minPasswordLength}'),
+    );
   });
 
   testWidgets('errorMessageOf never shows raw exception text', (tester) async {

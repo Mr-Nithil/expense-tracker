@@ -14,4 +14,7 @@ abstract final class AppSizes {
 
   /// Max content width for empty/error states so text stays readable on tablets.
   static const double maxMessageWidth = 360;
+
+  /// Max width of single-column forms (auth, onboarding) on tablets and in landscape.
+  static const double maxFormWidth = 480;
 }

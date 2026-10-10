@@ -1,11 +1,16 @@
 import 'package:expense_tracker/core/router/app_redirect.dart';
 import 'package:expense_tracker/core/router/app_shell.dart';
 import 'package:expense_tracker/core/router/auth_status.dart';
+import 'package:expense_tracker/core/router/onboarding_status.dart';
 import 'package:expense_tracker/core/router/routes.dart';
+import 'package:expense_tracker/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:expense_tracker/features/auth/presentation/screens/login_screen.dart';
+import 'package:expense_tracker/features/auth/presentation/screens/reset_password_screen.dart';
+import 'package:expense_tracker/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:expense_tracker/features/auth/presentation/screens/splash_screen.dart';
 import 'package:expense_tracker/features/budget/presentation/screens/budget_screen.dart';
 import 'package:expense_tracker/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:expense_tracker/features/profile/presentation/screens/onboarding_screen.dart';
 import 'package:expense_tracker/features/settings/presentation/screens/settings_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/screens/transactions_screen.dart';
 import 'package:flutter/foundation.dart';
@@ -21,11 +26,20 @@ GoRouter router(Ref ref) {
   final authStatus = ValueNotifier(ref.read(authStatusControllerProvider));
   ref.listen(authStatusControllerProvider, (_, next) => authStatus.value = next);
 
+  // Loading (including a reload after the user changed) counts as unknown → splash.
+  OnboardingStatus onboardingOf(AsyncValue<OnboardingStatus> value) =>
+      value.isLoading ? OnboardingStatus.unknown : value.value ?? OnboardingStatus.unknown;
+  final onboarding = ValueNotifier(onboardingOf(ref.read(onboardingStatusProvider)));
+  ref.listen(onboardingStatusProvider, (_, next) => onboarding.value = onboardingOf(next));
+
   final router = GoRouter(
     initialLocation: Routes.dashboardPath,
-    refreshListenable: authStatus,
-    redirect: (context, state) =>
-        appRedirect(status: authStatus.value, location: state.matchedLocation),
+    refreshListenable: Listenable.merge([authStatus, onboarding]),
+    redirect: (context, state) => appRedirect(
+      status: authStatus.value,
+      onboarding: onboarding.value,
+      location: state.matchedLocation,
+    ),
     routes: [
       GoRoute(
         name: Routes.splash,
@@ -36,6 +50,26 @@ GoRouter router(Ref ref) {
         name: Routes.login,
         path: Routes.loginPath,
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        name: Routes.signUp,
+        path: Routes.signUpPath,
+        builder: (context, state) => const SignUpScreen(),
+      ),
+      GoRoute(
+        name: Routes.forgotPassword,
+        path: Routes.forgotPasswordPath,
+        builder: (context, state) => ForgotPasswordScreen(initialEmail: state.extra as String?),
+      ),
+      GoRoute(
+        name: Routes.resetPassword,
+        path: Routes.resetPasswordPath,
+        builder: (context, state) => const ResetPasswordScreen(),
+      ),
+      GoRoute(
+        name: Routes.onboarding,
+        path: Routes.onboardingPath,
+        builder: (context, state) => const OnboardingScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
@@ -83,6 +117,7 @@ GoRouter router(Ref ref) {
 
   ref.onDispose(() {
     authStatus.dispose();
+    onboarding.dispose();
     router.dispose();
   });
   return router;

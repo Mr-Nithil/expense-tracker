@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:expense_tracker/core/db/converters/date_only_converter.dart';
 import 'package:expense_tracker/core/db/daos/app_settings_dao.dart';
+import 'package:expense_tracker/core/db/daos/profiles_dao.dart';
 import 'package:expense_tracker/core/db/tables/app_settings.dart';
 import 'package:expense_tracker/core/db/tables/budgets.dart';
 import 'package:expense_tracker/core/db/tables/categories.dart';
@@ -31,7 +32,7 @@ part 'app_database.g.dart';
     SyncState,
     AppSettings,
   ],
-  daos: [AppSettingsDao],
+  daos: [AppSettingsDao, ProfilesDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
@@ -52,6 +53,23 @@ class AppDatabase extends _$AppDatabase {
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );
+
+  /// Number of local changes not pushed yet (`sync_status = pending`) across all synced tables,
+  /// including pending soft deletes. Used to warn before logout.
+  Future<int> countPendingRows() => transaction(() async {
+    var total = 0;
+    for (final table in allTables) {
+      final hasSyncStatus = table.$columns.any((column) => column.name == 'sync_status');
+      if (!hasSyncStatus) continue;
+      final row = await customSelect(
+        'SELECT COUNT(*) AS c FROM ${table.actualTableName} WHERE sync_status = ?',
+        variables: [Variable.withInt(SyncStatus.pending.index)],
+        readsFrom: {table},
+      ).getSingle();
+      total += row.read<int>('c');
+    }
+    return total;
+  });
 
   /// Deletes every row in every table (logout). Children first because of foreign keys.
   Future<void> clearAllData() => transaction(() async {

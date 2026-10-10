@@ -44,6 +44,10 @@ class Money implements Comparable<Money> {
   @override
   String toString() => 'Money($minor)';
 
+  /// [major] whole units of [currencyCode], e.g. `fromMajor(12, currencyCode: 'USD')` is 1200.
+  static Money fromMajor(int major, {required String currencyCode}) =>
+      Money(major * _pow10(decimalDigitsFor(currencyCode)));
+
   /// Number of minor-unit digits for [currencyCode] (2 for USD, 0 for JPY, 3 for KWD).
   static int decimalDigitsFor(String currencyCode) =>
       NumberFormat.simpleCurrency(locale: 'en', name: currencyCode).decimalDigits ?? 2;

@@ -29,6 +29,21 @@ Apply the SQL migrations in `supabase/migrations/` in order: paste each into the
 editor, or run `supabase db push` with the Supabase CLI. Then run `supabase/tests/rls_check.sql`
 in the SQL editor. It should end with `RLS check passed`.
 
+### Auth (Supabase dashboard)
+
+Confirmation and password-reset emails link back into the app via `expensetracker://auth-callback`.
+
+1. **Authentication → URL Configuration → Redirect URLs**: add `expensetracker://auth-callback`.
+2. **Authentication → Providers → Email**: keep **Confirm email** enabled.
+
+Open the email link on the same device where you signed up (the PKCE code verifier is stored
+there). To test the link handling by hand:
+
+```bash
+adb shell am start -a android.intent.action.VIEW -d "expensetracker://auth-callback"   # Android
+xcrun simctl openurl booted "expensetracker://auth-callback"                          # iOS simulator
+```
+
 ## Run
 
 ```bash

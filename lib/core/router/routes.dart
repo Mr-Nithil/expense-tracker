@@ -8,6 +8,18 @@ abstract final class Routes {
   static const login = 'login';
   static const loginPath = '/login';
 
+  static const signUp = 'signUp';
+  static const signUpPath = '/sign-up';
+
+  static const forgotPassword = 'forgotPassword';
+  static const forgotPasswordPath = '/forgot-password';
+
+  static const resetPassword = 'resetPassword';
+  static const resetPasswordPath = '/reset-password';
+
+  static const onboarding = 'onboarding';
+  static const onboardingPath = '/onboarding';
+
   static const dashboard = 'dashboard';
   static const dashboardPath = '/';
 
@@ -20,6 +32,15 @@ abstract final class Routes {
   static const settings = 'settings';
   static const settingsPath = '/settings';
 
-  /// Routes reachable without a session.
-  static const authPaths = {splashPath, loginPath};
+  /// Routes of the auth flow. A signed-in user is sent from these to the dashboard.
+  static const authPaths = {
+    splashPath,
+    loginPath,
+    signUpPath,
+    forgotPasswordPath,
+    resetPasswordPath,
+  };
+
+  /// Routes a signed-out user may stay on. Everything else redirects to login.
+  static const signedOutPaths = {loginPath, signUpPath, forgotPasswordPath};
 }

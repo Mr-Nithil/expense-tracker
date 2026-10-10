@@ -7,18 +7,19 @@ enum AuthStatus {
   unknown,
   signedOut,
   signedIn,
+
+  /// Signed in through a password-reset link: must set a new password before entering the app.
+  passwordRecovery,
 }
 
 /// The session state the router redirects on.
 ///
 /// Lives in core so the router does not import a feature. The auth feature drives it via
-/// [AuthStatusController.set].
+/// [AuthStatusController.set] (`authStatusBindingProvider`).
 @Riverpod(keepAlive: true)
 class AuthStatusController extends _$AuthStatusController {
-  // TODO(M1.2): start at `unknown` and bind to the Supabase session. Until auth exists,
-  // the app opens straight into the tabs.
   @override
-  AuthStatus build() => AuthStatus.signedIn;
+  AuthStatus build() => AuthStatus.unknown;
 
   void set(AuthStatus status) => state = status;
 }

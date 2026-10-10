@@ -1,19 +1,55 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:expense_tracker/app.dart';
+import 'package:expense_tracker/core/db/app_database.dart';
 import 'package:expense_tracker/core/db/database_provider.dart';
+import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
-import 'package:expense_tracker/core/router/auth_status.dart';
+import 'package:expense_tracker/core/services/secure_storage_service.dart';
 import 'package:expense_tracker/core/theme/theme_mode_controller.dart';
+import 'package:expense_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
+import 'helpers/fake_auth_repository.dart';
 import 'helpers/test_database.dart';
+
+class _MockSecureStorage extends Mock implements SecureStorageService {}
 
 void main() {
   final l10n = AppLocalizationsEn();
 
-  Future<ProviderContainer> pumpApp(WidgetTester tester) async {
-    final container = createTestContainer();
+  /// Pumps the whole app. With [onboarded], [testUser] already has a profile with a currency.
+  Future<ProviderContainer> pumpApp(
+    WidgetTester tester, {
+    FakeAuthRepository? auth,
+    bool onboarded = true,
+  }) async {
+    final db = createTestDatabase();
+    if (onboarded) {
+      final now = DateTime.utc(2026, 10, 10);
+      await tester.runAsync(
+        () => db.profilesDao.insertProfile(
+          ProfilesCompanion.insert(
+            id: testUser.id,
+            userId: testUser.id,
+            createdAt: now,
+            updatedAt: now,
+            currencyCode: const Value('USD'),
+          ),
+        ),
+      );
+    }
+    final secureStorage = _MockSecureStorage();
+    when(secureStorage.deleteAll).thenAnswer((_) async {});
+    final container = createTestContainer(
+      db: db,
+      overrides: [
+        (auth ?? FakeAuthRepository()).providerOverride,
+        secureStorageServiceProvider.overrideWithValue(secureStorage),
+      ],
+    );
     await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const App()));
     await tester.pumpAndSettle();
     return container;
@@ -46,17 +82,227 @@ void main() {
     }
   });
 
-  testWidgets('signing out redirects to login, signing in returns to the app', (tester) async {
-    final container = await pumpApp(tester);
+  testWidgets('opens on login when there is no stored session', (tester) async {
+    await pumpApp(tester, auth: FakeAuthRepository(currentUser: null));
 
-    container.read(authStatusControllerProvider.notifier).set(AuthStatus.signedOut);
+    expect(find.widgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+  });
+
+  testWidgets('opens offline on the dashboard with a restored session', (tester) async {
+    // Restored session from local storage; the first token refresh fails because there is no
+    // network, which Supabase reports as a stream error (not a sign-out).
+    final auth = FakeAuthRepository();
+    await pumpApp(tester, auth: auth);
+
+    auth.emitError(Exception('AuthRetryableFetchException: no network'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+    expect(find.widgetWithText(AppBar, l10n.authLoginTitle), findsNothing);
+  });
+
+  testWidgets('signing in through the login form reaches the dashboard', (tester) async {
+    await pumpApp(tester, auth: FakeAuthRepository(currentUser: null));
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, l10n.authEmailLabel),
+      testUser.email,
+    );
+    await tester.enterText(find.widgetWithText(TextFormField, l10n.authPasswordLabel), 'secret-pw');
+    await tester.tap(find.widgetWithText(FilledButton, l10n.authLoginSubmit));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+  });
+
+  testWidgets('a different user signing in gets their own onboarding state', (tester) async {
+    final auth = FakeAuthRepository();
+    await pumpApp(tester, auth: auth);
+    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+
+    auth.emit(null);
+    await tester.pumpAndSettle();
+    // User B has no local profile yet, unlike the onboarded testUser.
+    auth.emit(const AuthUser(id: 'user-2', email: 'b@example.com'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, l10n.onboardingTitle), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+  });
+
+  testWidgets(
+    'after an involuntary sign-out, a different user does not inherit the local data',
+    (tester) async {
+      final auth = FakeAuthRepository();
+      final container = await pumpApp(tester, auth: auth);
+      final dao = container.read(databaseProvider).profilesDao;
+
+      // Supabase signs user A out by itself: nothing is cleared yet.
+      auth.emit(null);
+      await tester.pumpAndSettle();
+      expect(await tester.runAsync(() => dao.getProfile(testUser.id)), isNotNull);
+
+      auth.emit(const AuthUser(id: 'user-2', email: 'b@example.com'));
+      await tester.pumpAndSettle();
+
+      expect(await tester.runAsync(() => dao.getProfile(testUser.id)), isNull);
+    },
+  );
+
+  testWidgets('the same user signing back in keeps their local data', (tester) async {
+    final auth = FakeAuthRepository();
+    final container = await pumpApp(tester, auth: auth);
+
+    auth.emit(null);
+    await tester.pumpAndSettle();
+    auth.emit(testUser);
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+    final profile = await tester.runAsync(
+      () => container.read(databaseProvider).profilesDao.getProfile(testUser.id),
+    );
+    expect(profile, isNotNull);
+  });
+
+  group('password reset link', () {
+    Future<FakeAuthRepository> openResetLink(WidgetTester tester) async {
+      final auth = FakeAuthRepository();
+      await pumpApp(tester, auth: auth);
+      auth.emitRecovery(testUser);
+      await tester.pumpAndSettle();
+      return auth;
+    }
+
+    testWidgets('lands on reset-password instead of the dashboard', (tester) async {
+      await openResetLink(tester);
+
+      expect(find.widgetWithText(AppBar, l10n.authResetPasswordTitle), findsOneWidget);
+      expect(find.byType(NavigationBar), findsNothing);
+    });
+
+    testWidgets('saving the new password enters the app', (tester) async {
+      await openResetLink(tester);
+
+      await tester.enterText(
+        find.widgetWithText(TextFormField, l10n.authNewPasswordLabel),
+        'new-password',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, l10n.authConfirmPasswordLabel),
+        'new-password',
+      );
+      await tester.tap(find.widgetWithText(FilledButton, l10n.authResetPasswordSubmit));
+      await tester.pumpAndSettle();
+
+      expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+    });
+
+    testWidgets('cancel signs out to login', (tester) async {
+      await openResetLink(tester);
+
+      await tester.tap(find.text(l10n.authResetPasswordCancel));
+      await tester.pumpAndSettle();
+
+      expect(find.widgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
+    });
+  });
+
+  group('failed email links', () {
+    testWidgets('an expired link shows a message on the login screen', (tester) async {
+      final auth = FakeAuthRepository(currentUser: null);
+      await pumpApp(tester, auth: auth);
+
+      auth.emitLinkError(const AuthFailure('link', reason: AuthFailureReason.linkExpired));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.errorAuthLinkExpired), findsOneWidget);
+      expect(find.widgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
+    });
+
+    testWidgets('an invalid link inside the app shows a message and stays put', (tester) async {
+      final auth = FakeAuthRepository();
+      await pumpApp(tester, auth: auth);
+
+      auth.emitLinkError(const AuthFailure('link', reason: AuthFailureReason.linkInvalid));
+      await tester.pumpAndSettle();
+
+      expect(find.text(l10n.errorAuthLinkInvalid), findsOneWidget);
+      expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+    });
+  });
+
+  testWidgets('a new user goes through onboarding, then reaches the dashboard', (tester) async {
+    await pumpApp(tester, onboarded: false);
+
+    expect(find.widgetWithText(AppBar, l10n.onboardingTitle), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+
+    await tester.tap(find.text(l10n.onboardingContinue));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+  });
+
+  testWidgets('login links to sign-up', (tester) async {
+    await pumpApp(tester, auth: FakeAuthRepository(currentUser: null));
+
+    await tester.tap(find.text(l10n.authLoginGoToSignUp));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, l10n.authSignUpTitle), findsOneWidget);
+  });
+
+  testWidgets('login links to forgot-password with the typed email', (tester) async {
+    await pumpApp(tester, auth: FakeAuthRepository(currentUser: null));
+
+    await tester.enterText(find.widgetWithText(TextFormField, l10n.authEmailLabel), 'me@x.io');
+    await tester.tap(find.text(l10n.authLoginForgotPassword));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, l10n.authForgotPasswordTitle), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'me@x.io'), findsOneWidget);
+  });
+
+  testWidgets('signing out redirects to login, signing in returns to the app', (tester) async {
+    final auth = FakeAuthRepository();
+    await pumpApp(tester, auth: auth);
+
+    auth.emit(null);
     await tester.pumpAndSettle();
     expect(find.widgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
 
-    container.read(authStatusControllerProvider.notifier).set(AuthStatus.signedIn);
+    auth.emit(testUser);
     await tester.pumpAndSettle();
     expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+  });
+
+  testWidgets('logging out from settings clears local data and lands on login', (tester) async {
+    final container = await pumpApp(tester);
+
+    await tester.tap(
+      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, l10n.settingsLogout));
+    await tester.pumpAndSettle();
+    // The seeded profile has never synced, so the real pending count (1) triggers the warning.
+    final dialog = find.byType(AlertDialog);
+    expect(
+      find.descendant(of: dialog, matching: find.text(l10n.settingsLogoutPendingMessage(1))),
+      findsOneWidget,
+    );
+    await tester.tap(find.descendant(of: dialog, matching: find.text(l10n.settingsLogoutAnyway)));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
+    final profile = await tester.runAsync(
+      () => container.read(databaseProvider).profilesDao.getProfile(testUser.id),
+    );
+    expect(profile, isNull);
   });
 
   testWidgets('theme picker in settings switches to dark mode and persists it', (tester) async {

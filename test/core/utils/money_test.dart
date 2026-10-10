@@ -32,6 +32,12 @@ void main() {
     });
   });
 
+  test('fromMajor uses the currency decimal digits', () {
+    expect(Money.fromMajor(1234, currencyCode: 'USD'), const Money(123400));
+    expect(Money.fromMajor(1234, currencyCode: 'JPY'), const Money(1234));
+    expect(Money.fromMajor(1, currencyCode: 'KWD'), const Money(1000));
+  });
+
   group('decimalDigitsFor', () {
     test('uses the currency minor unit', () {
       expect(Money.decimalDigitsFor('USD'), 2);

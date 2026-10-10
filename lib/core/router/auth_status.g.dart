@@ -11,7 +11,7 @@ part of 'auth_status.dart';
 /// The session state the router redirects on.
 ///
 /// Lives in core so the router does not import a feature. The auth feature drives it via
-/// [AuthStatusController.set].
+/// [AuthStatusController.set] (`authStatusBindingProvider`).
 
 @ProviderFor(AuthStatusController)
 final authStatusControllerProvider = AuthStatusControllerProvider._();
@@ -19,13 +19,13 @@ final authStatusControllerProvider = AuthStatusControllerProvider._();
 /// The session state the router redirects on.
 ///
 /// Lives in core so the router does not import a feature. The auth feature drives it via
-/// [AuthStatusController.set].
+/// [AuthStatusController.set] (`authStatusBindingProvider`).
 final class AuthStatusControllerProvider
     extends $NotifierProvider<AuthStatusController, AuthStatus> {
   /// The session state the router redirects on.
   ///
   /// Lives in core so the router does not import a feature. The auth feature drives it via
-  /// [AuthStatusController.set].
+  /// [AuthStatusController.set] (`authStatusBindingProvider`).
   AuthStatusControllerProvider._()
     : super(
         from: null,
@@ -53,12 +53,12 @@ final class AuthStatusControllerProvider
   }
 }
 
-String _$authStatusControllerHash() => r'535e9be6ca6c87c076324d230c41fec4c4a4ac17';
+String _$authStatusControllerHash() => r'423349a7c0b23fc8f58bf51c378baff3e912fa90';
 
 /// The session state the router redirects on.
 ///
 /// Lives in core so the router does not import a feature. The auth feature drives it via
-/// [AuthStatusController.set].
+/// [AuthStatusController.set] (`authStatusBindingProvider`).
 
 abstract class _$AuthStatusController extends $Notifier<AuthStatus> {
   AuthStatus build();

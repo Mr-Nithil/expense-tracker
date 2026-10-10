@@ -128,4 +128,28 @@ void main() {
       expect(count.read<int>('c'), 0, reason: table.actualTableName);
     }
   });
+
+  group('countPendingRows', () {
+    test('is 0 for an empty database', () async {
+      expect(await db.countPendingRows(), 0);
+    });
+
+    test('counts pending rows across synced tables and ignores synced ones', () async {
+      final food = await db.into(db.categories).insertReturning(category());
+      await db
+          .into(db.categories)
+          .insert(
+            category().copyWith(syncStatus: const Value(SyncStatus.synced)),
+          );
+      await db.into(db.transactions).insert(transaction(categoryId: food.id));
+      await db
+          .into(db.transactions)
+          .insert(
+            transaction(categoryId: food.id).copyWith(deletedAt: Value(now)),
+          );
+      await db.appSettingsDao.setValue('theme_mode', 'dark');
+
+      expect(await db.countPendingRows(), 3);
+    });
+  });
 }
