@@ -44,3 +44,15 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Secrets (see env.example.json). Never commit.
+env.json
+*.keystore
+*.jks
+/android/key.properties
+
+# Generated code (*.g.dart, *.freezed.dart, l10n) is intentionally COMMITTED.
+
+# Claude Code: project instructions, skills and settings (kept local, not committed)
+/.claude/
+/CLAUDE.md

@@ -1,0 +1,63 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Expense Tracker",
+  "@appTitle": { "description": "App name shown in the task switcher and title bar" },
+
+  "authLoginTitle": "Sign in",
+  "@authLoginTitle": { "description": "Title of the login screen" },
+
+  "budgetTitle": "Budget",
+  "@budgetTitle": { "description": "Title of the budget tab and its bottom navigation label" },
+
+  "commonCancel": "Cancel",
+  "@commonCancel": { "description": "Generic cancel button" },
+  "commonComingSoonMessage": "This screen is still being built.",
+  "@commonComingSoonMessage": { "description": "Body text of a placeholder screen" },
+  "commonComingSoonTitle": "Coming soon",
+  "@commonComingSoonTitle": { "description": "Title of a placeholder screen" },
+  "commonConfirm": "Confirm",
+  "@commonConfirm": { "description": "Generic confirm button in dialogs" },
+  "commonDelete": "Delete",
+  "@commonDelete": { "description": "Generic delete button" },
+  "commonLoading": "Loading",
+  "@commonLoading": { "description": "Accessibility label for a loading indicator" },
+  "commonRetry": "Retry",
+  "@commonRetry": { "description": "Button to retry a failed action" },
+  "commonSave": "Save",
+  "@commonSave": { "description": "Generic save button" },
+  "commonSeeAll": "See all",
+  "@commonSeeAll": { "description": "Section header action that opens the full list" },
+  "commonUndo": "Undo",
+  "@commonUndo": { "description": "Snackbar action that reverts the last change" },
+
+  "dashboardTitle": "Dashboard",
+  "@dashboardTitle": { "description": "Title of the dashboard tab and its bottom navigation label" },
+
+  "errorAuth": "Your session has ended. Please sign in again.",
+  "@errorAuth": { "description": "Shown for AuthFailure" },
+  "errorNetwork": "Can't reach the server. Check your connection and try again.",
+  "@errorNetwork": { "description": "Shown for NetworkFailure" },
+  "errorNotFound": "We couldn't find that item. It may have been deleted.",
+  "@errorNotFound": { "description": "Shown for NotFoundFailure" },
+  "errorStorage": "Couldn't save on this device. Please try again.",
+  "@errorStorage": { "description": "Shown for StorageFailure" },
+  "errorUnexpected": "Something went wrong. Please try again.",
+  "@errorUnexpected": { "description": "Shown for UnexpectedFailure and unknown errors" },
+  "errorValidation": "Please check the highlighted fields.",
+  "@errorValidation": { "description": "Shown for ValidationFailure when no field-specific message exists" },
+
+  "settingsThemeDark": "Dark",
+  "@settingsThemeDark": { "description": "Theme option: always dark" },
+  "settingsThemeLabel": "Theme",
+  "@settingsThemeLabel": { "description": "Label of the theme mode setting" },
+  "settingsThemeLight": "Light",
+  "@settingsThemeLight": { "description": "Theme option: always light" },
+  "settingsThemeSystem": "System",
+  "@settingsThemeSystem": { "description": "Theme option: follow the device setting" },
+  "settingsTitle": "Settings",
+  "@settingsTitle": { "description": "Title of the settings tab and its bottom navigation label" },
+
+  "transactionsTitle": "Transactions",
+  "@transactionsTitle": { "description": "Title of the transactions tab and its bottom navigation label" }
+}

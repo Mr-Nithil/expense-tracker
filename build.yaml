@@ -1,0 +1,11 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          # ISO-8601 text keeps millisecond precision (needed for last-write-wins on updated_at).
+          store_date_time_values_as_text: true
+          databases:
+            app_database: lib/core/db/app_database.dart
+          schema_dir: drift_schemas/
+          test_dir: test/core/db/migrations/
