@@ -94,6 +94,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authShowPassword => 'Show password';
 
   @override
+  String get authSplashSyncing => 'Getting your data…';
+
+  @override
   String get authSignUpConfirmEmailSent =>
       'Account created. Check your email to confirm it, then sign in.';
 
@@ -402,6 +405,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsManageLabel => 'Manage';
 
   @override
+  String get settingsSyncLabel => 'Sync';
+
+  @override
   String get settingsThemeDark => 'Dark';
 
   @override
@@ -415,6 +421,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsTitle => 'Settings';
+
+  @override
+  String get syncNow => 'Sync now';
+
+  @override
+  String get syncStatusError => 'Couldn\'t sync. We\'ll keep trying.';
+
+  @override
+  String get syncStatusOffline => 'Offline. Changes will sync when you\'re back online.';
+
+  @override
+  String syncStatusPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes waiting to sync',
+      one: '1 change waiting to sync',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncStatusSynced => 'All changes synced';
+
+  @override
+  String get syncStatusSyncing => 'Syncing…';
 
   @override
   String get transactionDeleted => 'Transaction deleted';

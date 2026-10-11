@@ -53,4 +53,4 @@ final class CategoryRepositoryProvider
   }
 }
 
-String _$categoryRepositoryHash() => r'd6a6bd86259c08ed90db5207f84060f12eda7035';
+String _$categoryRepositoryHash() => r'62c393af86ad1975166e46b3c7d53a6323e09467';

@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'fake_sync_trigger.dart';
+
 /// A fresh in-memory database, closed automatically at the end of the test.
 AppDatabase createTestDatabase() {
   final db = AppDatabase(
@@ -16,10 +18,21 @@ AppDatabase createTestDatabase() {
 }
 
 /// A [ProviderContainer] backed by an in-memory database, disposed at the end of the test.
-ProviderContainer createTestContainer({AppDatabase? db, List<Override> overrides = const []}) {
+///
+/// Sync is never triggered for real: repositories get a [FakeSyncTrigger] ([syncTrigger] lets a
+/// test pass its own to inspect it), so no test reaches Supabase.
+ProviderContainer createTestContainer({
+  AppDatabase? db,
+  FakeSyncTrigger? syncTrigger,
+  List<Override> overrides = const [],
+}) {
   final container = ProviderContainer(
     retry: noAutoRetry,
-    overrides: [databaseProvider.overrideWithValue(db ?? createTestDatabase()), ...overrides],
+    overrides: [
+      databaseProvider.overrideWithValue(db ?? createTestDatabase()),
+      (syncTrigger ?? FakeSyncTrigger()).providerOverride,
+      ...overrides,
+    ],
   );
   addTearDown(container.dispose);
   return container;

@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Profile {
 
- String get id; String? get displayName; String? get currencyCode;
+ String get id; String? get displayName; String? get currencyCode; AppThemeMode get themeMode;
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $ProfileCopyWith<Profile> get copyWith => _$ProfileCopyWithImpl<Profile>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.currencyCode, currencyCode) || other.currencyCode == currencyCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.currencyCode, currencyCode) || other.currencyCode == currencyCode)&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,displayName,currencyCode);
+int get hashCode => Object.hash(runtimeType,id,displayName,currencyCode,themeMode);
 
 @override
 String toString() {
-  return 'Profile(id: $id, displayName: $displayName, currencyCode: $currencyCode)';
+  return 'Profile(id: $id, displayName: $displayName, currencyCode: $currencyCode, themeMode: $themeMode)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $ProfileCopyWith<$Res>  {
   factory $ProfileCopyWith(Profile value, $Res Function(Profile) _then) = _$ProfileCopyWithImpl;
 @useResult
 $Res call({
- String id, String? displayName, String? currencyCode
+ String id, String? displayName, String? currencyCode, AppThemeMode themeMode
 });
 
 
@@ -62,12 +62,13 @@ class _$ProfileCopyWithImpl<$Res>
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? displayName = freezed,Object? currencyCode = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? displayName = freezed,Object? currencyCode = freezed,Object? themeMode = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,displayName: freezed == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String?,currencyCode: freezed == currencyCode ? _self.currencyCode : currencyCode // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,themeMode: null == themeMode ? _self.themeMode : themeMode // ignore: cast_nullable_to_non_nullable
+as AppThemeMode,
   ));
 }
 
@@ -152,10 +153,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? displayName,  String? currencyCode)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? displayName,  String? currencyCode,  AppThemeMode themeMode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Profile() when $default != null:
-return $default(_that.id,_that.displayName,_that.currencyCode);case _:
+return $default(_that.id,_that.displayName,_that.currencyCode,_that.themeMode);case _:
   return orElse();
 
 }
@@ -173,10 +174,10 @@ return $default(_that.id,_that.displayName,_that.currencyCode);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? displayName,  String? currencyCode)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? displayName,  String? currencyCode,  AppThemeMode themeMode)  $default,) {final _that = this;
 switch (_that) {
 case _Profile():
-return $default(_that.id,_that.displayName,_that.currencyCode);case _:
+return $default(_that.id,_that.displayName,_that.currencyCode,_that.themeMode);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -193,10 +194,10 @@ return $default(_that.id,_that.displayName,_that.currencyCode);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? displayName,  String? currencyCode)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? displayName,  String? currencyCode,  AppThemeMode themeMode)?  $default,) {final _that = this;
 switch (_that) {
 case _Profile() when $default != null:
-return $default(_that.id,_that.displayName,_that.currencyCode);case _:
+return $default(_that.id,_that.displayName,_that.currencyCode,_that.themeMode);case _:
   return null;
 
 }
@@ -208,12 +209,13 @@ return $default(_that.id,_that.displayName,_that.currencyCode);case _:
 
 
 class _Profile extends Profile {
-  const _Profile({required this.id, this.displayName, this.currencyCode}): super._();
+  const _Profile({required this.id, this.displayName, this.currencyCode, this.themeMode = AppThemeMode.system}): super._();
   
 
 @override final  String id;
 @override final  String? displayName;
 @override final  String? currencyCode;
+@override@JsonKey() final  AppThemeMode themeMode;
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
@@ -225,16 +227,16 @@ _$ProfileCopyWith<_Profile> get copyWith => __$ProfileCopyWithImpl<_Profile>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.currencyCode, currencyCode) || other.currencyCode == currencyCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.currencyCode, currencyCode) || other.currencyCode == currencyCode)&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,displayName,currencyCode);
+int get hashCode => Object.hash(runtimeType,id,displayName,currencyCode,themeMode);
 
 @override
 String toString() {
-  return 'Profile(id: $id, displayName: $displayName, currencyCode: $currencyCode)';
+  return 'Profile(id: $id, displayName: $displayName, currencyCode: $currencyCode, themeMode: $themeMode)';
 }
 
 
@@ -245,7 +247,7 @@ abstract mixin class _$ProfileCopyWith<$Res> implements $ProfileCopyWith<$Res> {
   factory _$ProfileCopyWith(_Profile value, $Res Function(_Profile) _then) = __$ProfileCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String? displayName, String? currencyCode
+ String id, String? displayName, String? currencyCode, AppThemeMode themeMode
 });
 
 
@@ -262,12 +264,13 @@ class __$ProfileCopyWithImpl<$Res>
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? displayName = freezed,Object? currencyCode = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? displayName = freezed,Object? currencyCode = freezed,Object? themeMode = null,}) {
   return _then(_Profile(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,displayName: freezed == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String?,currencyCode: freezed == currencyCode ? _self.currencyCode : currencyCode // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,themeMode: null == themeMode ? _self.themeMode : themeMode // ignore: cast_nullable_to_non_nullable
+as AppThemeMode,
   ));
 }
 

@@ -2,6 +2,7 @@ import 'package:expense_tracker/core/extensions/build_context_x.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations.dart';
 import 'package:expense_tracker/core/l10n/locale_controller.dart';
 import 'package:expense_tracker/core/router/app_router.dart';
+import 'package:expense_tracker/core/sync/sync_scheduler.dart';
 import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:expense_tracker/core/theme/theme_mode_controller.dart';
 import 'package:expense_tracker/features/auth/presentation/providers/auth_state_provider.dart';
@@ -16,6 +17,8 @@ class App extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Starts the session → router binding for the app's lifetime.
     ref.watch(authStatusBindingProvider);
+    // Automatic sync while signed in (start, resume, connectivity).
+    ref.watch(syncSchedulerProvider);
     return MaterialApp.router(
       onGenerateTitle: (context) => context.l10n.appTitle,
       debugShowCheckedModeBanner: false,

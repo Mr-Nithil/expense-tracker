@@ -152,4 +152,24 @@ void main() {
       expect(await db.countPendingRows(), 3);
     });
   });
+
+  test('watchPendingCount follows inserts, syncs and pending deletes', () async {
+    final counts = <int>[];
+    final subscription = db.watchPendingCount().listen(counts.add);
+    addTearDown(subscription.cancel);
+    await pumpEventQueue();
+
+    final food = await db.into(db.categories).insertReturning(category());
+    await pumpEventQueue();
+    await (db.update(db.categories)..where((c) => c.id.equals(food.id))).write(
+      const CategoriesCompanion(syncStatus: Value(SyncStatus.synced)),
+    );
+    await pumpEventQueue();
+    await (db.update(db.categories)..where((c) => c.id.equals(food.id))).write(
+      CategoriesCompanion(deletedAt: Value(now), syncStatus: const Value(SyncStatus.pending)),
+    );
+    await pumpEventQueue();
+
+    expect(counts, [0, 1, 0, 1]);
+  });
 }

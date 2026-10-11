@@ -6,6 +6,7 @@ import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/logging/app_logger.dart';
 import 'package:expense_tracker/core/session/session.dart';
+import 'package:expense_tracker/core/sync/sync_trigger.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/core/utils/currencies.dart';
 import 'package:expense_tracker/features/profile/data/mappers.dart';
@@ -14,11 +15,17 @@ import 'package:expense_tracker/features/profile/domain/profile_repository.dart'
 
 /// [ProfileRepository] backed by the local `profiles` table.
 class ProfileRepositoryImpl implements ProfileRepository {
-  ProfileRepositoryImpl({required this.dao, required this.clock, required this.session});
+  ProfileRepositoryImpl({
+    required this.dao,
+    required this.clock,
+    required this.session,
+    required this.syncTrigger,
+  });
 
   final ProfilesDao dao;
   final Clock clock;
   final Session session;
+  final SyncTrigger syncTrigger;
 
   static const currencyField = 'currencyCode';
 
@@ -73,6 +80,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
         }
 
         final saved = await dao.getProfile(user.userId);
+        syncTrigger.requestSync();
         return Result.success(saved!.toEntity());
       });
     } on StateError catch (_) {
@@ -80,6 +88,53 @@ class ProfileRepositoryImpl implements ProfileRepository {
     } catch (error, stackTrace) {
       AppLogger.error('setCurrency failed', error, stackTrace);
       return Result.failure(StorageFailure('setCurrency: $error'));
+    }
+  }
+
+  @override
+  Future<Result<Profile>> setThemeMode(AppThemeMode mode) async {
+    try {
+      final user = session.requireUser();
+      return await dao.transaction(() async {
+        final existing = await dao.getProfile(user.userId);
+        if (existing != null && existing.themeMode == mode.dbValue) {
+          return Result.success(existing.toEntity());
+        }
+
+        final now = clock.now().toUtc();
+        if (existing == null) {
+          // Same as setCurrency: create the row, carrying the display name.
+          await dao.insertProfile(
+            ProfilesCompanion.insert(
+              id: user.userId,
+              userId: user.userId,
+              createdAt: now,
+              updatedAt: now,
+              displayName: Value(user.displayName),
+              themeMode: Value(mode.dbValue),
+              syncStatus: const Value(SyncStatus.pending),
+            ),
+          );
+        } else {
+          await dao.updateProfile(
+            user.userId,
+            ProfilesCompanion(
+              themeMode: Value(mode.dbValue),
+              updatedAt: Value(now),
+              syncStatus: const Value(SyncStatus.pending),
+            ),
+          );
+        }
+
+        final saved = await dao.getProfile(user.userId);
+        syncTrigger.requestSync();
+        return Result.success(saved!.toEntity());
+      });
+    } on StateError catch (_) {
+      return const Result.failure(AuthFailure('setThemeMode: no session'));
+    } catch (error, stackTrace) {
+      AppLogger.error('setThemeMode failed', error, stackTrace);
+      return Result.failure(StorageFailure('setThemeMode: $error'));
     }
   }
 }

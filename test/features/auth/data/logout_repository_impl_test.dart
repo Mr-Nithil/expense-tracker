@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:expense_tracker/core/db/app_database.dart';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/services/secure_storage_service.dart';
+import 'package:expense_tracker/core/sync/sync_service.dart';
 import 'package:expense_tracker/features/auth/data/local_data_repository_impl.dart';
 import 'package:expense_tracker/features/auth/data/logout_repository_impl.dart';
 import 'package:expense_tracker/features/auth/domain/auth_repository.dart';
@@ -14,6 +17,8 @@ class _MockAuthRepository extends Mock implements AuthRepository {}
 
 class _MockSecureStorage extends Mock implements SecureStorageService {}
 
+class _MockSyncService extends Mock implements SyncService {}
+
 void main() {
   const userId = 'u1';
   final now = DateTime.utc(2026, 10, 10);
@@ -21,7 +26,17 @@ void main() {
   late AppDatabase db;
   late _MockAuthRepository auth;
   late _MockSecureStorage storage;
+  late _MockSyncService sync;
   late LogoutRepositoryImpl repository;
+
+  LogoutRepositoryImpl build({Duration timeout = LogoutRepositoryImpl.defaultSyncTimeout}) =>
+      LogoutRepositoryImpl(
+        auth: auth,
+        db: db,
+        localData: LocalDataRepositoryImpl(db: db, secureStorage: storage, sync: sync),
+        sync: sync,
+        syncTimeout: timeout,
+      );
 
   setUp(() {
     db = createTestDatabase();
@@ -29,11 +44,12 @@ void main() {
     storage = _MockSecureStorage();
     when(() => auth.signOut()).thenAnswer((_) async => Result.ok);
     when(() => storage.deleteAll()).thenAnswer((_) async {});
-    repository = LogoutRepositoryImpl(
-      auth: auth,
-      db: db,
-      localData: LocalDataRepositoryImpl(db: db, secureStorage: storage),
+    sync = _MockSyncService();
+    when(() => sync.run()).thenAnswer(
+      (_) async => const Result.success(SyncReport(pushed: 0, pulled: 0)),
     );
+    when(() => sync.whenIdle()).thenAnswer((_) async {});
+    repository = build();
   });
 
   Future<void> seedPendingProfile() => db.profilesDao.insertProfile(
@@ -77,5 +93,46 @@ void main() {
     final result = await repository.pendingChangesCount();
 
     expect(result.failureOrNull, isA<StorageFailure>());
+  });
+
+  group('final sync', () {
+    test('runs before signing out', () async {
+      await repository.logout();
+
+      verifyInOrder([() => sync.run(), () => auth.signOut()]);
+    });
+
+    test('a failed sync (e.g. offline) does not block logout', () async {
+      when(
+        () => sync.run(),
+      ).thenAnswer((_) async => const Result.failure(NetworkFailure('offline')));
+
+      expect((await repository.logout()).isSuccess, isTrue);
+      verify(() => auth.signOut()).called(1);
+    });
+
+    test('a sync that never finishes is cut off by the timeout', () async {
+      when(() => sync.run()).thenAnswer((_) => Completer<Result<SyncReport>>().future);
+
+      final result = await build(timeout: const Duration(milliseconds: 10)).logout();
+
+      expect(result.isSuccess, isTrue);
+      verify(() => auth.signOut()).called(1);
+    });
+
+    test('the wipe waits until no sync is running', () async {
+      await seedPendingProfile();
+      final idle = Completer<void>();
+      when(() => sync.whenIdle()).thenAnswer((_) => idle.future);
+
+      final loggingOut = repository.logout();
+      await pumpEventQueue();
+      verify(() => auth.signOut()).called(1);
+      expect(await db.profilesDao.getProfile(userId), isNotNull);
+
+      idle.complete();
+      await loggingOut;
+      expect(await db.profilesDao.getProfile(userId), isNull);
+    });
   });
 }

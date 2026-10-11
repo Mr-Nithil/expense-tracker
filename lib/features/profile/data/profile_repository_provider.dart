@@ -1,5 +1,6 @@
 import 'package:expense_tracker/core/db/database_provider.dart';
 import 'package:expense_tracker/core/session/session.dart';
+import 'package:expense_tracker/core/sync/sync_trigger.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/features/profile/data/profile_repository_impl.dart';
 import 'package:expense_tracker/features/profile/domain/profile_repository.dart';
@@ -13,4 +14,5 @@ ProfileRepository profileRepository(Ref ref) => ProfileRepositoryImpl(
   dao: ref.watch(databaseProvider).profilesDao,
   clock: ref.watch(clockProvider),
   session: ref.watch(sessionProvider.notifier),
+  syncTrigger: ref.watch(syncTriggerProvider),
 );

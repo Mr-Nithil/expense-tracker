@@ -9,6 +9,7 @@ import 'package:expense_tracker/features/profile/domain/entities/profile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/fake_sync_trigger.dart';
 import '../../../helpers/test_database.dart';
 
 void main() {
@@ -19,9 +20,11 @@ void main() {
   late AppDatabase db;
   late Session session;
   late ProfileRepositoryImpl repository;
+  late FakeSyncTrigger trigger;
 
   setUp(() {
     db = createTestDatabase();
+    trigger = FakeSyncTrigger();
     final container = ProviderContainer();
     addTearDown(container.dispose);
     session = container.read(sessionProvider.notifier)
@@ -30,6 +33,7 @@ void main() {
       dao: db.profilesDao,
       clock: FixedClock(now),
       session: session,
+      syncTrigger: trigger,
     );
   });
 
@@ -122,5 +126,51 @@ void main() {
     final result = await repository.setCurrency('USD');
 
     expect(result.failureOrNull, isA<StorageFailure>());
+  });
+
+  test('saving the currency asks for a sync; a rejected one does not', () async {
+    await repository.setCurrency('XXX');
+    expect(trigger.requests, 0);
+
+    await repository.setCurrency('LKR');
+    expect(trigger.requests, 1);
+  });
+
+  group('setThemeMode', () {
+    test('updates the theme, marks the row pending and asks for a sync', () async {
+      await seedRow(currency: 'USD');
+
+      final result = await repository.setThemeMode(AppThemeMode.dark);
+
+      expect(result.valueOrNull?.themeMode, AppThemeMode.dark);
+      final row = (await storedRow())!;
+      expect(row.themeMode, 'dark');
+      expect(row.updatedAt, now);
+      expect(row.syncStatus, SyncStatus.pending);
+      expect(row.currencyCode, 'USD');
+      expect(trigger.requests, 1);
+    });
+
+    test('saving the current theme again changes nothing', () async {
+      await seedRow(currency: 'USD');
+      await repository.setThemeMode(AppThemeMode.light);
+      trigger.requests = 0;
+
+      await repository.setThemeMode(AppThemeMode.light);
+
+      expect(trigger.requests, 0);
+    });
+
+    test('creates the profile row when there is none yet', () async {
+      final result = await repository.setThemeMode(AppThemeMode.light);
+
+      expect(result.valueOrNull?.themeMode, AppThemeMode.light);
+      expect((await storedRow())?.displayName, 'Nithil');
+    });
+
+    test('fails with AuthFailure without a session', () async {
+      session.set(null);
+      expect((await repository.setThemeMode(AppThemeMode.dark)).failureOrNull, isA<AuthFailure>());
+    });
   });
 }

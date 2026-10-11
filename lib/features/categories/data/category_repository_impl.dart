@@ -6,6 +6,7 @@ import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/logging/app_logger.dart';
 import 'package:expense_tracker/core/session/session.dart';
+import 'package:expense_tracker/core/sync/sync_trigger.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/core/utils/id.dart';
 import 'package:expense_tracker/features/categories/data/mappers.dart';
@@ -16,11 +17,17 @@ import 'package:expense_tracker/features/categories/domain/services/default_cate
 
 /// [CategoryRepository] backed by the local `categories` table.
 class CategoryRepositoryImpl implements CategoryRepository {
-  CategoryRepositoryImpl({required this.dao, required this.clock, required this.session});
+  CategoryRepositoryImpl({
+    required this.dao,
+    required this.clock,
+    required this.session,
+    required this.syncTrigger,
+  });
 
   final CategoriesDao dao;
   final Clock clock;
   final Session session;
+  final SyncTrigger syncTrigger;
 
   static const _duplicateName = ValidationFailure(
     CategoryValidator.duplicateName,
@@ -79,7 +86,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
           syncStatus: const Value(SyncStatus.pending),
         ),
       );
-      // TODO(M3.6): syncTrigger.requestSync().
+      syncTrigger.requestSync();
       return Result.success((await dao.getById(userId, id))!.toEntity());
     });
   }
@@ -128,7 +135,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
           syncStatus: const Value(SyncStatus.pending),
         ),
       );
-      // TODO(M3.6): syncTrigger.requestSync().
+      syncTrigger.requestSync();
       return Result.success((await dao.getById(userId, category.id))!.toEntity());
     });
   }
@@ -153,7 +160,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
           syncStatus: const Value(SyncStatus.pending),
         ),
       );
-      // TODO(M3.6): syncTrigger.requestSync().
+      syncTrigger.requestSync();
       return Result.ok;
     });
   }
@@ -202,7 +209,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
         );
         inserted++;
       }
-      // TODO(M3.6): syncTrigger.requestSync().
+      if (inserted > 0) syncTrigger.requestSync();
       return Result.success(inserted);
     });
   }

@@ -2,10 +2,10 @@ import 'package:drift/drift.dart' show Value;
 import 'package:expense_tracker/app.dart';
 import 'package:expense_tracker/core/db/app_database.dart';
 import 'package:expense_tracker/core/db/database_provider.dart';
+import 'package:expense_tracker/core/db/tables/sync_columns.dart';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
 import 'package:expense_tracker/core/services/secure_storage_service.dart';
-import 'package:expense_tracker/core/theme/theme_mode_controller.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:expense_tracker/features/categories/domain/services/default_categories.dart';
@@ -16,6 +16,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'helpers/fake_auth_repository.dart';
+import 'helpers/fake_connectivity_service.dart';
+import 'helpers/fake_sync_gateway.dart';
 import 'helpers/test_database.dart';
 
 class _MockSecureStorage extends Mock implements SecureStorageService {}
@@ -52,6 +54,9 @@ void main() {
         // A fixed date, so "Today", default dates and month labels don't depend on when tests run.
         clockProvider.overrideWithValue(FixedClock(DateTime(2026, 10, 11, 9))),
         (auth ?? FakeAuthRepository()).providerOverride,
+        // No network in tests: sync fails like it would offline.
+        FakeSyncGateway().providerOverride,
+        FakeConnectivityService().providerOverride,
         secureStorageServiceProvider.overrideWithValue(secureStorage),
       ],
     );
@@ -417,6 +422,9 @@ void main() {
     expect(rows.single.type, 'expense');
     expect(rows.single.categoryId, DefaultCategories.idFor(testUser.id, 'food'));
 
+    // The server is unreachable in tests: the indicator says offline, not synced.
+    expect(find.byTooltip(l10n.syncStatusOffline), findsOneWidget);
+
     // The list follows the database: no manual refresh needed.
     expect(find.text(l10n.commonToday), findsOneWidget);
     expect(find.text(r'-$12.50'), findsWidgets);
@@ -458,7 +466,9 @@ void main() {
     expect(find.text(l10n.categoryDefaultFood), findsOneWidget);
   });
 
-  testWidgets('theme picker in settings switches to dark mode and persists it', (tester) async {
+  testWidgets('theme picker in settings switches to dark mode and saves it on the profile', (
+    tester,
+  ) async {
     final container = await pumpApp(tester);
 
     await tester.tap(
@@ -470,10 +480,11 @@ void main() {
 
     final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
     expect(app.themeMode, ThemeMode.dark);
-    final stored = await tester.runAsync(
-      () =>
-          container.read(databaseProvider).appSettingsDao.getValue(ThemeModeController.settingsKey),
+    // Stored on the profile (synced), not only on this device.
+    final profile = await tester.runAsync(
+      () => container.read(databaseProvider).profilesDao.getProfile(testUser.id),
     );
-    expect(stored, 'dark');
+    expect(profile?.themeMode, 'dark');
+    expect(profile?.syncStatus, SyncStatus.pending);
   });
 }

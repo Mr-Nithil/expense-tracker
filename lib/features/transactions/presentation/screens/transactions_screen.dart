@@ -2,9 +2,12 @@ import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/extensions/build_context_x.dart';
 import 'package:expense_tracker/core/l10n/failure_l10n.dart';
 import 'package:expense_tracker/core/router/routes.dart';
+import 'package:expense_tracker/core/sync/sync_status_button.dart';
+import 'package:expense_tracker/core/sync/sync_trigger.dart';
 import 'package:expense_tracker/core/theme/app_spacing.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/core/utils/date_utils.dart';
+import 'package:expense_tracker/core/widgets/always_scrollable.dart';
 import 'package:expense_tracker/core/widgets/app_scaffold.dart';
 import 'package:expense_tracker/core/widgets/async_value_view.dart';
 import 'package:expense_tracker/core/widgets/empty_state.dart';
@@ -39,6 +42,8 @@ class TransactionsScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: l10n.transactionsTitle,
+      actions: const [SyncStatusButton()],
+      onRefresh: () => _refresh(context, ref),
       floatingActionButton: FloatingActionButton(
         tooltip: l10n.transactionsAdd,
         onPressed: () => TransactionFormSheet.show(context),
@@ -58,23 +63,27 @@ class TransactionsScreen extends ConsumerWidget {
                 data: (days) => days.isNotEmpty
                     ? _DayList(days: days, today: today, currencyCode: currencyCode)
                     : filter.isNarrowed
-                    ? EmptyState(
-                        icon: Icons.filter_alt_off_outlined,
-                        title: l10n.transactionsNoMatchesTitle,
-                        message: l10n.transactionsNoMatchesMessage,
-                        actionLabel: l10n.transactionsClearFilters,
-                        onAction: ref
-                            .read(transactionFilterControllerProvider.notifier)
-                            .clearFilters,
-                      )
-                    : EmptyState(
-                        icon: Icons.receipt_long_outlined,
-                        title: l10n.transactionsEmptyTitle(
-                          AppDateUtils.formatMonthYear(filter.month, context.localeTag),
+                    ? AlwaysScrollable(
+                        child: EmptyState(
+                          icon: Icons.filter_alt_off_outlined,
+                          title: l10n.transactionsNoMatchesTitle,
+                          message: l10n.transactionsNoMatchesMessage,
+                          actionLabel: l10n.transactionsClearFilters,
+                          onAction: ref
+                              .read(transactionFilterControllerProvider.notifier)
+                              .clearFilters,
                         ),
-                        message: l10n.transactionsEmptyMessage,
-                        actionLabel: l10n.transactionsAdd,
-                        onAction: () => TransactionFormSheet.show(context),
+                      )
+                    : AlwaysScrollable(
+                        child: EmptyState(
+                          icon: Icons.receipt_long_outlined,
+                          title: l10n.transactionsEmptyTitle(
+                            AppDateUtils.formatMonthYear(filter.month, context.localeTag),
+                          ),
+                          message: l10n.transactionsEmptyMessage,
+                          actionLabel: l10n.transactionsAdd,
+                          onAction: () => TransactionFormSheet.show(context),
+                        ),
                       ),
               ),
             ),
@@ -83,6 +92,13 @@ class TransactionsScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Pull-to-refresh: sync now; say so if it failed (e.g. offline).
+Future<void> _refresh(BuildContext context, WidgetRef ref) async {
+  final result = await ref.read(syncTriggerProvider).syncNow();
+  if (!context.mounted) return;
+  if (result case Failure(:final failure)) context.showSnack(failure.toL10n(context));
 }
 
 class _DayList extends ConsumerStatefulWidget {

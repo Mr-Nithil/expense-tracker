@@ -58,20 +58,29 @@ class AppDatabase extends _$AppDatabase {
 
   /// Number of local changes not pushed yet (`sync_status = pending`) across all synced tables,
   /// including pending soft deletes. Used to warn before logout.
-  Future<int> countPendingRows() => transaction(() async {
-    var total = 0;
-    for (final table in allTables) {
-      final hasSyncStatus = table.$columns.any((column) => column.name == 'sync_status');
-      if (!hasSyncStatus) continue;
-      final row = await customSelect(
-        'SELECT COUNT(*) AS c FROM ${table.actualTableName} WHERE sync_status = ?',
-        variables: [Variable.withInt(SyncStatus.pending.index)],
-        readsFrom: {table},
-      ).getSingle();
-      total += row.read<int>('c');
-    }
-    return total;
-  });
+  Future<int> countPendingRows() => _pendingCountQuery().map(_readCount).getSingle();
+
+  /// [countPendingRows], re-emitted whenever any synced table changes (sync status indicator).
+  Stream<int> watchPendingCount() => _pendingCountQuery().map(_readCount).watchSingle();
+
+  /// One query summing the pending rows of every table with a `sync_status` column.
+  Selectable<QueryRow> _pendingCountQuery() {
+    final synced = [
+      for (final table in allTables)
+        if (table.$columns.any((column) => column.name == 'sync_status')) table,
+    ];
+    final parts = [
+      for (final table in synced)
+        '(SELECT COUNT(*) FROM "${table.actualTableName}" WHERE sync_status = ?)',
+    ];
+    return customSelect(
+      'SELECT ${parts.join(' + ')} AS c',
+      variables: [for (final _ in synced) Variable.withInt(SyncStatus.pending.index)],
+      readsFrom: synced.toSet(),
+    );
+  }
+
+  static int _readCount(QueryRow row) => row.read<int>('c');
 
   /// Deletes every row in every table (logout). Children first because of foreign keys.
   Future<void> clearAllData() => transaction(() async {

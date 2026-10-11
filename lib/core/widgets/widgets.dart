@@ -1,4 +1,5 @@
 // Core UI kit. See docs/CONVENTIONS.md §3.
+export 'always_scrollable.dart';
 export 'amount_field.dart';
 export 'amount_text.dart';
 export 'app_bottom_sheet.dart';
@@ -17,3 +18,4 @@ export 'message_layout.dart';
 export 'month_selector.dart';
 export 'section_header.dart';
 export 'swipe_to_delete.dart';
+export 'sync_status_indicator.dart';

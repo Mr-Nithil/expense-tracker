@@ -7,6 +7,7 @@ import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/logging/app_logger.dart';
 import 'package:expense_tracker/core/session/session.dart';
+import 'package:expense_tracker/core/sync/sync_trigger.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/core/utils/date_utils.dart';
 import 'package:expense_tracker/core/utils/id.dart';
@@ -23,12 +24,14 @@ class TransactionRepositoryImpl implements TransactionRepository {
     required this.categoriesDao,
     required this.clock,
     required this.session,
+    required this.syncTrigger,
   });
 
   final TransactionsDao dao;
   final CategoriesDao categoriesDao;
   final Clock clock;
   final Session session;
+  final SyncTrigger syncTrigger;
 
   static const _noSession = AuthFailure('transactions: no session');
   static const _notFound = NotFoundFailure('transaction');
@@ -94,7 +97,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
           syncStatus: const Value(SyncStatus.pending),
         ),
       );
-      // TODO(M3.6): syncTrigger.requestSync().
+      syncTrigger.requestSync();
       return Result.success((await dao.getById(userId, id))!.toEntity());
     });
   }
@@ -132,7 +135,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
           syncStatus: const Value(SyncStatus.pending),
         ),
       );
-      // TODO(M3.6): syncTrigger.requestSync().
+      syncTrigger.requestSync();
       return Result.success((await dao.getById(userId, transaction.id))!.toEntity());
     });
   }
@@ -162,7 +165,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
           syncStatus: const Value(SyncStatus.pending),
         ),
       );
-      // TODO(M3.6): syncTrigger.requestSync().
+      syncTrigger.requestSync();
       return Result.ok;
     });
   }

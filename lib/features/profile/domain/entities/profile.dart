@@ -2,10 +2,19 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'profile.freezed.dart';
 
+/// The app theme preference, stored on the profile so it follows the user across devices.
+/// (Flutter's `ThemeMode` stays out of the domain.)
+enum AppThemeMode { system, light, dark }
+
 /// The user's profile. One per user; `id` is the user id.
 @freezed
 abstract class Profile with _$Profile {
-  const factory Profile({required String id, String? displayName, String? currencyCode}) = _Profile;
+  const factory Profile({
+    required String id,
+    String? displayName,
+    String? currencyCode,
+    @Default(AppThemeMode.system) AppThemeMode themeMode,
+  }) = _Profile;
 
   const Profile._();
 

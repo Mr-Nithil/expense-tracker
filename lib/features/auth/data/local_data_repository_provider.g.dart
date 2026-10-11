@@ -53,4 +53,4 @@ final class LocalDataRepositoryProvider
   }
 }
 
-String _$localDataRepositoryHash() => r'86d1a165d6cc79e7f44c6d295ce5f349786f4f21';
+String _$localDataRepositoryHash() => r'15c5adc5d417eaf0ce60efa7a083d0a909a3db1b';

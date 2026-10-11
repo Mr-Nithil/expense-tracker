@@ -1,19 +1,24 @@
+import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/extensions/build_context_x.dart';
 import 'package:expense_tracker/core/l10n/failure_l10n.dart';
 import 'package:expense_tracker/core/router/routes.dart';
+import 'package:expense_tracker/core/sync/sync_status.dart';
+import 'package:expense_tracker/core/sync/sync_status_button.dart';
 import 'package:expense_tracker/core/theme/app_spacing.dart';
 import 'package:expense_tracker/core/theme/theme_mode_controller.dart';
 import 'package:expense_tracker/core/widgets/app_button.dart';
 import 'package:expense_tracker/core/widgets/app_scaffold.dart';
 import 'package:expense_tracker/core/widgets/confirm_dialog.dart';
 import 'package:expense_tracker/core/widgets/section_header.dart';
+import 'package:expense_tracker/core/widgets/sync_status_indicator.dart';
 import 'package:expense_tracker/features/auth/presentation/providers/logout_controller.dart';
+import 'package:expense_tracker/features/profile/presentation/providers/theme_mode_setter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
-/// Settings tab: theme mode, data management (categories) and logout. Built out in M4.14.
+/// Settings tab: theme mode, data management (categories), sync status and logout. Built out in M4.14.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -35,6 +40,13 @@ class SettingsScreen extends ConsumerWidget {
       isDestructive: true,
     );
     if (confirmed) await controller.logout();
+  }
+
+  /// Saved on the profile (synced); the picker follows `themeModeControllerProvider`.
+  Future<void> _setThemeMode(BuildContext context, WidgetRef ref, ThemeMode mode) async {
+    final result = await ref.read(themeModeSetterProvider.notifier).setThemeMode(mode);
+    if (!context.mounted) return;
+    if (result case Failure(:final failure)) context.showSnack(failure.toL10n(context));
   }
 
   @override
@@ -74,8 +86,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
             selected: {themeMode},
-            onSelectionChanged: (selection) =>
-                ref.read(themeModeControllerProvider.notifier).setThemeMode(selection.first),
+            onSelectionChanged: (selection) => _setThemeMode(context, ref, selection.first),
           ),
           const Gap(AppSpacing.lg),
           SectionHeader(title: l10n.settingsManageLabel),
@@ -85,6 +96,19 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.pushNamed(Routes.categories),
           ),
+          const Gap(AppSpacing.lg),
+          SectionHeader(title: l10n.settingsSyncLabel),
+          if (ref.watch(syncStatusProvider).value case final sync?)
+            ListTile(
+              leading: const SyncStatusButton(),
+              title: Text(
+                SyncStatusIndicator.label(context, sync.indicator, pendingCount: sync.pendingCount),
+              ),
+              trailing: AppButton.text(
+                label: l10n.syncNow,
+                onPressed: () => SyncStatusButton.syncNow(context, ref),
+              ),
+            ),
           const Gap(AppSpacing.lg),
           SectionHeader(title: l10n.settingsAccountLabel),
           AppButton.danger(

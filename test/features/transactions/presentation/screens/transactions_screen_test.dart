@@ -4,8 +4,10 @@ import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
 import 'package:expense_tracker/core/router/routes.dart';
+import 'package:expense_tracker/core/sync/sync_status.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/core/utils/money.dart';
+import 'package:expense_tracker/core/widgets/sync_status_indicator.dart';
 import 'package:expense_tracker/features/categories/domain/entities/category.dart';
 import 'package:expense_tracker/features/categories/presentation/providers/categories_providers.dart';
 import 'package:expense_tracker/features/profile/domain/entities/profile.dart';
@@ -22,6 +24,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/fake_sync_trigger.dart';
 import '../../../../helpers/pump_app.dart';
 
 class _MockTransactionRepository extends Mock implements TransactionRepository {}
@@ -66,6 +69,9 @@ void main() {
     transactionsProvider(october).overrideWith((ref) => transactions()),
     categoryByIdProvider('food').overrideWith((ref) => Stream.value(food)),
     categoriesProvider(CategoryType.expense).overrideWith((ref) => Stream.value([food])),
+    syncStatusProvider.overrideWith(
+      (ref) => Stream.value(const SyncStatusInfo(SyncIndicator.synced)),
+    ),
   ];
 
   Future<void> pumpScreen(
@@ -93,6 +99,13 @@ void main() {
     expect(find.text(r'-$20.00'), findsOneWidget);
     expect(find.text(r'-$4.00'), findsNWidgets(2));
     expect(find.byType(TransactionTile), findsNWidgets(3));
+  });
+
+  testWidgets('the app bar shows the sync state', (tester) async {
+    await pumpScreen(tester, const []);
+
+    expect(find.byType(SyncStatusIndicator), findsOneWidget);
+    expect(find.byTooltip(l10n.syncStatusSynced), findsOneWidget);
   });
 
   testWidgets('an empty month offers to add one', (tester) async {
@@ -345,6 +358,9 @@ void main() {
               : Stream.value(const Profile(id: 'u1', currencyCode: 'USD'));
         }),
         transactionsProvider(october).overrideWith((ref) => Stream.value([tx('a', 11, 1250)])),
+        syncStatusProvider.overrideWith(
+          (ref) => Stream.value(const SyncStatusInfo(SyncIndicator.synced)),
+        ),
         categoryByIdProvider('food').overrideWith((ref) => Stream.value(food)),
       ],
     );
@@ -355,5 +371,49 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(TransactionTile), findsOneWidget);
+  });
+
+  group('pull to refresh', () {
+    late FakeSyncTrigger trigger;
+
+    setUp(() => trigger = FakeSyncTrigger());
+
+    Future<void> pumpWith(WidgetTester tester, List<Transaction> list) async {
+      await tester.pumpApp(
+        const TransactionsScreen(),
+        overrides: [...overrides(() => Stream.value(list)), trigger.providerOverride],
+      );
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> pull(WidgetTester tester, Finder from) async {
+      await tester.fling(from, const Offset(0, 500), 1000);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('pulling the list syncs now', (tester) async {
+      await pumpWith(tester, [tx('a', 11, 1250)]);
+
+      await pull(tester, find.byType(TransactionTile));
+
+      expect(trigger.immediate, 1);
+    });
+
+    testWidgets('an empty month can be pulled too', (tester) async {
+      await pumpWith(tester, const []);
+
+      await pull(tester, find.text(l10n.transactionsEmptyTitle('October 2026')));
+
+      expect(trigger.immediate, 1);
+    });
+
+    testWidgets('a failed sync says why', (tester) async {
+      trigger.nowResult = const Result.failure(NetworkFailure('offline'));
+      await pumpWith(tester, [tx('a', 11, 1250)]);
+
+      await pull(tester, find.byType(TransactionTile));
+
+      expect(find.text(l10n.errorNetwork), findsOneWidget);
+    });
   });
 }

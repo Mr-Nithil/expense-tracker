@@ -248,6 +248,12 @@ abstract class AppLocalizations {
   /// **'Show password'**
   String get authShowPassword;
 
+  /// Splash screen line while the first sync on this device downloads the user's data
+  ///
+  /// In en, this message translates to:
+  /// **'Getting your data…'**
+  String get authSplashSyncing;
+
   /// Shown after sign-up when the account needs email confirmation
   ///
   /// In en, this message translates to:
@@ -800,6 +806,12 @@ abstract class AppLocalizations {
   /// **'Manage'**
   String get settingsManageLabel;
 
+  /// Settings section header for the sync status and the Sync now button
+  ///
+  /// In en, this message translates to:
+  /// **'Sync'**
+  String get settingsSyncLabel;
+
   /// Theme option: always dark
   ///
   /// In en, this message translates to:
@@ -829,6 +841,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settingsTitle;
+
+  /// Button that starts a sync right away
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get syncNow;
+
+  /// Sync indicator: the last sync failed for a reason other than the connection
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t sync. We\'ll keep trying.'**
+  String get syncStatusError;
+
+  /// Sync indicator: no connection (or the server can't be reached)
+  ///
+  /// In en, this message translates to:
+  /// **'Offline. Changes will sync when you\'re back online.'**
+  String get syncStatusOffline;
+
+  /// Sync indicator: local changes not on the server yet
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change waiting to sync} other{{count} changes waiting to sync}}'**
+  String syncStatusPending(int count);
+
+  /// Sync indicator: everything is on the server
+  ///
+  /// In en, this message translates to:
+  /// **'All changes synced'**
+  String get syncStatusSynced;
+
+  /// Sync indicator: a sync is running
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing…'**
+  String get syncStatusSyncing;
 
   /// Snackbar after deleting a transaction (with an Undo action)
   ///

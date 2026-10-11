@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/db/database_provider.dart';
+import 'package:expense_tracker/core/sync/sync_service.dart';
 import 'package:expense_tracker/features/auth/data/auth_repository_provider.dart';
 import 'package:expense_tracker/features/auth/data/local_data_repository_provider.dart';
 import 'package:expense_tracker/features/auth/data/logout_repository_impl.dart';
@@ -14,4 +15,5 @@ LogoutRepository logoutRepository(Ref ref) => LogoutRepositoryImpl(
   auth: ref.watch(authRepositoryProvider),
   db: ref.watch(databaseProvider),
   localData: ref.watch(localDataRepositoryProvider),
+  sync: ref.watch(syncServiceProvider),
 );

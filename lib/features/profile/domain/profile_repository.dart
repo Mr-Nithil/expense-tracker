@@ -9,4 +9,8 @@ abstract interface class ProfileRepository {
   /// Sets the currency once (onboarding). Fails with a `ValidationFailure` for an unsupported
   /// code or when a currency is already set, and with an `AuthFailure` without a session.
   Future<Result<Profile>> setCurrency(String currencyCode);
+
+  /// Sets the theme preference (synced, so it follows the user to other devices). Saving the
+  /// current value again is a no-op. Fails with an `AuthFailure` without a session.
+  Future<Result<Profile>> setThemeMode(AppThemeMode mode);
 }

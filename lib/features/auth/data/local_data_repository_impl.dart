@@ -3,14 +3,16 @@ import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/logging/app_logger.dart';
 import 'package:expense_tracker/core/services/secure_storage_service.dart';
+import 'package:expense_tracker/core/sync/sync_service.dart';
 import 'package:expense_tracker/features/auth/domain/local_data_repository.dart';
 
 /// [LocalDataRepository] that records the owner in `app_settings` (device-local, never synced).
 class LocalDataRepositoryImpl implements LocalDataRepository {
-  LocalDataRepositoryImpl({required this.db, required this.secureStorage});
+  LocalDataRepositoryImpl({required this.db, required this.secureStorage, required this.sync});
 
   final AppDatabase db;
   final SecureStorageService secureStorage;
+  final SyncService sync;
 
   static const ownerKey = 'local_data_owner';
 
@@ -47,7 +49,11 @@ class LocalDataRepositoryImpl implements LocalDataRepository {
   }
 
   /// `clearAllData` also empties `app_settings`, so the owner record goes with it.
+  ///
+  /// Waits for any sync in flight first: a pull still writing would otherwise put the previous
+  /// user's rows back after the wipe.
   Future<void> _clear() async {
+    await sync.whenIdle();
     await db.clearAllData();
     await secureStorage.deleteAll();
   }

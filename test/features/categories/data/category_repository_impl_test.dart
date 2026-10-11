@@ -13,6 +13,7 @@ import 'package:expense_tracker/features/categories/domain/services/default_cate
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/fake_sync_trigger.dart';
 import '../../../helpers/test_database.dart';
 
 void main() {
@@ -24,6 +25,7 @@ void main() {
   late FixedClock clock;
   late Session session;
   late CategoryRepositoryImpl repository;
+  late FakeSyncTrigger trigger;
 
   setUp(() {
     db = createTestDatabase();
@@ -31,7 +33,13 @@ void main() {
     final container = ProviderContainer();
     addTearDown(container.dispose);
     session = container.read(sessionProvider.notifier)..set(const SessionUser(userId: userId));
-    repository = CategoryRepositoryImpl(dao: db.categoriesDao, clock: clock, session: session);
+    trigger = FakeSyncTrigger();
+    repository = CategoryRepositoryImpl(
+      dao: db.categoriesDao,
+      clock: clock,
+      session: session,
+      syncTrigger: trigger,
+    );
   });
 
   CategoryDraft draft({
@@ -338,6 +346,35 @@ void main() {
 
       expect(result.failureOrNull, isA<ValidationFailure>());
       expect(await repository.watchAll().first, isEmpty);
+    });
+  });
+
+  group('sync requests', () {
+    test('every successful write asks for a sync', () async {
+      final food = await create();
+      await repository.update(food.copyWith(name: 'Groceries'));
+      await repository.archive(food.id);
+      await repository.seedDefaults([
+        DefaultCategorySeed(spec: DefaultCategories.all[1], name: 'Transport'),
+      ]);
+
+      expect(trigger.requests, 4);
+    });
+
+    test('failures and no-ops do not', () async {
+      final food = await create();
+      trigger.requests = 0;
+
+      await repository.create(draft(name: ' '));
+      await repository.create(draft());
+      await repository.archive(food.id);
+      await repository.archive(food.id);
+      final seeds = [DefaultCategorySeed(spec: DefaultCategories.all[1], name: 'Transport')];
+      await repository.seedDefaults(seeds);
+      await repository.seedDefaults(seeds);
+
+      // Only the first archive and the first seed changed anything.
+      expect(trigger.requests, 2);
     });
   });
 }

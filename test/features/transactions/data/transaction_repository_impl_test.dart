@@ -13,6 +13,7 @@ import 'package:expense_tracker/features/transactions/domain/services/transactio
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../helpers/fake_sync_trigger.dart';
 import '../../../helpers/test_database.dart';
 
 void main() {
@@ -25,6 +26,7 @@ void main() {
   late FixedClock clock;
   late Session session;
   late TransactionRepositoryImpl repository;
+  late FakeSyncTrigger trigger;
   late String food;
   late String salary;
 
@@ -49,6 +51,7 @@ void main() {
   setUp(() async {
     db = createTestDatabase();
     clock = FixedClock(created);
+    trigger = FakeSyncTrigger();
     final container = ProviderContainer();
     addTearDown(container.dispose);
     session = container.read(sessionProvider.notifier)..set(const SessionUser(userId: userId));
@@ -57,6 +60,7 @@ void main() {
       categoriesDao: db.categoriesDao,
       clock: clock,
       session: session,
+      syncTrigger: trigger,
     );
     food = await category('Food', 'expense');
     salary = await category('Salary', 'income');
@@ -312,5 +316,28 @@ void main() {
     await db.customStatement('DROP TABLE transactions');
 
     expect((await repository.create(draft())).failureOrNull, isA<StorageFailure>());
+  });
+
+  group('sync requests', () {
+    test('create, update, delete and restore each ask for a sync', () async {
+      final tx = await create();
+      await repository.update(tx.copyWith(amount: const Money(999)));
+      await repository.delete(tx.id);
+      await repository.restore(tx.id);
+
+      expect(trigger.requests, 4);
+    });
+
+    test('failures and no-op deletes or restores do not', () async {
+      final tx = await create();
+      trigger.requests = 0;
+
+      await repository.create(draft(amount: 0));
+      await repository.update(tx.copyWith(amount: Money.zero));
+      await repository.restore(tx.id);
+      await repository.delete('missing');
+
+      expect(trigger.requests, 0);
+    });
   });
 }

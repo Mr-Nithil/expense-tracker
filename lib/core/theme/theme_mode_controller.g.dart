@@ -8,24 +8,24 @@ part of 'theme_mode_controller.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The user's theme mode, persisted locally in `app_settings`.
+/// The app theme: the signed-in user's profile `theme_mode` (synced, so it follows the user to
+/// other devices), or the system setting when signed out or before the profile exists.
 ///
-/// Synced to the profile later (TASKS M3.10). Until the stored value loads, the app follows the
-/// system setting.
+/// Read-only: the theme is changed through the profile repository (the single write path).
 
 @ProviderFor(ThemeModeController)
 final themeModeControllerProvider = ThemeModeControllerProvider._();
 
-/// The user's theme mode, persisted locally in `app_settings`.
+/// The app theme: the signed-in user's profile `theme_mode` (synced, so it follows the user to
+/// other devices), or the system setting when signed out or before the profile exists.
 ///
-/// Synced to the profile later (TASKS M3.10). Until the stored value loads, the app follows the
-/// system setting.
+/// Read-only: the theme is changed through the profile repository (the single write path).
 final class ThemeModeControllerProvider
     extends $StreamNotifierProvider<ThemeModeController, ThemeMode> {
-  /// The user's theme mode, persisted locally in `app_settings`.
+  /// The app theme: the signed-in user's profile `theme_mode` (synced, so it follows the user to
+  /// other devices), or the system setting when signed out or before the profile exists.
   ///
-  /// Synced to the profile later (TASKS M3.10). Until the stored value loads, the app follows the
-  /// system setting.
+  /// Read-only: the theme is changed through the profile repository (the single write path).
   ThemeModeControllerProvider._()
     : super(
         from: null,
@@ -45,12 +45,12 @@ final class ThemeModeControllerProvider
   ThemeModeController create() => ThemeModeController();
 }
 
-String _$themeModeControllerHash() => r'31e9f4eba0f124a6a115c42691fd53bf2daa07e1';
+String _$themeModeControllerHash() => r'dca203fb9c960a467b00b70d304a3a3d61e6714e';
 
-/// The user's theme mode, persisted locally in `app_settings`.
+/// The app theme: the signed-in user's profile `theme_mode` (synced, so it follows the user to
+/// other devices), or the system setting when signed out or before the profile exists.
 ///
-/// Synced to the profile later (TASKS M3.10). Until the stored value loads, the app follows the
-/// system setting.
+/// Read-only: the theme is changed through the profile repository (the single write path).
 
 abstract class _$ThemeModeController extends $StreamNotifier<ThemeMode> {
   Stream<ThemeMode> build();

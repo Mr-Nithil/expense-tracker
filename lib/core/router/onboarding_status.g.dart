@@ -11,7 +11,8 @@ part of 'onboarding_status.dart';
 /// Whether the signed-in user has finished onboarding, read from the local profile.
 ///
 /// Lives in core (like `AuthStatusController`) so the router does not import the profile feature.
-/// Until the initial pull on login exists (M3.8), a second device sees onboarding again.
+/// Without a local currency it waits for the initial pull (M3.8): a second device then downloads
+/// the profile instead of asking for the currency again. A failed pull falls back to onboarding.
 
 @ProviderFor(onboardingStatus)
 final onboardingStatusProvider = OnboardingStatusProvider._();
@@ -19,7 +20,8 @@ final onboardingStatusProvider = OnboardingStatusProvider._();
 /// Whether the signed-in user has finished onboarding, read from the local profile.
 ///
 /// Lives in core (like `AuthStatusController`) so the router does not import the profile feature.
-/// Until the initial pull on login exists (M3.8), a second device sees onboarding again.
+/// Without a local currency it waits for the initial pull (M3.8): a second device then downloads
+/// the profile instead of asking for the currency again. A failed pull falls back to onboarding.
 
 final class OnboardingStatusProvider
     extends
@@ -32,7 +34,8 @@ final class OnboardingStatusProvider
   /// Whether the signed-in user has finished onboarding, read from the local profile.
   ///
   /// Lives in core (like `AuthStatusController`) so the router does not import the profile feature.
-  /// Until the initial pull on login exists (M3.8), a second device sees onboarding again.
+  /// Without a local currency it waits for the initial pull (M3.8): a second device then downloads
+  /// the profile instead of asking for the currency again. A failed pull falls back to onboarding.
   OnboardingStatusProvider._()
     : super(
         from: null,
@@ -59,4 +62,4 @@ final class OnboardingStatusProvider
   }
 }
 
-String _$onboardingStatusHash() => r'd0679f168bf65852ea7d33c70cace6e39987d15d';
+String _$onboardingStatusHash() => r'f583af7c559294221fb3a7b7e2f567bd0809bfaf';
