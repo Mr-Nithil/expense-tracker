@@ -1,5 +1,6 @@
 import 'package:expense_tracker/core/extensions/build_context_x.dart';
 import 'package:expense_tracker/core/l10n/failure_l10n.dart';
+import 'package:expense_tracker/core/router/routes.dart';
 import 'package:expense_tracker/core/theme/app_spacing.dart';
 import 'package:expense_tracker/core/theme/theme_mode_controller.dart';
 import 'package:expense_tracker/core/widgets/app_button.dart';
@@ -10,8 +11,9 @@ import 'package:expense_tracker/features/auth/presentation/providers/logout_cont
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 
-/// Settings tab: theme mode and logout. Built out in M4.14.
+/// Settings tab: theme mode, data management (categories) and logout. Built out in M4.14.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -74,6 +76,14 @@ class SettingsScreen extends ConsumerWidget {
             selected: {themeMode},
             onSelectionChanged: (selection) =>
                 ref.read(themeModeControllerProvider.notifier).setThemeMode(selection.first),
+          ),
+          const Gap(AppSpacing.lg),
+          SectionHeader(title: l10n.settingsManageLabel),
+          ListTile(
+            leading: const Icon(Icons.category_outlined),
+            title: Text(l10n.categoriesTitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.pushNamed(Routes.categories),
           ),
           const Gap(AppSpacing.lg),
           SectionHeader(title: l10n.settingsAccountLabel),

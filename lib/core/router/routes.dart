@@ -26,11 +26,20 @@ abstract final class Routes {
   static const transactions = 'transactions';
   static const transactionsPath = '/transactions';
 
+  /// Nested under transactions: opens inside the Transactions tab.
+  static const transactionDetail = 'transactionDetail';
+  static const transactionDetailPath = '/transactions/:id';
+  static const transactionIdParam = 'id';
+
   static const budget = 'budget';
   static const budgetPath = '/budget';
 
   static const settings = 'settings';
   static const settingsPath = '/settings';
+
+  /// Nested under settings: opens inside the Settings tab.
+  static const categories = 'categories';
+  static const categoriesPath = '/settings/categories';
 
   /// Routes of the auth flow. A signed-in user is sent from these to the dashboard.
   static const authPaths = {

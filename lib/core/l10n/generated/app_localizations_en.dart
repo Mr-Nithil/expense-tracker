@@ -110,6 +110,111 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetTitle => 'Budget';
 
   @override
+  String get categoryFormArchive => 'Archive';
+
+  @override
+  String get categoryFormColorLabel => 'Color';
+
+  @override
+  String categoryFormColorOption(int index, int count) {
+    return 'Color $index of $count';
+  }
+
+  @override
+  String get categoryFormEditTitle => 'Edit category';
+
+  @override
+  String get categoryFormIconLabel => 'Icon';
+
+  @override
+  String categoryFormIconOption(int index, int count) {
+    return 'Icon $index of $count';
+  }
+
+  @override
+  String get categoryFormNameLabel => 'Name';
+
+  @override
+  String get categoryFormNewTitle => 'New category';
+
+  @override
+  String get categoryFormTypeLabel => 'Type';
+
+  @override
+  String get categoryArchiveConfirmMessage =>
+      'It won\'t be offered for new transactions. Transactions that already use it keep it.';
+
+  @override
+  String categoryArchiveConfirmTitle(String name) {
+    return 'Archive “$name”?';
+  }
+
+  @override
+  String get categoryArchivedLabel => 'Archived category';
+
+  @override
+  String categoryChipArchived(String name) {
+    return '$name (archived)';
+  }
+
+  @override
+  String get categoryDefaultBills => 'Bills';
+
+  @override
+  String get categoryDefaultEducation => 'Education';
+
+  @override
+  String get categoryDefaultEntertainment => 'Entertainment';
+
+  @override
+  String get categoryDefaultFood => 'Food';
+
+  @override
+  String get categoryDefaultFreelance => 'Freelance';
+
+  @override
+  String get categoryDefaultGifts => 'Gifts';
+
+  @override
+  String get categoryDefaultHealth => 'Health';
+
+  @override
+  String get categoryDefaultInvestments => 'Investments';
+
+  @override
+  String get categoryDefaultOther => 'Other';
+
+  @override
+  String get categoryDefaultOtherIncome => 'Other income';
+
+  @override
+  String get categoryDefaultSalary => 'Salary';
+
+  @override
+  String get categoryDefaultShopping => 'Shopping';
+
+  @override
+  String get categoryDefaultTransport => 'Transport';
+
+  @override
+  String get categoriesAdd => 'Add category';
+
+  @override
+  String get categoriesEmptyMessage => 'Add a category to start sorting your transactions.';
+
+  @override
+  String get categoriesEmptyTitle => 'No categories yet';
+
+  @override
+  String get categoriesTitle => 'Categories';
+
+  @override
+  String get categoryUnknown => 'Unknown category';
+
+  @override
+  String get commonAll => 'All';
+
+  @override
   String get commonCancel => 'Cancel';
 
   @override
@@ -125,7 +230,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonDelete => 'Delete';
 
   @override
+  String get commonEdit => 'Edit';
+
+  @override
+  String get commonExpense => 'Expense';
+
+  @override
+  String get commonIncome => 'Income';
+
+  @override
   String get commonLoading => 'Loading';
+
+  @override
+  String get commonNextMonth => 'Next month';
+
+  @override
+  String get commonPreviousMonth => 'Previous month';
 
   @override
   String get commonRetry => 'Retry';
@@ -137,10 +257,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonSeeAll => 'See all';
 
   @override
+  String get commonToday => 'Today';
+
+  @override
   String get commonUndo => 'Undo';
 
   @override
+  String get commonYesterday => 'Yesterday';
+
+  @override
   String get dashboardTitle => 'Dashboard';
+
+  @override
+  String get errorAmountInvalid => 'Enter an amount greater than 0.';
 
   @override
   String get errorAuth => 'Authentication failed. Please sign in again.';
@@ -174,6 +303,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorAuthWeakPassword => 'This password is too weak. Choose a stronger one.';
 
   @override
+  String get errorCategoryNameTaken => 'You already have a category with this name.';
+
+  @override
+  String get errorCategoryTypeLocked =>
+      'This category is used by transactions, so its type can\'t be changed.';
+
+  @override
   String get errorEmailInvalid => 'Enter a valid email address.';
 
   @override
@@ -195,6 +331,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorStorage => 'Couldn\'t save on this device. Please try again.';
+
+  @override
+  String get errorTransactionCategoryArchived => 'This category is archived. Choose another one.';
+
+  @override
+  String get errorTransactionCategoryMismatch => 'Choose a category of this type.';
+
+  @override
+  String get errorTransactionCategoryRequired => 'Choose a category.';
+
+  @override
+  String get errorTransactionDateOutOfRange => 'Choose a date from 2000 up to a year from today.';
 
   @override
   String get errorUnexpected => 'Something went wrong. Please try again.';
@@ -251,6 +399,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get settingsManageLabel => 'Manage';
+
+  @override
   String get settingsThemeDark => 'Dark';
 
   @override
@@ -264,6 +415,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsTitle => 'Settings';
+
+  @override
+  String get transactionDeleted => 'Transaction deleted';
+
+  @override
+  String get transactionDetailNoteLabel => 'Note';
+
+  @override
+  String get transactionDetailTitle => 'Transaction';
+
+  @override
+  String get transactionFormAmountLabel => 'Amount';
+
+  @override
+  String get transactionFormCategoryLabel => 'Category';
+
+  @override
+  String get transactionFormDateLabel => 'Date';
+
+  @override
+  String get transactionFormEditTitle => 'Edit transaction';
+
+  @override
+  String get transactionFormNewTitle => 'New transaction';
+
+  @override
+  String get transactionFormNoCategories =>
+      'No categories of this type yet. Add one in Settings → Categories.';
+
+  @override
+  String get transactionFormNoteLabel => 'Note (optional)';
+
+  @override
+  String get transactionNotFoundMessage => 'It may have been deleted on this or another device.';
+
+  @override
+  String get transactionNotFoundTitle => 'Transaction not found';
+
+  @override
+  String get transactionsAdd => 'Add transaction';
+
+  @override
+  String get transactionsEmptyMessage => 'Tap + to add your first one.';
+
+  @override
+  String get transactionsClearFilters => 'Clear filters';
+
+  @override
+  String transactionsEmptyTitle(String month) {
+    return 'No transactions in $month';
+  }
+
+  @override
+  String get transactionsFilterAllCategories => 'All categories';
+
+  @override
+  String get transactionsFilterCategoryTitle => 'Filter by category';
+
+  @override
+  String get transactionsFilterClearCategory => 'Clear category filter';
+
+  @override
+  String get transactionsNoMatchesMessage => 'Try another month or clear the filters.';
+
+  @override
+  String get transactionsNoMatchesTitle => 'No matching transactions';
 
   @override
   String get transactionsTitle => 'Transactions';

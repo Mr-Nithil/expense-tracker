@@ -12,6 +12,7 @@ class AppTextField extends StatelessWidget {
     this.hint,
     this.errorText,
     this.prefixIcon,
+    this.prefixText,
     this.suffix,
     this.validator,
     this.onChanged,
@@ -36,6 +37,9 @@ class AppTextField extends StatelessWidget {
   final String? hint;
   final String? errorText;
   final IconData? prefixIcon;
+
+  /// Text before the input, e.g. a currency symbol.
+  final String? prefixText;
   final Widget? suffix;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onChanged;
@@ -62,6 +66,7 @@ class AppTextField extends StatelessWidget {
         hintText: hint,
         errorText: errorText,
         prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
+        prefixText: prefixText,
         suffixIcon: suffix,
       ),
       validator: validator,

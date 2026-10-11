@@ -59,6 +59,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(l10n.settingsAccountLabel), findsOneWidget);
+    expect(find.text(l10n.settingsManageLabel), findsOneWidget);
+    expect(find.text(l10n.categoriesTitle), findsOneWidget);
     expect(find.widgetWithText(FilledButton, l10n.settingsLogout), findsOneWidget);
   });
 

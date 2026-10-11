@@ -72,6 +72,22 @@ void main() {
     });
   });
 
+  group('toInputString', () {
+    test('uses the currency decimals and no grouping', () {
+      expect(const Money(123450).toInputString(locale: 'en_US', currencyCode: 'USD'), '1234.50');
+      expect(const Money(1234).toInputString(locale: 'en_US', currencyCode: 'JPY'), '1234');
+      expect(const Money(1005).toInputString(locale: 'en_US', currencyCode: 'KWD'), '1.005');
+      expect(const Money(5).toInputString(locale: 'en_US', currencyCode: 'USD'), '0.05');
+    });
+
+    test('uses the locale decimal separator and round-trips', () {
+      const amount = Money(123450);
+      final text = amount.toInputString(locale: 'de_DE', currencyCode: 'EUR');
+      expect(text, '1234,50');
+      expect(Money.tryParse(text, locale: 'de_DE', currencyCode: 'EUR'), amount);
+    });
+  });
+
   group('tryParse', () {
     Money? parse(String input, {String locale = 'en_US', String currency = 'USD'}) =>
         Money.tryParse(input, locale: locale, currencyCode: currency);

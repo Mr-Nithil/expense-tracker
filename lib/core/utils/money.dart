@@ -63,6 +63,20 @@ class Money implements Comparable<Money> {
     return signed && minor > 0 ? '+$text' : text;
   }
 
+  /// This amount as editable input: the locale's decimal separator, the currency's number of
+  /// decimals, no grouping or symbol (e.g. `1234.50`, JPY `1234`). Round-trips with [tryParse].
+  String toInputString({required String locale, required String currencyCode}) {
+    final digits = decimalDigitsFor(currencyCode);
+    final sign = minor < 0 ? '-' : '';
+    final value = minor.abs();
+    final factor = _pow10(digits);
+    final whole = value ~/ factor;
+    if (digits == 0) return '$sign$whole';
+    final fraction = (value % factor).toString().padLeft(digits, '0');
+    final separator = NumberFormat.decimalPattern(locale).symbols.DECIMAL_SEP;
+    return '$sign$whole$separator$fraction';
+  }
+
   /// Parses user input such as `1,234.5` into minor units without using floating point.
   ///
   /// Group and decimal separators follow [locale]. Returns `null` for invalid input or when the

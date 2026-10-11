@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/extensions/build_context_x.dart';
+import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -44,5 +45,25 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tapped, 1);
+  });
+
+  testWidgets('showUndoSnack offers Undo', (tester) async {
+    late BuildContext context;
+    var undone = 0;
+    await tester.pumpApp(
+      Builder(
+        builder: (c) {
+          context = c;
+          return const SizedBox();
+        },
+      ),
+    );
+
+    context.showUndoSnack('Deleted', onUndo: () => undone++);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(AppLocalizationsEn().commonUndo));
+    await tester.pumpAndSettle();
+
+    expect(undone, 1);
   });
 }

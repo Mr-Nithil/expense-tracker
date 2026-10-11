@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'test_database.dart';
+
 extension PumpApp on WidgetTester {
   /// Pumps [widget] inside a themed, localized [MaterialApp] (en_US) with a [Scaffold].
   Future<void> pumpApp(
@@ -15,6 +17,7 @@ extension PumpApp on WidgetTester {
   }) {
     return pumpWidget(
       ProviderScope(
+        retry: noAutoRetry,
         overrides: overrides,
         child: MaterialApp(
           theme: brightness == Brightness.light ? AppTheme.light() : AppTheme.dark(),
@@ -41,6 +44,7 @@ extension PumpRouterApp on WidgetTester {
     addTearDown(router.dispose);
     await pumpWidget(
       ProviderScope(
+        retry: noAutoRetry,
         overrides: overrides,
         child: MaterialApp.router(
           theme: brightness == Brightness.light ? AppTheme.light() : AppTheme.dark(),

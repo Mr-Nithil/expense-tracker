@@ -18,8 +18,14 @@ AppDatabase createTestDatabase() {
 /// A [ProviderContainer] backed by an in-memory database, disposed at the end of the test.
 ProviderContainer createTestContainer({AppDatabase? db, List<Override> overrides = const []}) {
   final container = ProviderContainer(
+    retry: noAutoRetry,
     overrides: [databaseProvider.overrideWithValue(db ?? createTestDatabase()), ...overrides],
   );
   addTearDown(container.dispose);
   return container;
 }
+
+/// Turns off Riverpod's automatic retry of failed providers in tests, so an error stays until
+/// something (e.g. a Retry button) explicitly retries. Otherwise retry tests could pass by
+/// themselves.
+Duration? noAutoRetry(int retryCount, Object error) => null;

@@ -278,6 +278,198 @@ abstract class AppLocalizations {
   /// **'Budget'**
   String get budgetTitle;
 
+  /// Button in the edit-category sheet (and its confirm action) that archives the category
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get categoryFormArchive;
+
+  /// Label above the color picker in the category sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get categoryFormColorLabel;
+
+  /// Screen-reader label of one color in the category color picker
+  ///
+  /// In en, this message translates to:
+  /// **'Color {index} of {count}'**
+  String categoryFormColorOption(int index, int count);
+
+  /// Title of the category sheet when editing
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get categoryFormEditTitle;
+
+  /// Label above the icon picker in the category sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get categoryFormIconLabel;
+
+  /// Screen-reader label of one icon in the category icon picker
+  ///
+  /// In en, this message translates to:
+  /// **'Icon {index} of {count}'**
+  String categoryFormIconOption(int index, int count);
+
+  /// Label of the name field in the category sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get categoryFormNameLabel;
+
+  /// Title of the category sheet when adding
+  ///
+  /// In en, this message translates to:
+  /// **'New category'**
+  String get categoryFormNewTitle;
+
+  /// Label above the expense/income toggle in the category sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get categoryFormTypeLabel;
+
+  /// Message of the dialog that confirms archiving a category
+  ///
+  /// In en, this message translates to:
+  /// **'It won\'t be offered for new transactions. Transactions that already use it keep it.'**
+  String get categoryArchiveConfirmMessage;
+
+  /// Title of the dialog that confirms archiving a category
+  ///
+  /// In en, this message translates to:
+  /// **'Archive “{name}”?'**
+  String categoryArchiveConfirmTitle(String name);
+
+  /// Shown on a transaction or row whose category was archived
+  ///
+  /// In en, this message translates to:
+  /// **'Archived category'**
+  String get categoryArchivedLabel;
+
+  /// Screen-reader label and tooltip of a category chip whose category was archived
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (archived)'**
+  String categoryChipArchived(String name);
+
+  /// Name of a default category seeded for new users (stored as data, editable)
+  ///
+  /// In en, this message translates to:
+  /// **'Bills'**
+  String get categoryDefaultBills;
+
+  /// Name of a default category seeded for new users (stored as data, editable)
+  ///
+  /// In en, this message translates to:
+  /// **'Education'**
+  String get categoryDefaultEducation;
+
+  /// Name of a default category seeded for new users (stored as data, editable)
+  ///
+  /// In en, this message translates to:
+  /// **'Entertainment'**
+  String get categoryDefaultEntertainment;
+
+  /// Name of a default category seeded for new users (stored as data, editable)
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get categoryDefaultFood;
+
+  /// Name of a default category seeded for new users (stored as data, editable)
+  ///
+  /// In en, this message translates to:
+  /// **'Freelance'**
+  String get categoryDefaultFreelance;
+
+  /// Name of a default category seeded for new users (stored as data, editable)
+  ///
+  /// In en, this message translates to:
+  /// **'Gifts'**
+  String get categoryDefaultGifts;
+
+  /// Name of a default category seeded for new users (stored as data, editable)
+  ///
+  /// In en, this message translates to:
+  /// **'Health'**
+  String get categoryDefaultHealth;
+
+  /// Name of a default category seeded for new users (stored as data, editable)
+  ///
+  /// In en, this message translates to:
+  /// **'Investments'**
+  String get categoryDefaultInvestments;
+
+  /// Name of a default category seeded for new users (stored as data, editable)
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get categoryDefaultOther;
+
+  /// Name of a default category seeded for new users (stored as data, editable)
+  ///
+  /// In en, this message translates to:
+  /// **'Other income'**
+  String get categoryDefaultOtherIncome;
+
+  /// Name of a default category seeded for new users (stored as data, editable)
+  ///
+  /// In en, this message translates to:
+  /// **'Salary'**
+  String get categoryDefaultSalary;
+
+  /// Name of a default category seeded for new users (stored as data, editable)
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping'**
+  String get categoryDefaultShopping;
+
+  /// Name of a default category seeded for new users (stored as data, editable)
+  ///
+  /// In en, this message translates to:
+  /// **'Transport'**
+  String get categoryDefaultTransport;
+
+  /// Floating button / tooltip on the categories screen that opens the new-category sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Add category'**
+  String get categoriesAdd;
+
+  /// Empty state message of a category list tab
+  ///
+  /// In en, this message translates to:
+  /// **'Add a category to start sorting your transactions.'**
+  String get categoriesEmptyMessage;
+
+  /// Empty state title of a category list tab
+  ///
+  /// In en, this message translates to:
+  /// **'No categories yet'**
+  String get categoriesEmptyTitle;
+
+  /// Title of the categories screen and its settings entry
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categoriesTitle;
+
+  /// Shown when a transaction's category can't be found on this device (e.g. not synced yet)
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown category'**
+  String get categoryUnknown;
+
+  /// Filter option that shows everything (e.g. both expense and income)
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get commonAll;
+
   /// Generic cancel button
   ///
   /// In en, this message translates to:
@@ -308,11 +500,41 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get commonDelete;
 
+  /// Tooltip/label of an action that edits the item shown
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get commonEdit;
+
+  /// The expense type (transactions, categories); used as a tab or toggle label
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get commonExpense;
+
+  /// The income type (transactions, categories); used as a tab or toggle label
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get commonIncome;
+
   /// Accessibility label for a loading indicator
   ///
   /// In en, this message translates to:
   /// **'Loading'**
   String get commonLoading;
+
+  /// Tooltip of the month selector's forward arrow
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get commonNextMonth;
+
+  /// Tooltip of the month selector's back arrow
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get commonPreviousMonth;
 
   /// Button to retry a failed action
   ///
@@ -332,17 +554,35 @@ abstract class AppLocalizations {
   /// **'See all'**
   String get commonSeeAll;
 
+  /// Relative day label, e.g. in a list header
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get commonToday;
+
   /// Snackbar action that reverts the last change
   ///
   /// In en, this message translates to:
   /// **'Undo'**
   String get commonUndo;
 
+  /// Relative day label, e.g. in a list header
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get commonYesterday;
+
   /// Title of the dashboard tab and its bottom navigation label
   ///
   /// In en, this message translates to:
   /// **'Dashboard'**
   String get dashboardTitle;
+
+  /// Amount field error when the value is zero or can't be read
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount greater than 0.'**
+  String get errorAmountInvalid;
 
   /// Shown for AuthFailure with no more specific reason
   ///
@@ -398,6 +638,18 @@ abstract class AppLocalizations {
   /// **'This password is too weak. Choose a stronger one.'**
   String get errorAuthWeakPassword;
 
+  /// Category name field error: an active category of the same type already uses the name
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a category with this name.'**
+  String get errorCategoryNameTaken;
+
+  /// Saving a category failed because its type changed while transactions use it
+  ///
+  /// In en, this message translates to:
+  /// **'This category is used by transactions, so its type can\'t be changed.'**
+  String get errorCategoryTypeLocked;
+
   /// Form field error for a malformed email address
   ///
   /// In en, this message translates to:
@@ -439,6 +691,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t save on this device. Please try again.'**
   String get errorStorage;
+
+  /// Transaction form: the chosen category was archived
+  ///
+  /// In en, this message translates to:
+  /// **'This category is archived. Choose another one.'**
+  String get errorTransactionCategoryArchived;
+
+  /// Transaction form: the category's type differs from the transaction's (expense/income)
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category of this type.'**
+  String get errorTransactionCategoryMismatch;
+
+  /// Transaction form: no category selected, or it no longer exists
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category.'**
+  String get errorTransactionCategoryRequired;
+
+  /// Transaction form: the date is outside the allowed range
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date from 2000 up to a year from today.'**
+  String get errorTransactionDateOutOfRange;
 
   /// Shown for UnexpectedFailure and unknown errors
   ///
@@ -518,6 +794,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 change on this device hasn\'t synced yet. If you log out now, it will be lost.} other{{count} changes on this device haven\'t synced yet. If you log out now, they will be lost.}}'**
   String settingsLogoutPendingMessage(int count);
 
+  /// Settings section header for data the user manages (categories, later budgets)
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get settingsManageLabel;
+
   /// Theme option: always dark
   ///
   /// In en, this message translates to:
@@ -547,6 +829,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settingsTitle;
+
+  /// Snackbar after deleting a transaction (with an Undo action)
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction deleted'**
+  String get transactionDeleted;
+
+  /// Label of the note on the transaction detail page
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get transactionDetailNoteLabel;
+
+  /// Title of the transaction detail page
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction'**
+  String get transactionDetailTitle;
+
+  /// Label of the amount field in the transaction sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get transactionFormAmountLabel;
+
+  /// Label above the category picker in the transaction sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get transactionFormCategoryLabel;
+
+  /// Label of the date picker button in the transaction sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get transactionFormDateLabel;
+
+  /// Title of the transaction sheet when editing
+  ///
+  /// In en, this message translates to:
+  /// **'Edit transaction'**
+  String get transactionFormEditTitle;
+
+  /// Title of the transaction sheet when adding
+  ///
+  /// In en, this message translates to:
+  /// **'New transaction'**
+  String get transactionFormNewTitle;
+
+  /// Shown in the transaction sheet's category picker when the type has no active categories
+  ///
+  /// In en, this message translates to:
+  /// **'No categories of this type yet. Add one in Settings → Categories.'**
+  String get transactionFormNoCategories;
+
+  /// Label of the optional note field in the transaction sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get transactionFormNoteLabel;
+
+  /// Detail page message when the transaction doesn't exist (anymore)
+  ///
+  /// In en, this message translates to:
+  /// **'It may have been deleted on this or another device.'**
+  String get transactionNotFoundMessage;
+
+  /// Detail page title when the transaction doesn't exist (anymore)
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction not found'**
+  String get transactionNotFoundTitle;
+
+  /// Floating button / tooltip that opens the new-transaction sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Add transaction'**
+  String get transactionsAdd;
+
+  /// Empty state message of the transaction list
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add your first one.'**
+  String get transactionsEmptyMessage;
+
+  /// Action that removes the type and category filters on the transaction list
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get transactionsClearFilters;
+
+  /// Empty state title of the transaction list; month is pre-formatted, e.g. October 2026
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions in {month}'**
+  String transactionsEmptyTitle(String month);
+
+  /// Category filter button when no category is chosen
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get transactionsFilterAllCategories;
+
+  /// Title of the sheet that picks a category filter
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by category'**
+  String get transactionsFilterCategoryTitle;
+
+  /// Tooltip of the button that removes the category filter
+  ///
+  /// In en, this message translates to:
+  /// **'Clear category filter'**
+  String get transactionsFilterClearCategory;
+
+  /// Empty state message when filters hide every transaction of the month
+  ///
+  /// In en, this message translates to:
+  /// **'Try another month or clear the filters.'**
+  String get transactionsNoMatchesMessage;
+
+  /// Empty state title when filters hide every transaction of the month
+  ///
+  /// In en, this message translates to:
+  /// **'No matching transactions'**
+  String get transactionsNoMatchesTitle;
 
   /// Title of the transactions tab and its bottom navigation label
   ///

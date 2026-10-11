@@ -11,7 +11,8 @@ part of 'onboarding_controller.dart';
 /// Onboarding state: idle/success (`AsyncData`), saving (`AsyncLoading`) or the `AppFailure` of
 /// the last attempt (`AsyncError`).
 ///
-/// Never navigates: once the profile has a currency, the router's onboarding gate leaves.
+/// Seeds the default categories, then saves the currency. Never navigates: once the profile has a
+/// currency, the router's onboarding gate leaves.
 
 @ProviderFor(OnboardingController)
 final onboardingControllerProvider = OnboardingControllerProvider._();
@@ -19,13 +20,15 @@ final onboardingControllerProvider = OnboardingControllerProvider._();
 /// Onboarding state: idle/success (`AsyncData`), saving (`AsyncLoading`) or the `AppFailure` of
 /// the last attempt (`AsyncError`).
 ///
-/// Never navigates: once the profile has a currency, the router's onboarding gate leaves.
+/// Seeds the default categories, then saves the currency. Never navigates: once the profile has a
+/// currency, the router's onboarding gate leaves.
 final class OnboardingControllerProvider
     extends $AsyncNotifierProvider<OnboardingController, void> {
   /// Onboarding state: idle/success (`AsyncData`), saving (`AsyncLoading`) or the `AppFailure` of
   /// the last attempt (`AsyncError`).
   ///
-  /// Never navigates: once the profile has a currency, the router's onboarding gate leaves.
+  /// Seeds the default categories, then saves the currency. Never navigates: once the profile has a
+  /// currency, the router's onboarding gate leaves.
   OnboardingControllerProvider._()
     : super(
         from: null,
@@ -45,12 +48,13 @@ final class OnboardingControllerProvider
   OnboardingController create() => OnboardingController();
 }
 
-String _$onboardingControllerHash() => r'3805b86ae7051fac6c45257089b2716b483cfc0c';
+String _$onboardingControllerHash() => r'f6a3280fc549a2ab4e909fc59b0aecbdbcac94c4';
 
 /// Onboarding state: idle/success (`AsyncData`), saving (`AsyncLoading`) or the `AppFailure` of
 /// the last attempt (`AsyncError`).
 ///
-/// Never navigates: once the profile has a currency, the router's onboarding gate leaves.
+/// Seeds the default categories, then saves the currency. Never navigates: once the profile has a
+/// currency, the router's onboarding gate leaves.
 
 abstract class _$OnboardingController extends $AsyncNotifier<void> {
   FutureOr<void> build();

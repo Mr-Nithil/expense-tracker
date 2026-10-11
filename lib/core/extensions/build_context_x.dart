@@ -38,4 +38,8 @@ extension BuildContextX on BuildContext {
         ),
       );
   }
+
+  /// Shows [message] with an "Undo" action that calls [onUndo] (e.g. after a delete).
+  void showUndoSnack(String message, {required VoidCallback onUndo}) =>
+      showSnack(message, actionLabel: l10n.commonUndo, onAction: onUndo);
 }

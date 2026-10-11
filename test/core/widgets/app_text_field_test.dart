@@ -33,4 +33,11 @@ void main() {
     await tester.pumpApp(const AppTextField(label: 'Amount', errorText: 'Too small'));
     expect(find.text('Too small'), findsOneWidget);
   });
+
+  testWidgets('shows a prefix text', (tester) async {
+    await tester.pumpApp(const AppTextField(label: 'Amount', prefixText: r'$ '));
+    await tester.enterText(find.byType(TextFormField), '12');
+    await tester.pump();
+    expect(find.text(r'$ '), findsOneWidget);
+  });
 }

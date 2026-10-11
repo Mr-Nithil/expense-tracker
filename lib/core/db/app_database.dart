@@ -2,7 +2,9 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:expense_tracker/core/db/converters/date_only_converter.dart';
 import 'package:expense_tracker/core/db/daos/app_settings_dao.dart';
+import 'package:expense_tracker/core/db/daos/categories_dao.dart';
 import 'package:expense_tracker/core/db/daos/profiles_dao.dart';
+import 'package:expense_tracker/core/db/daos/transactions_dao.dart';
 import 'package:expense_tracker/core/db/tables/app_settings.dart';
 import 'package:expense_tracker/core/db/tables/budgets.dart';
 import 'package:expense_tracker/core/db/tables/categories.dart';
@@ -32,7 +34,7 @@ part 'app_database.g.dart';
     SyncState,
     AppSettings,
   ],
-  daos: [AppSettingsDao, ProfilesDao],
+  daos: [AppSettingsDao, CategoriesDao, ProfilesDao, TransactionsDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());

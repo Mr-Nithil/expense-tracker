@@ -1,4 +1,5 @@
 // Core UI kit. See docs/CONVENTIONS.md §3.
+export 'amount_field.dart';
 export 'amount_text.dart';
 export 'app_bottom_sheet.dart';
 export 'app_button.dart';
@@ -6,9 +7,13 @@ export 'app_card.dart';
 export 'app_scaffold.dart';
 export 'app_text_field.dart';
 export 'async_value_view.dart';
+export 'category_chip.dart';
+export 'category_icon.dart';
 export 'confirm_dialog.dart';
 export 'empty_state.dart';
 export 'error_view.dart';
 export 'loading_view.dart';
 export 'message_layout.dart';
+export 'month_selector.dart';
 export 'section_header.dart';
+export 'swipe_to_delete.dart';

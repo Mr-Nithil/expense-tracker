@@ -64,6 +64,7 @@ void main() {
 
     test('formats dates, months and times', () {
       expect(AppDateUtils.formatShortDate(date, 'en_US'), 'Oct 3, 2026');
+      expect(AppDateUtils.formatWeekdayDate(date, 'en_US'), 'Sat, Oct 3');
       expect(AppDateUtils.formatLongDate(date, 'en_US'), 'Saturday, October 3, 2026');
       expect(AppDateUtils.formatMonthYear(date, 'en_US'), 'October 2026');
       expect(AppDateUtils.formatTime(date, 'en_US'), matches(RegExp(r'^2:05\sPM$')));

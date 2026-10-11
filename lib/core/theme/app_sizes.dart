@@ -7,8 +7,14 @@ abstract final class AppSizes {
   static const double iconMd = 24;
   static const double iconLg = 48;
   static const double iconXl = 64;
+
+  /// Circular avatar in list rows (e.g. `CategoryIcon`).
+  static const double avatarMd = 40;
   static const double progressSm = 20;
   static const double progressStroke = 2;
+
+  /// Ring around the selected option in pickers (icons, colors).
+  static const double selectionBorder = 2;
   static const double sheetHandleWidth = 32;
   static const double sheetHandleHeight = 4;
 

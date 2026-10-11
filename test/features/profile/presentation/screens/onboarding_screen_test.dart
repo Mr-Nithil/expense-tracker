@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
+import 'package:expense_tracker/features/categories/presentation/providers/default_categories_seeder.dart';
 import 'package:expense_tracker/features/profile/data/profile_repository_provider.dart';
 import 'package:expense_tracker/features/profile/domain/entities/profile.dart';
 import 'package:expense_tracker/features/profile/domain/profile_repository.dart';
@@ -16,12 +17,19 @@ import '../../../../helpers/pump_app.dart';
 
 class _MockProfileRepository extends Mock implements ProfileRepository {}
 
+class _MockSeeder extends Mock implements DefaultCategoriesSeeder {}
+
 void main() {
   final l10n = AppLocalizationsEn();
 
   late _MockProfileRepository repository;
+  late _MockSeeder seeder;
 
-  setUp(() => repository = _MockProfileRepository());
+  setUp(() {
+    repository = _MockProfileRepository();
+    seeder = _MockSeeder();
+    when(() => seeder.seed()).thenAnswer((_) async => const Result.success(13));
+  });
 
   Future<void> pumpOnboarding(
     WidgetTester tester, {
@@ -33,7 +41,10 @@ void main() {
     await tester.pumpApp(
       const OnboardingScreen(),
       brightness: brightness,
-      overrides: [profileRepositoryProvider.overrideWithValue(repository)],
+      overrides: [
+        profileRepositoryProvider.overrideWithValue(repository),
+        defaultCategoriesSeederProvider.overrideWithValue(seeder),
+      ],
     );
   }
 

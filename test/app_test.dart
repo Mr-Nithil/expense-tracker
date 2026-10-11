@@ -6,7 +6,10 @@ import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
 import 'package:expense_tracker/core/services/secure_storage_service.dart';
 import 'package:expense_tracker/core/theme/theme_mode_controller.dart';
+import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/features/auth/domain/entities/auth_user.dart';
+import 'package:expense_tracker/features/categories/domain/services/default_categories.dart';
+import 'package:expense_tracker/features/categories/presentation/providers/default_categories_seeder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -46,6 +49,8 @@ void main() {
     final container = createTestContainer(
       db: db,
       overrides: [
+        // A fixed date, so "Today", default dates and month labels don't depend on when tests run.
+        clockProvider.overrideWithValue(FixedClock(DateTime(2026, 10, 11, 9))),
         (auth ?? FakeAuthRepository()).providerOverride,
         secureStorageServiceProvider.overrideWithValue(secureStorage),
       ],
@@ -234,7 +239,7 @@ void main() {
   });
 
   testWidgets('a new user goes through onboarding, then reaches the dashboard', (tester) async {
-    await pumpApp(tester, onboarded: false);
+    final container = await pumpApp(tester, onboarded: false);
 
     expect(find.widgetWithText(AppBar, l10n.onboardingTitle), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
@@ -243,6 +248,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+    final categories = await tester.runAsync(
+      () => container.read(databaseProvider).categoriesDao.watchActive(testUser.id).first,
+    );
+    expect(categories, hasLength(DefaultCategories.all.length));
   });
 
   testWidgets('login links to sign-up', (tester) async {
@@ -303,6 +312,150 @@ void main() {
       () => container.read(databaseProvider).profilesDao.getProfile(testUser.id),
     );
     expect(profile, isNull);
+  });
+
+  testWidgets('settings opens the categories screen with the seeded defaults', (tester) async {
+    final container = await pumpApp(tester);
+    await tester.runAsync(() => container.read(defaultCategoriesSeederProvider).seed());
+
+    await tester.tap(
+      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.categoriesTitle));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, l10n.categoriesTitle), findsOneWidget);
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.text(l10n.categoryDefaultFood), findsOneWidget);
+
+    await tester.tap(find.text(l10n.commonIncome));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.categoryDefaultSalary), findsOneWidget);
+  });
+
+  testWidgets('adding a category from the categories screen saves and lists it', (tester) async {
+    await pumpApp(tester);
+    await tester.tap(
+      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.categoriesTitle));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip(l10n.categoriesAdd));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextFormField, l10n.categoryFormNameLabel),
+      'Coffee',
+    );
+    await tester.ensureVisible(find.text(l10n.commonSave));
+    await tester.tap(find.text(l10n.commonSave));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.categoryFormNewTitle), findsNothing);
+    expect(find.text('Coffee'), findsOneWidget);
+  });
+
+  testWidgets('archiving a category hides it but keeps it readable', (tester) async {
+    final container = await pumpApp(tester);
+    await tester.runAsync(() => container.read(defaultCategoriesSeederProvider).seed());
+    await tester.tap(
+      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.categoriesTitle));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text(l10n.categoryDefaultFood));
+    await tester.pumpAndSettle();
+    final archive = find.widgetWithText(TextButton, l10n.categoryFormArchive);
+    await tester.ensureVisible(archive);
+    await tester.tap(archive);
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(of: find.byType(AlertDialog), matching: find.text(l10n.categoryFormArchive)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.categoryFormEditTitle), findsNothing);
+    expect(find.text(l10n.categoryDefaultFood), findsNothing);
+    final row = await tester.runAsync(
+      () => container
+          .read(databaseProvider)
+          .categoriesDao
+          .getById(testUser.id, DefaultCategories.idFor(testUser.id, 'food')),
+    );
+    expect(row?.deletedAt, isNotNull);
+  });
+
+  testWidgets('adding a transaction from the transactions tab saves it', (tester) async {
+    final container = await pumpApp(tester);
+    await tester.runAsync(() => container.read(defaultCategoriesSeederProvider).seed());
+
+    await tester.tap(
+      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.transactionsTitle)),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip(l10n.transactionsAdd));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.widgetWithText(TextFormField, l10n.transactionFormAmountLabel),
+      '12.50',
+    );
+    await tester.tap(find.text(l10n.categoryDefaultFood));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text(l10n.commonSave));
+    await tester.tap(find.text(l10n.commonSave));
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.transactionFormNewTitle), findsNothing);
+    final db = container.read(databaseProvider);
+    final rows = await tester.runAsync(() => db.select(db.transactions).get());
+    expect(rows, hasLength(1));
+    expect(rows!.single.amountMinor, 1250);
+    expect(rows.single.type, 'expense');
+    expect(rows.single.categoryId, DefaultCategories.idFor(testUser.id, 'food'));
+
+    // The list follows the database: no manual refresh needed.
+    expect(find.text(l10n.commonToday), findsOneWidget);
+    expect(find.text(r'-$12.50'), findsWidgets);
+    expect(find.text(l10n.categoryDefaultFood), findsOneWidget);
+
+    // Month filter: the previous month is empty, the current one shows it again.
+    await tester.tap(find.byTooltip(l10n.commonPreviousMonth));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.transactionsEmptyTitle('September 2026')), findsOneWidget);
+    await tester.tap(find.byTooltip(l10n.commonNextMonth));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.categoryDefaultFood), findsOneWidget);
+
+    // Swipe to delete (soft), then Undo restores it.
+    await tester.fling(find.text(l10n.categoryDefaultFood), const Offset(-600, 0), 1000);
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.categoryDefaultFood), findsNothing);
+    final deleted = await tester.runAsync(() => db.select(db.transactions).getSingle());
+    expect(deleted?.deletedAt, isNotNull);
+
+    await tester.tap(find.text(l10n.commonUndo));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.categoryDefaultFood), findsOneWidget);
+    final restored = await tester.runAsync(() => db.select(db.transactions).getSingle());
+    expect(restored?.deletedAt, isNull);
+
+    // Detail page: tap the row, delete from there, then undo from the list.
+    await tester.tap(find.text(l10n.categoryDefaultFood));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, l10n.transactionDetailTitle), findsOneWidget);
+    expect(find.text(r'-$12.50'), findsOneWidget);
+    await tester.tap(find.byTooltip(l10n.commonDelete));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(AppBar, l10n.transactionsTitle), findsOneWidget);
+    expect(find.text(l10n.transactionDeleted), findsOneWidget);
+    expect(find.text(l10n.categoryDefaultFood), findsNothing);
+    await tester.tap(find.text(l10n.commonUndo));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.categoryDefaultFood), findsOneWidget);
   });
 
   testWidgets('theme picker in settings switches to dark mode and persists it', (tester) async {

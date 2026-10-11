@@ -37,4 +37,24 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     expect(refreshed, 1);
   });
+
+  testWidgets('shows a bottom widget under the app bar', (tester) async {
+    await tester.pumpApp(
+      const DefaultTabController(
+        length: 2,
+        child: AppScaffold(
+          title: 'Title',
+          bottom: TabBar(
+            tabs: [
+              Tab(text: 'One'),
+              Tab(text: 'Two'),
+            ],
+          ),
+          body: SizedBox(),
+        ),
+      ),
+    );
+    expect(find.text('One'), findsOneWidget);
+    expect(find.descendant(of: find.byType(AppBar), matching: find.byType(TabBar)), findsOneWidget);
+  });
 }

@@ -9,9 +9,11 @@ import 'package:expense_tracker/features/auth/presentation/screens/reset_passwor
 import 'package:expense_tracker/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:expense_tracker/features/auth/presentation/screens/splash_screen.dart';
 import 'package:expense_tracker/features/budget/presentation/screens/budget_screen.dart';
+import 'package:expense_tracker/features/categories/presentation/screens/categories_screen.dart';
 import 'package:expense_tracker/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:expense_tracker/features/profile/presentation/screens/onboarding_screen.dart';
 import 'package:expense_tracker/features/settings/presentation/screens/settings_screen.dart';
+import 'package:expense_tracker/features/transactions/presentation/screens/transaction_detail_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/screens/transactions_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
@@ -89,6 +91,16 @@ GoRouter router(Ref ref) {
                 name: Routes.transactions,
                 path: Routes.transactionsPath,
                 builder: (context, state) => const TransactionsScreen(),
+                routes: [
+                  GoRoute(
+                    name: Routes.transactionDetail,
+                    // Relative to transactions: the full path is Routes.transactionDetailPath.
+                    path: ':${Routes.transactionIdParam}',
+                    builder: (context, state) => TransactionDetailScreen(
+                      id: state.pathParameters[Routes.transactionIdParam]!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -107,6 +119,14 @@ GoRouter router(Ref ref) {
                 name: Routes.settings,
                 path: Routes.settingsPath,
                 builder: (context, state) => const SettingsScreen(),
+                routes: [
+                  GoRoute(
+                    name: Routes.categories,
+                    // Relative to settings: the full path is Routes.categoriesPath.
+                    path: Routes.categoriesPath.substring(Routes.settingsPath.length + 1),
+                    builder: (context, state) => const CategoriesScreen(),
+                  ),
+                ],
               ),
             ],
           ),

@@ -78,6 +78,10 @@ abstract final class AppDateUtils {
   static String formatShortDate(DateTime value, String locale) =>
       DateFormat.yMMMd(locale).format(value);
 
+  /// e.g. `Sat, Oct 3` (no year), for list headers within a month.
+  static String formatWeekdayDate(DateTime value, String locale) =>
+      DateFormat.MMMEd(locale).format(value);
+
   /// e.g. `Saturday, October 3, 2026`.
   static String formatLongDate(DateTime value, String locale) =>
       DateFormat.yMMMMEEEEd(locale).format(value);
