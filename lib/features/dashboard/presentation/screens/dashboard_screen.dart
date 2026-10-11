@@ -8,6 +8,7 @@ import 'package:expense_tracker/core/widgets/async_value_view.dart';
 import 'package:expense_tracker/core/widgets/month_selector.dart';
 import 'package:expense_tracker/features/dashboard/presentation/providers/dashboard_providers.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_budget_section.dart';
+import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_goals_section.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_heatmap_section.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_recent_section.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_spending_section.dart';
@@ -20,7 +21,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
 /// The dashboard tab: its own month selector above that month's balance, income and expenses,
-/// then its daily spending heatmap, spending by category, budgets and latest transactions. The + button adds a
+/// then its daily spending heatmap, spending by category, budgets, goals and latest
+/// transactions. The + button adds a
 /// transaction; pull to refresh syncs.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -75,6 +77,8 @@ class DashboardScreen extends ConsumerWidget {
                     DashboardSpendingSection(month: month, currencyCode: currencyCode),
                     const Gap(AppSpacing.lg),
                     DashboardBudgetSection(month: month, currencyCode: currencyCode),
+                    const Gap(AppSpacing.lg),
+                    DashboardGoalsSection(currencyCode: currencyCode),
                     const Gap(AppSpacing.lg),
                     DashboardRecentSection(month: month, currencyCode: currencyCode),
                   ],

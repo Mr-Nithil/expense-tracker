@@ -12,10 +12,12 @@ import 'package:expense_tracker/features/categories/presentation/providers/categ
 import 'package:expense_tracker/features/dashboard/presentation/providers/dashboard_providers.dart';
 import 'package:expense_tracker/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_budget_section.dart';
+import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_goals_section.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_heatmap_section.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_recent_section.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_spending_section.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_summary_cards.dart';
+import 'package:expense_tracker/features/goals/presentation/providers/goals_providers.dart';
 import 'package:expense_tracker/features/profile/domain/entities/profile.dart';
 import 'package:expense_tracker/features/profile/presentation/providers/profile_providers.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/month_totals.dart';
@@ -49,6 +51,7 @@ void main() {
     spendingBreakdownProvider(october).overrideWith((ref) => Stream.value(SpendingBreakdown.empty)),
     monthDailyTotalsProvider(october).overrideWith((ref) => Stream.value({})),
     monthDailyTotalsProvider(september).overrideWith((ref) => Stream.value({})),
+    goalsProvider.overrideWith((ref) => Stream.value(const [])),
     budgetOverviewProvider(october).overrideWith((ref) => Stream.value(const BudgetOverview())),
     transactionsProvider(TransactionFilter(month: october)).overrideWith((ref) => Stream.value([])),
     transactionsProvider(TransactionFilter(month: september)).overrideWith(
@@ -85,6 +88,8 @@ void main() {
     expect(find.byType(DashboardSpendingSection), findsOneWidget);
     await tester.scrollUntilVisible(find.byType(DashboardBudgetSection), 200);
     expect(find.byType(DashboardBudgetSection), findsOneWidget);
+    await tester.scrollUntilVisible(find.byType(DashboardGoalsSection), 200);
+    expect(find.byType(DashboardGoalsSection), findsOneWidget);
     await tester.scrollUntilVisible(find.byType(DashboardRecentSection), 200);
     expect(find.byType(DashboardRecentSection), findsOneWidget);
   });
@@ -171,6 +176,7 @@ void main() {
           (ref) => Stream.value(SpendingBreakdown.empty),
         ),
         monthDailyTotalsProvider(october).overrideWith((ref) => Stream.value({})),
+        goalsProvider.overrideWith((ref) => Stream.value(const [])),
         budgetOverviewProvider(october).overrideWith((ref) => Stream.value(const BudgetOverview())),
         transactionsProvider(TransactionFilter(month: october)).overrideWith(
           (ref) => Stream.value([]),

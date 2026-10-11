@@ -13,6 +13,9 @@ enum ProgressLevel {
 
   /// At or over the limit: expense color.
   exceeded,
+
+  /// A target reached (e.g. a savings goal): success color.
+  complete,
 }
 
 /// A rounded horizontal bar for budget and goal progress. Use instead of a raw
@@ -37,6 +40,7 @@ class ProgressBar extends StatelessWidget {
       ProgressLevel.normal => context.colorScheme.primary,
       ProgressLevel.warning => context.colors.warning,
       ProgressLevel.exceeded => context.colors.expense,
+      ProgressLevel.complete => context.colors.success,
     };
     return LinearProgressIndicator(
       value: value.clamp(0.0, 1.0),

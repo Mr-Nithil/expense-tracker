@@ -8,9 +8,16 @@ import 'package:expense_tracker/core/sync/sync_puller.dart';
 import 'package:expense_tracker/core/sync/sync_pusher.dart';
 import 'package:expense_tracker/core/sync/sync_registry.dart';
 import 'package:expense_tracker/core/sync/sync_service.dart';
+import 'package:expense_tracker/core/utils/clock.dart';
+import 'package:expense_tracker/core/utils/money.dart';
+import 'package:expense_tracker/features/goals/data/goal_repository_impl.dart';
+import 'package:expense_tracker/features/goals/domain/entities/goal.dart';
+import 'package:expense_tracker/features/goals/domain/entities/goal_contribution.dart';
+import 'package:expense_tracker/features/goals/domain/goal_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/fake_sync_trigger.dart';
 import '../../helpers/test_database.dart';
 
 const _user = 'user-1';
@@ -73,6 +80,12 @@ class _Device {
     final container = ProviderContainer();
     addTearDown(container.dispose);
     final session = container.read(sessionProvider.notifier)..set(const SessionUser(userId: _user));
+    goals = GoalRepositoryImpl(
+      dao: db.goalsDao,
+      clock: FixedClock(DateTime(2026, 10, 12, 9)),
+      session: session,
+      syncTrigger: FakeSyncTrigger(),
+    );
     final tables = syncableTables(db);
     sync = SyncService(
       pusher: SyncPusher(tables: tables, gateway: server),
@@ -83,6 +96,9 @@ class _Device {
 
   final AppDatabase db;
   late final SyncService sync;
+
+  /// The real goals repository on this phone (M6.1).
+  late final GoalRepository goals;
 
   /// A local write, as a repository makes it: pending, with this device's `updated_at`.
   Future<void> saveCategory(
@@ -219,5 +235,56 @@ void main() {
     await a.syncOk();
 
     await expectConverged('food', name: 'Food & drink (B, later)');
+  });
+
+  group('goals and contributions', () {
+    test('a goal and its contributions reach the other phone with the same saved total', () async {
+      final goal = (await a.goals.create(
+        const GoalDraft(name: 'Laptop', target: Money(150000), icon: 'savings', color: 0),
+      )).valueOrNull!;
+      for (final amount in [3000, 2000]) {
+        final result = await a.goals.addContribution(
+          ContributionDraft(
+            goalId: goal.id,
+            amount: Money(amount),
+            contributedOn: DateTime(2026, 10, 5),
+          ),
+        );
+        expect(result.isSuccess, isTrue);
+      }
+
+      await a.syncOk();
+      await b.syncOk();
+
+      final onB = await b.goals.watchById(goal.id).first;
+      expect(onB?.goal.name, 'Laptop');
+      expect(onB?.saved, const Money(5000));
+      expect(await b.goals.watchContributions(goal.id).first, hasLength(2));
+      expect(server.row('goals', goal.id)?['target_minor'], 150000);
+    });
+
+    test('deleting a goal on one phone removes it and its contributions on the other', () async {
+      final goal = (await a.goals.create(
+        const GoalDraft(name: 'Bike', target: Money(40000), icon: 'sports', color: 0),
+      )).valueOrNull!;
+      final contribution = (await a.goals.addContribution(
+        ContributionDraft(goalId: goal.id, amount: const Money(1000), contributedOn: t0),
+      )).valueOrNull!;
+      await a.syncOk();
+      await b.syncOk();
+
+      expect((await b.goals.delete(goal.id)).isSuccess, isTrue);
+      await b.syncOk();
+      await a.syncOk();
+
+      expect(await a.goals.watchAll().first, isEmpty);
+      expect(await a.goals.watchContributions(goal.id).first, isEmpty);
+      expect((await a.db.goalsDao.getById(_user, goal.id))?.deletedAt, isNotNull);
+      expect(
+        (await a.db.goalsDao.getContributionById(_user, contribution.id))?.deletedAt,
+        isNotNull,
+      );
+      expect(server.row('goal_contributions', contribution.id)?['deleted_at'], isNotNull);
+    });
   });
 }

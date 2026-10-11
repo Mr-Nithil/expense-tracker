@@ -11,6 +11,8 @@ import 'package:expense_tracker/features/auth/presentation/screens/splash_screen
 import 'package:expense_tracker/features/budget/presentation/screens/budget_screen.dart';
 import 'package:expense_tracker/features/categories/presentation/screens/categories_screen.dart';
 import 'package:expense_tracker/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:expense_tracker/features/goals/presentation/screens/goal_detail_screen.dart';
+import 'package:expense_tracker/features/goals/presentation/screens/goals_screen.dart';
 import 'package:expense_tracker/features/profile/presentation/screens/onboarding_screen.dart';
 import 'package:expense_tracker/features/settings/presentation/screens/settings_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/screens/transaction_detail_screen.dart';
@@ -110,6 +112,24 @@ GoRouter router(Ref ref) {
                 name: Routes.budget,
                 path: Routes.budgetPath,
                 builder: (context, state) => const BudgetScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                name: Routes.goals,
+                path: Routes.goalsPath,
+                builder: (context, state) => const GoalsScreen(),
+                routes: [
+                  GoRoute(
+                    name: Routes.goalDetail,
+                    // Relative to goals: the full path is Routes.goalDetailPath.
+                    path: ':${Routes.goalIdParam}',
+                    builder: (context, state) =>
+                        GoalDetailScreen(id: state.pathParameters[Routes.goalIdParam]!),
+                  ),
+                ],
               ),
             ],
           ),

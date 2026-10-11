@@ -400,6 +400,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardBudgetsTitle => 'Budgets';
 
   @override
+  String get dashboardGoalsEmpty => 'No savings goals yet.';
+
+  @override
+  String dashboardGoalsReached(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count goals reached',
+      one: '1 goal reached',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dashboardGoalsSet => 'Set a goal';
+
+  @override
+  String dashboardGoalsTotal(String saved, String target) {
+    return 'Saved $saved of $target';
+  }
+
+  @override
   String dashboardHeatmapDay(String date, String amount) {
     return '$date: spent $amount';
   }
@@ -518,6 +540,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorFieldRequired => 'This field is required.';
 
   @override
+  String get errorGoalContributionDateOutOfRange => 'Choose a date that isn\'t in the future.';
+
+  @override
+  String errorGoalDeadlineOutOfRange(int years) {
+    return 'Choose a deadline within the next $years years.';
+  }
+
+  @override
+  String get errorGoalNotFound => 'This goal no longer exists.';
+
+  @override
   String get errorNetwork => 'Can\'t reach the server. Check your connection and try again.';
 
   @override
@@ -551,6 +584,124 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorValidation => 'Please check the highlighted fields.';
+
+  @override
+  String get goalContributionAmountLabel => 'Amount';
+
+  @override
+  String get goalContributionDateLabel => 'Date';
+
+  @override
+  String get goalContributionDeleted => 'Contribution removed';
+
+  @override
+  String get goalContributionNoteLabel => 'Note (optional)';
+
+  @override
+  String get goalDeleteConfirmMessage => 'Its history will be deleted too.';
+
+  @override
+  String goalDeleteConfirmTitle(String name) {
+    return 'Delete \"$name\"?';
+  }
+
+  @override
+  String get goalDetailCompleted => 'Goal reached';
+
+  @override
+  String get goalDetailDelete => 'Delete goal';
+
+  @override
+  String get goalDetailHistory => 'History';
+
+  @override
+  String get goalDetailHistoryEmpty => 'No money added yet.';
+
+  @override
+  String get goalDetailMissingMessage => 'It may have been deleted on another device.';
+
+  @override
+  String get goalDetailMissingTitle => 'Goal not found';
+
+  @override
+  String goalDetailNeededPerMonth(String amount, String date) {
+    return 'Save $amount a month to reach it by $date.';
+  }
+
+  @override
+  String goalDetailOverdue(String date) {
+    return 'The deadline ($date) has passed.';
+  }
+
+  @override
+  String goalDetailRemaining(String amount) {
+    return '$amount to go';
+  }
+
+  @override
+  String get goalFormClearDeadline => 'Remove deadline';
+
+  @override
+  String get goalFormColorLabel => 'Color';
+
+  @override
+  String get goalFormDeadlineLabel => 'Deadline (optional)';
+
+  @override
+  String get goalFormEditTitle => 'Edit goal';
+
+  @override
+  String get goalFormIconLabel => 'Icon';
+
+  @override
+  String get goalFormNameLabel => 'Name';
+
+  @override
+  String get goalFormNewTitle => 'New goal';
+
+  @override
+  String get goalFormNoDeadline => 'No deadline';
+
+  @override
+  String get goalFormTargetLabel => 'Target amount';
+
+  @override
+  String get goalsAdd => 'Add goal';
+
+  @override
+  String get goalsAddMoney => 'Add money';
+
+  @override
+  String get goalsCompleted => 'Completed';
+
+  @override
+  String goalsDeadline(String date) {
+    return 'By $date';
+  }
+
+  @override
+  String get goalsEmptyMessage => 'Set a savings goal and see how close you are.';
+
+  @override
+  String get goalsEmptyTitle => 'No goals yet';
+
+  @override
+  String goalsListSubtitle(String amounts, String status) {
+    return '$amounts · $status';
+  }
+
+  @override
+  String goalsPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String goalsSavedOfTarget(String saved, String target) {
+    return '$saved of $target';
+  }
+
+  @override
+  String get goalsTitle => 'Goals';
 
   @override
   String get onboardingContinue => 'Continue';

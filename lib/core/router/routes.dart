@@ -34,6 +34,14 @@ abstract final class Routes {
   static const budget = 'budget';
   static const budgetPath = '/budget';
 
+  static const goals = 'goals';
+  static const goalsPath = '/goals';
+
+  /// Nested under goals: opens inside the Goals tab.
+  static const goalDetail = 'goalDetail';
+  static const goalDetailPath = '/goals/:goalId';
+  static const goalIdParam = 'goalId';
+
   static const settings = 'settings';
   static const settingsPath = '/settings';
 

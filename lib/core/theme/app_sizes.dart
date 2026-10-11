@@ -28,6 +28,13 @@ abstract final class AppSizes {
   /// One day of the dashboard's compact spending heatmap (7 per row).
   static const double heatmapCell = 32;
 
+  /// Diameter and thickness of `ProgressRing` (goal progress).
+  static const double progressRing = 48;
+
+  /// The big ring at the top of a goal's page.
+  static const double progressRingLarge = 120;
+  static const double progressRingStroke = 4;
+
   /// Ring around the selected option in pickers (icons, colors).
   static const double selectionBorder = 2;
   static const double sheetHandleWidth = 32;

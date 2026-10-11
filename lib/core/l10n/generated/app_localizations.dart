@@ -782,6 +782,30 @@ abstract class AppLocalizations {
   /// **'Budgets'**
   String get dashboardBudgetsTitle;
 
+  /// Dashboard goals section when the user has no goals
+  ///
+  /// In en, this message translates to:
+  /// **'No savings goals yet.'**
+  String get dashboardGoalsEmpty;
+
+  /// Dashboard goals section: how many goals have reached their target
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 goal reached} other{{count} goals reached}}'**
+  String dashboardGoalsReached(int count);
+
+  /// Dashboard goals section action that opens the Goals tab
+  ///
+  /// In en, this message translates to:
+  /// **'Set a goal'**
+  String get dashboardGoalsSet;
+
+  /// Dashboard goals section: saved across all goals of their combined targets; both pre-formatted
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {saved} of {target}'**
+  String dashboardGoalsTotal(String saved, String target);
+
   /// Screen reader label of a day in the dashboard spending heatmap; date and amount are pre-formatted
   ///
   /// In en, this message translates to:
@@ -968,6 +992,24 @@ abstract class AppLocalizations {
   /// **'This field is required.'**
   String get errorFieldRequired;
 
+  /// Add-money form: the date is in the future (or before 2000)
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date that isn\'t in the future.'**
+  String get errorGoalContributionDateOutOfRange;
+
+  /// Goal form: the deadline is before 2000 or too far ahead
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a deadline within the next {years} years.'**
+  String errorGoalDeadlineOutOfRange(int years);
+
+  /// Add money or undo failed because the goal was deleted (e.g. on another device)
+  ///
+  /// In en, this message translates to:
+  /// **'This goal no longer exists.'**
+  String get errorGoalNotFound;
+
   /// Shown for NetworkFailure
   ///
   /// In en, this message translates to:
@@ -1033,6 +1075,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please check the highlighted fields.'**
   String get errorValidation;
+
+  /// Add-money form: label of the amount field
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get goalContributionAmountLabel;
+
+  /// Add-money form: section header above the date
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get goalContributionDateLabel;
+
+  /// Snackbar after removing a contribution from a goal's history (with Undo)
+  ///
+  /// In en, this message translates to:
+  /// **'Contribution removed'**
+  String get goalContributionDeleted;
+
+  /// Add-money form: label of the note field
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get goalContributionNoteLabel;
+
+  /// Body of the dialog that confirms deleting a goal
+  ///
+  /// In en, this message translates to:
+  /// **'Its history will be deleted too.'**
+  String get goalDeleteConfirmMessage;
+
+  /// Title of the dialog that confirms deleting a goal
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"?'**
+  String goalDeleteConfirmTitle(String name);
+
+  /// Goal detail: the target has been saved
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached'**
+  String get goalDetailCompleted;
+
+  /// Goal detail: action that deletes the goal
+  ///
+  /// In en, this message translates to:
+  /// **'Delete goal'**
+  String get goalDetailDelete;
+
+  /// Goal detail: section header above the contributions
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get goalDetailHistory;
+
+  /// Goal detail: the goal has no contributions
+  ///
+  /// In en, this message translates to:
+  /// **'No money added yet.'**
+  String get goalDetailHistoryEmpty;
+
+  /// Goal detail: shown when the goal no longer exists
+  ///
+  /// In en, this message translates to:
+  /// **'It may have been deleted on another device.'**
+  String get goalDetailMissingMessage;
+
+  /// Goal detail: title shown when the goal no longer exists
+  ///
+  /// In en, this message translates to:
+  /// **'Goal not found'**
+  String get goalDetailMissingTitle;
+
+  /// Goal detail: monthly amount needed to reach the target by the deadline; both pre-formatted
+  ///
+  /// In en, this message translates to:
+  /// **'Save {amount} a month to reach it by {date}.'**
+  String goalDetailNeededPerMonth(String amount, String date);
+
+  /// Goal detail: the goal is not reached and its deadline is in the past; date pre-formatted
+  ///
+  /// In en, this message translates to:
+  /// **'The deadline ({date}) has passed.'**
+  String goalDetailOverdue(String date);
+
+  /// Goal detail: what is still to save; amount is pre-formatted money
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} to go'**
+  String goalDetailRemaining(String amount);
+
+  /// Goal form: button/tooltip that removes the optional deadline
+  ///
+  /// In en, this message translates to:
+  /// **'Remove deadline'**
+  String get goalFormClearDeadline;
+
+  /// Goal form: section header above the color choices
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get goalFormColorLabel;
+
+  /// Goal form: section header above the deadline date
+  ///
+  /// In en, this message translates to:
+  /// **'Deadline (optional)'**
+  String get goalFormDeadlineLabel;
+
+  /// Title of the sheet that edits a goal
+  ///
+  /// In en, this message translates to:
+  /// **'Edit goal'**
+  String get goalFormEditTitle;
+
+  /// Goal form: section header above the icon choices
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get goalFormIconLabel;
+
+  /// Goal form: label of the name field
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get goalFormNameLabel;
+
+  /// Title of the sheet that adds a goal
+  ///
+  /// In en, this message translates to:
+  /// **'New goal'**
+  String get goalFormNewTitle;
+
+  /// Goal form: shown on the date button when the goal has no deadline
+  ///
+  /// In en, this message translates to:
+  /// **'No deadline'**
+  String get goalFormNoDeadline;
+
+  /// Goal form: label of the amount to save
+  ///
+  /// In en, this message translates to:
+  /// **'Target amount'**
+  String get goalFormTargetLabel;
+
+  /// Button and tooltip that open the sheet to add a goal
+  ///
+  /// In en, this message translates to:
+  /// **'Add goal'**
+  String get goalsAdd;
+
+  /// Goal detail: button and sheet title for adding a contribution
+  ///
+  /// In en, this message translates to:
+  /// **'Add money'**
+  String get goalsAddMoney;
+
+  /// Goal list: the goal's target has been reached
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get goalsCompleted;
+
+  /// Goal list: the goal's deadline; date is pre-formatted, e.g. Jun 1, 2027
+  ///
+  /// In en, this message translates to:
+  /// **'By {date}'**
+  String goalsDeadline(String date);
+
+  /// Empty state message of the goals tab
+  ///
+  /// In en, this message translates to:
+  /// **'Set a savings goal and see how close you are.'**
+  String get goalsEmptyMessage;
+
+  /// Empty state title of the goals tab
+  ///
+  /// In en, this message translates to:
+  /// **'No goals yet'**
+  String get goalsEmptyTitle;
+
+  /// Goal list subtitle: the saved/target text, then the deadline or 'Completed'
+  ///
+  /// In en, this message translates to:
+  /// **'{amounts} · {status}'**
+  String goalsListSubtitle(String amounts, String status);
+
+  /// Share of a goal's target saved, as a whole percent (can exceed 100)
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String goalsPercent(int percent);
+
+  /// Saved so far against a goal's target; both are pre-formatted money, e.g. $500.00 of $1,500.00
+  ///
+  /// In en, this message translates to:
+  /// **'{saved} of {target}'**
+  String goalsSavedOfTarget(String saved, String target);
+
+  /// Title of the goals tab and its bottom navigation label
+  ///
+  /// In en, this message translates to:
+  /// **'Goals'**
+  String get goalsTitle;
 
   /// Button that saves the chosen currency and finishes onboarding
   ///

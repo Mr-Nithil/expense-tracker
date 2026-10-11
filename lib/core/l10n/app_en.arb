@@ -292,6 +292,20 @@
   "@dashboardBudgetsSet": { "description": "Dashboard budgets section action that opens the Budget tab on that month" },
   "dashboardBudgetsTitle": "Budgets",
   "@dashboardBudgetsTitle": { "description": "Title of the dashboard section with the month's budget progress" },
+  "dashboardGoalsEmpty": "No savings goals yet.",
+  "@dashboardGoalsEmpty": { "description": "Dashboard goals section when the user has no goals" },
+  "dashboardGoalsReached": "{count, plural, =1{1 goal reached} other{{count} goals reached}}",
+  "@dashboardGoalsReached": {
+    "description": "Dashboard goals section: how many goals have reached their target",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "dashboardGoalsSet": "Set a goal",
+  "@dashboardGoalsSet": { "description": "Dashboard goals section action that opens the Goals tab" },
+  "dashboardGoalsTotal": "Saved {saved} of {target}",
+  "@dashboardGoalsTotal": {
+    "description": "Dashboard goals section: saved across all goals of their combined targets; both pre-formatted",
+    "placeholders": { "saved": { "type": "String" }, "target": { "type": "String" } }
+  },
   "dashboardHeatmapDay": "{date}: spent {amount}",
   "@dashboardHeatmapDay": {
     "description": "Screen reader label of a day in the dashboard spending heatmap; date and amount are pre-formatted",
@@ -376,6 +390,15 @@
   "@errorEmailInvalid": { "description": "Form field error for a malformed email address" },
   "errorFieldRequired": "This field is required.",
   "@errorFieldRequired": { "description": "Form field error for an empty required field" },
+  "errorGoalContributionDateOutOfRange": "Choose a date that isn't in the future.",
+  "@errorGoalContributionDateOutOfRange": { "description": "Add-money form: the date is in the future (or before 2000)" },
+  "errorGoalDeadlineOutOfRange": "Choose a deadline within the next {years} years.",
+  "@errorGoalDeadlineOutOfRange": {
+    "description": "Goal form: the deadline is before 2000 or too far ahead",
+    "placeholders": { "years": { "type": "int" } }
+  },
+  "errorGoalNotFound": "This goal no longer exists.",
+  "@errorGoalNotFound": { "description": "Add money or undo failed because the goal was deleted (e.g. on another device)" },
   "errorNetwork": "Can't reach the server. Check your connection and try again.",
   "@errorNetwork": { "description": "Shown for NetworkFailure" },
   "errorNotFound": "We couldn't find that item. It may have been deleted.",
@@ -401,6 +424,99 @@
   "@errorUnexpected": { "description": "Shown for UnexpectedFailure and unknown errors" },
   "errorValidation": "Please check the highlighted fields.",
   "@errorValidation": { "description": "Shown for ValidationFailure when no field-specific message exists" },
+
+  "goalContributionAmountLabel": "Amount",
+  "@goalContributionAmountLabel": { "description": "Add-money form: label of the amount field" },
+  "goalContributionDateLabel": "Date",
+  "@goalContributionDateLabel": { "description": "Add-money form: section header above the date" },
+  "goalContributionDeleted": "Contribution removed",
+  "@goalContributionDeleted": { "description": "Snackbar after removing a contribution from a goal's history (with Undo)" },
+  "goalContributionNoteLabel": "Note (optional)",
+  "@goalContributionNoteLabel": { "description": "Add-money form: label of the note field" },
+  "goalDeleteConfirmMessage": "Its history will be deleted too.",
+  "@goalDeleteConfirmMessage": { "description": "Body of the dialog that confirms deleting a goal" },
+  "goalDeleteConfirmTitle": "Delete \"{name}\"?",
+  "@goalDeleteConfirmTitle": {
+    "description": "Title of the dialog that confirms deleting a goal",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "goalDetailCompleted": "Goal reached",
+  "@goalDetailCompleted": { "description": "Goal detail: the target has been saved" },
+  "goalDetailDelete": "Delete goal",
+  "@goalDetailDelete": { "description": "Goal detail: action that deletes the goal" },
+  "goalDetailHistory": "History",
+  "@goalDetailHistory": { "description": "Goal detail: section header above the contributions" },
+  "goalDetailHistoryEmpty": "No money added yet.",
+  "@goalDetailHistoryEmpty": { "description": "Goal detail: the goal has no contributions" },
+  "goalDetailMissingMessage": "It may have been deleted on another device.",
+  "@goalDetailMissingMessage": { "description": "Goal detail: shown when the goal no longer exists" },
+  "goalDetailMissingTitle": "Goal not found",
+  "@goalDetailMissingTitle": { "description": "Goal detail: title shown when the goal no longer exists" },
+  "goalDetailNeededPerMonth": "Save {amount} a month to reach it by {date}.",
+  "@goalDetailNeededPerMonth": {
+    "description": "Goal detail: monthly amount needed to reach the target by the deadline; both pre-formatted",
+    "placeholders": { "amount": { "type": "String" }, "date": { "type": "String" } }
+  },
+  "goalDetailOverdue": "The deadline ({date}) has passed.",
+  "@goalDetailOverdue": {
+    "description": "Goal detail: the goal is not reached and its deadline is in the past; date pre-formatted",
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "goalDetailRemaining": "{amount} to go",
+  "@goalDetailRemaining": {
+    "description": "Goal detail: what is still to save; amount is pre-formatted money",
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "goalFormClearDeadline": "Remove deadline",
+  "@goalFormClearDeadline": { "description": "Goal form: button/tooltip that removes the optional deadline" },
+  "goalFormColorLabel": "Color",
+  "@goalFormColorLabel": { "description": "Goal form: section header above the color choices" },
+  "goalFormDeadlineLabel": "Deadline (optional)",
+  "@goalFormDeadlineLabel": { "description": "Goal form: section header above the deadline date" },
+  "goalFormEditTitle": "Edit goal",
+  "@goalFormEditTitle": { "description": "Title of the sheet that edits a goal" },
+  "goalFormIconLabel": "Icon",
+  "@goalFormIconLabel": { "description": "Goal form: section header above the icon choices" },
+  "goalFormNameLabel": "Name",
+  "@goalFormNameLabel": { "description": "Goal form: label of the name field" },
+  "goalFormNewTitle": "New goal",
+  "@goalFormNewTitle": { "description": "Title of the sheet that adds a goal" },
+  "goalFormNoDeadline": "No deadline",
+  "@goalFormNoDeadline": { "description": "Goal form: shown on the date button when the goal has no deadline" },
+  "goalFormTargetLabel": "Target amount",
+  "@goalFormTargetLabel": { "description": "Goal form: label of the amount to save" },
+  "goalsAdd": "Add goal",
+  "@goalsAdd": { "description": "Button and tooltip that open the sheet to add a goal" },
+  "goalsAddMoney": "Add money",
+  "@goalsAddMoney": { "description": "Goal detail: button and sheet title for adding a contribution" },
+  "goalsCompleted": "Completed",
+  "@goalsCompleted": { "description": "Goal list: the goal's target has been reached" },
+  "goalsDeadline": "By {date}",
+  "@goalsDeadline": {
+    "description": "Goal list: the goal's deadline; date is pre-formatted, e.g. Jun 1, 2027",
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "goalsEmptyMessage": "Set a savings goal and see how close you are.",
+  "@goalsEmptyMessage": { "description": "Empty state message of the goals tab" },
+  "goalsEmptyTitle": "No goals yet",
+  "@goalsEmptyTitle": { "description": "Empty state title of the goals tab" },
+  "goalsListSubtitle": "{amounts} · {status}",
+  "@goalsListSubtitle": {
+    "description": "Goal list subtitle: the saved/target text, then the deadline or 'Completed'",
+    "placeholders": { "amounts": { "type": "String" }, "status": { "type": "String" } }
+  },
+  "goalsPercent": "{percent}%",
+  "@goalsPercent": {
+    "description": "Share of a goal's target saved, as a whole percent (can exceed 100)",
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "goalsSavedOfTarget": "{saved} of {target}",
+  "@goalsSavedOfTarget": {
+    "description": "Saved so far against a goal's target; both are pre-formatted money, e.g. $500.00 of $1,500.00",
+    "placeholders": { "saved": { "type": "String" }, "target": { "type": "String" } }
+  },
+  "goalsTitle": "Goals",
+  "@goalsTitle": { "description": "Title of the goals tab and its bottom navigation label" },
 
   "onboardingContinue": "Continue",
   "@onboardingContinue": { "description": "Button that saves the chosen currency and finishes onboarding" },

@@ -4,6 +4,7 @@ import 'package:expense_tracker/core/db/converters/date_only_converter.dart';
 import 'package:expense_tracker/core/db/daos/app_settings_dao.dart';
 import 'package:expense_tracker/core/db/daos/budgets_dao.dart';
 import 'package:expense_tracker/core/db/daos/categories_dao.dart';
+import 'package:expense_tracker/core/db/daos/goals_dao.dart';
 import 'package:expense_tracker/core/db/daos/profiles_dao.dart';
 import 'package:expense_tracker/core/db/daos/transactions_dao.dart';
 import 'package:expense_tracker/core/db/tables/app_settings.dart';
@@ -35,7 +36,7 @@ part 'app_database.g.dart';
     SyncState,
     AppSettings,
   ],
-  daos: [AppSettingsDao, BudgetsDao, CategoriesDao, ProfilesDao, TransactionsDao],
+  daos: [AppSettingsDao, BudgetsDao, CategoriesDao, GoalsDao, ProfilesDao, TransactionsDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());

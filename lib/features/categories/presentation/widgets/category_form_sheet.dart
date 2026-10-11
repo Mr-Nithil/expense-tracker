@@ -14,8 +14,8 @@ import 'package:expense_tracker/features/categories/domain/services/category_pal
 import 'package:expense_tracker/features/categories/domain/services/category_validator.dart';
 import 'package:expense_tracker/features/categories/presentation/category_type_l10n.dart';
 import 'package:expense_tracker/features/categories/presentation/providers/category_form_controller.dart';
-import 'package:expense_tracker/features/categories/presentation/widgets/category_color_picker.dart';
-import 'package:expense_tracker/features/categories/presentation/widgets/category_icon_picker.dart';
+import 'package:expense_tracker/features/categories/presentation/shared/category_color_picker.dart';
+import 'package:expense_tracker/features/categories/presentation/shared/category_icon_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

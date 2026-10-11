@@ -76,12 +76,13 @@ void main() {
     expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
   });
 
-  testWidgets('bottom navigation switches between the four tabs', (tester) async {
+  testWidgets('bottom navigation switches between the five tabs', (tester) async {
     await pumpApp(tester);
 
     final tabs = [
       l10n.transactionsTitle,
       l10n.budgetTitle,
+      l10n.goalsTitle,
       l10n.settingsTitle,
       l10n.dashboardTitle,
     ];
@@ -89,8 +90,19 @@ void main() {
       await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text(title)));
       await tester.pumpAndSettle();
       expect(find.widgetWithText(AppBar, title), findsOneWidget);
-      expect(navBar(tester).selectedIndex, (index + 1) % 4);
+      expect(navBar(tester).selectedIndex, (index + 1) % 5);
     }
+  });
+
+  testWidgets('the Goals tab starts empty', (tester) async {
+    await pumpApp(tester);
+
+    await tester.tap(
+      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.goalsTitle)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n.goalsEmptyTitle), findsOneWidget);
   });
 
   testWidgets('opens on login when there is no stored session', (tester) async {

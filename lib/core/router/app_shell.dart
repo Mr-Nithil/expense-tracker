@@ -37,6 +37,11 @@ class AppShell extends StatelessWidget {
             label: l10n.budgetTitle,
           ),
           NavigationDestination(
+            icon: const Icon(Icons.flag_outlined),
+            selectedIcon: const Icon(Icons.flag),
+            label: l10n.goalsTitle,
+          ),
+          NavigationDestination(
             icon: const Icon(Icons.settings_outlined),
             selectedIcon: const Icon(Icons.settings),
             label: l10n.settingsTitle,

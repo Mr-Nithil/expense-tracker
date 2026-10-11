@@ -20,6 +20,7 @@ void main() {
         ProgressLevel.normal => theme(tester).colorScheme.primary,
         ProgressLevel.warning => colors.warning,
         ProgressLevel.exceeded => colors.expense,
+        ProgressLevel.complete => colors.success,
       };
       expect(indicator(tester).color, expected, reason: level.name);
     }
