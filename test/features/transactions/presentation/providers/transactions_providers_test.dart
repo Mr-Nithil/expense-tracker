@@ -140,6 +140,34 @@ void main() {
     expect(await container.read(transactionsProvider(october).future), isEmpty);
   });
 
+  test('monthTotals follows new transactions and resets for a different user', () async {
+    container.listen(monthTotalsProvider(DateTime(2026, 10)), (_, _) {});
+    await add(3, 100);
+    await add(9, 250);
+    await pumpEventQueue();
+
+    var totals = await container.read(monthTotalsProvider(DateTime(2026, 10)).future);
+    expect(totals.expense, const Money(350));
+    expect(totals.balance, const Money(-350));
+
+    container.read(sessionProvider.notifier).set(const SessionUser(userId: 'u2'));
+    await pumpEventQueue();
+    totals = await container.read(monthTotalsProvider(DateTime(2026, 10)).future);
+    expect(totals.expense, Money.zero);
+  });
+
+  test('spendingBreakdown shares the month\'s expenses by category', () async {
+    container.listen(spendingBreakdownProvider(DateTime(2026, 10)), (_, _) {});
+    await add(3, 300);
+    await add(9, 100);
+    await pumpEventQueue();
+
+    final breakdown = await container.read(spendingBreakdownProvider(DateTime(2026, 10)).future);
+    expect(breakdown.total, const Money(400));
+    expect(breakdown.shares.single.categoryId, 'food');
+    expect(breakdown.shares.single.percent, 100);
+  });
+
   test('transactionById follows updates and reports deletion', () async {
     final repository = container.read(transactionRepositoryProvider);
     final created = (await repository.create(

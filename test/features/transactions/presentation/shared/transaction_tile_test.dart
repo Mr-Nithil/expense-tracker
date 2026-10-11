@@ -3,7 +3,7 @@ import 'package:expense_tracker/core/utils/money.dart';
 import 'package:expense_tracker/features/categories/domain/entities/category.dart';
 import 'package:expense_tracker/features/categories/presentation/providers/categories_providers.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
-import 'package:expense_tracker/features/transactions/presentation/widgets/transaction_tile.dart';
+import 'package:expense_tracker/features/transactions/presentation/shared/transaction_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

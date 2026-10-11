@@ -301,7 +301,13 @@ void main() {
       find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, l10n.settingsLogout));
+    final logout = find.widgetWithText(FilledButton, l10n.settingsLogout);
+    // Settings is taller than the test screen: build the button, then scroll it fully into view
+    // (clear of the navigation bar).
+    await tester.scrollUntilVisible(logout, 200);
+    await tester.ensureVisible(logout);
+    await tester.pumpAndSettle();
+    await tester.tap(logout);
     await tester.pumpAndSettle();
     // The seeded profile has never synced, so the real pending count (1) triggers the warning.
     final dialog = find.byType(AlertDialog);

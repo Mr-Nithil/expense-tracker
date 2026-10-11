@@ -16,6 +16,7 @@ export 'error_view.dart';
 export 'loading_view.dart';
 export 'message_layout.dart';
 export 'month_selector.dart';
+export 'progress_bar.dart';
 export 'section_header.dart';
 export 'swipe_to_delete.dart';
 export 'sync_status_indicator.dart';

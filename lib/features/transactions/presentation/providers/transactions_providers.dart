@@ -2,6 +2,8 @@ import 'package:expense_tracker/core/session/session.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/core/utils/date_utils.dart';
 import 'package:expense_tracker/features/transactions/data/transaction_repository_provider.dart';
+import 'package:expense_tracker/features/transactions/domain/entities/month_totals.dart';
+import 'package:expense_tracker/features/transactions/domain/entities/spending_breakdown.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
 import 'package:expense_tracker/features/transactions/domain/services/transaction_grouping.dart';
 import 'package:expense_tracker/features/transactions/domain/services/transaction_validator.dart';
@@ -61,6 +63,24 @@ Stream<List<Transaction>> transactions(Ref ref, TransactionFilter filter) {
 @riverpod
 AsyncValue<List<TransactionDay>> transactionDays(Ref ref, TransactionFilter filter) =>
     ref.watch(transactionsProvider(filter)).whenData(groupTransactionsByDay);
+
+/// Income and expense totals of the month containing [month]. Re-subscribes for a new user.
+@riverpod
+Stream<MonthTotals> monthTotals(Ref ref, DateTime month) {
+  ref.watch(sessionProvider.select((user) => user?.userId));
+  return ref.watch(transactionRepositoryProvider).watchMonthTotals(month);
+}
+
+/// Expenses of the month containing [month] by category, largest first, the tail folded into
+/// "Other". Re-subscribes for a new user.
+@riverpod
+Stream<SpendingBreakdown> spendingBreakdown(Ref ref, DateTime month) {
+  ref.watch(sessionProvider.select((user) => user?.userId));
+  return ref
+      .watch(transactionRepositoryProvider)
+      .watchMonthSpendingByCategory(month)
+      .map(SpendingBreakdown.of);
+}
 
 /// One transaction, including a soft-deleted one (`isDeleted`). Re-subscribes for a new user.
 @riverpod

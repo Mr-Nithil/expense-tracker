@@ -9,7 +9,7 @@ import 'package:expense_tracker/core/widgets/loading_view.dart';
 import 'package:expense_tracker/core/widgets/month_selector.dart';
 import 'package:expense_tracker/features/categories/domain/entities/category.dart';
 import 'package:expense_tracker/features/categories/presentation/providers/categories_providers.dart';
-import 'package:expense_tracker/features/categories/presentation/widgets/category_chip_of.dart';
+import 'package:expense_tracker/features/categories/presentation/shared/category_chip_of.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
 import 'package:expense_tracker/features/transactions/presentation/category_type_of.dart';
 import 'package:expense_tracker/features/transactions/presentation/providers/transactions_providers.dart';

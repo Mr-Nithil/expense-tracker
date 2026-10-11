@@ -74,6 +74,74 @@
   "authSignUpTitle": "Create account",
   "@authSignUpTitle": { "description": "Title of the sign-up screen" },
 
+  "budgetAdd": "Add budget",
+  "@budgetAdd": { "description": "Button and tooltip that open the sheet to add a budget for the shown month" },
+  "budgetCategoriesHeader": "Categories",
+  "@budgetCategoriesHeader": { "description": "Section header above the per-category budgets on the budget screen" },
+  "budgetCopied": "{count, plural, =0{Nothing new to copy from last month.} =1{Copied 1 budget from last month.} other{Copied {count} budgets from last month.}}",
+  "@budgetCopied": {
+    "description": "Snackbar after copying last month's budgets; count is how many were added (budgets the month already had are kept)",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "budgetCopyPrevious": "Copy last month's budgets",
+  "@budgetCopyPrevious": { "description": "Action that copies the previous month's budgets into the shown month" },
+  "budgetEmptyMessage": "Set a monthly limit to see how your spending is tracking.",
+  "@budgetEmptyMessage": { "description": "Empty state message of the budget screen when the month has no budgets" },
+  "budgetEmptyTitle": "No budgets for {month}",
+  "@budgetEmptyTitle": {
+    "description": "Empty state title of the budget screen; month is pre-formatted, e.g. October 2026",
+    "placeholders": { "month": { "type": "String" } }
+  },
+  "budgetFormCategory": "Category",
+  "@budgetFormCategory": { "description": "Budget form: option for a budget on one expense category" },
+  "budgetFormEditTitle": "Edit budget",
+  "@budgetFormEditTitle": { "description": "Title of the sheet that edits a budget" },
+  "budgetFormLimitLabel": "Monthly limit",
+  "@budgetFormLimitLabel": { "description": "Label of the budget amount field" },
+  "budgetFormNewTitle": "New budget",
+  "@budgetFormNewTitle": { "description": "Title of the sheet that adds a budget" },
+  "budgetFormNoCategoriesLeft": "Every expense category already has a budget this month.",
+  "@budgetFormNoCategoriesLeft": { "description": "Budget form: no expense category is left without a budget" },
+  "budgetFormOverall": "Overall",
+  "@budgetFormOverall": { "description": "Budget form: option for the overall budget (all expenses)" },
+  "budgetFormOverallHint": "Covers all your expenses this month.",
+  "@budgetFormOverallHint": { "description": "Budget form: explains what the overall budget counts" },
+  "budgetFormRemove": "Remove budget",
+  "@budgetFormRemove": { "description": "Budget form button that removes the budget being edited" },
+  "budgetOver": "{amount} over",
+  "@budgetOver": {
+    "description": "How far spending exceeds a budget; amount is pre-formatted money",
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "budgetOverallEmptyMessage": "Set an overall limit to track all your spending this month.",
+  "@budgetOverallEmptyMessage": { "description": "Shown in the overall budget card when only category budgets are set" },
+  "budgetOverallEmptyTitle": "No overall budget",
+  "@budgetOverallEmptyTitle": { "description": "Title of the overall budget card when no overall budget is set" },
+  "budgetOverallTitle": "Overall budget",
+  "@budgetOverallTitle": { "description": "Title of the card with the month's overall budget (all expenses)" },
+  "budgetPercentUsed": "{percent}% used",
+  "@budgetPercentUsed": {
+    "description": "Share of a budget spent so far, as a whole percent (can exceed 100)",
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "budgetRemoveConfirmMessage": "Your transactions stay as they are.",
+  "@budgetRemoveConfirmMessage": { "description": "Body of the dialog that confirms removing a budget" },
+  "budgetRemoveConfirmTitle": "Remove this budget?",
+  "@budgetRemoveConfirmTitle": { "description": "Title of the dialog that confirms removing a budget" },
+  "budgetRemaining": "{amount} left",
+  "@budgetRemaining": {
+    "description": "What is left of a budget; amount is pre-formatted money",
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "budgetSpentOfLimit": "{spent} of {limit}",
+  "@budgetSpentOfLimit": {
+    "description": "Spent so far against a budget's limit; both are pre-formatted money, e.g. $250.00 of $500.00",
+    "placeholders": { "spent": { "type": "String" }, "limit": { "type": "String" } }
+  },
+  "budgetStatusExceeded": "Limit reached",
+  "@budgetStatusExceeded": { "description": "Budget state label when spending reached or passed the limit (100% or more)" },
+  "budgetStatusWarning": "Close to limit",
+  "@budgetStatusWarning": { "description": "Budget state label when spending reached 80% of the limit" },
   "budgetTitle": "Budget",
   "@budgetTitle": { "description": "Title of the budget tab and its bottom navigation label" },
 
@@ -193,6 +261,43 @@
   "commonYesterday": "Yesterday",
   "@commonYesterday": { "description": "Relative day label, e.g. in a list header" },
 
+  "dashboardBalance": "Balance",
+  "@dashboardBalance": { "description": "Dashboard card: the month's income minus expenses" },
+  "dashboardBudgetsEmpty": "No budgets for {month}.",
+  "@dashboardBudgetsEmpty": {
+    "description": "Dashboard budgets section when the month has no budgets; month is pre-formatted, e.g. October 2026",
+    "placeholders": { "month": { "type": "String" } }
+  },
+  "dashboardBudgetsSet": "Set a budget",
+  "@dashboardBudgetsSet": { "description": "Dashboard budgets section action that opens the Budget tab on that month" },
+  "dashboardBudgetsTitle": "Budgets",
+  "@dashboardBudgetsTitle": { "description": "Title of the dashboard section with the month's budget progress" },
+  "dashboardRecentEmpty": "No transactions in {month} yet.",
+  "@dashboardRecentEmpty": {
+    "description": "Dashboard recent-transactions section when the month has none; month is pre-formatted, e.g. October 2026",
+    "placeholders": { "month": { "type": "String" } }
+  },
+  "dashboardRecentTitle": "Recent transactions",
+  "@dashboardRecentTitle": { "description": "Title of the dashboard section with the month's latest transactions" },
+  "dashboardSpendingEmpty": "No expenses in {month}.",
+  "@dashboardSpendingEmpty": {
+    "description": "Dashboard spending-by-category section when the month has no expenses; month is pre-formatted, e.g. October 2026",
+    "placeholders": { "month": { "type": "String" } }
+  },
+  "dashboardSpendingOther": "{count, plural, =1{1 more category} other{{count} more categories}}",
+  "@dashboardSpendingOther": {
+    "description": "Dashboard spending-by-category row that groups the smaller categories together (not called 'Other', which is also a default category name)",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "dashboardSpendingPercent": "{percent}%",
+  "@dashboardSpendingPercent": {
+    "description": "A category's share of the month's spending, as a whole percent",
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "dashboardSpendingPercentTiny": "<1%",
+  "@dashboardSpendingPercentTiny": { "description": "A category's share of the month's spending when it rounds to 0 but is not zero" },
+  "dashboardSpendingTitle": "Spending by category",
+  "@dashboardSpendingTitle": { "description": "Title of the dashboard section that breaks the month's expenses down by category" },
   "dashboardTitle": "Dashboard",
   "@dashboardTitle": { "description": "Title of the dashboard tab and its bottom navigation label" },
 
@@ -216,6 +321,17 @@
   "@errorAuthSamePassword": { "description": "Setting a new password failed because it equals the current one" },
   "errorAuthWeakPassword": "This password is too weak. Choose a stronger one.",
   "@errorAuthWeakPassword": { "description": "Sign-up failed because the server rejected the password as weak" },
+  "errorBudgetCategoryArchived": "This category is archived. Choose another one.",
+  "@errorBudgetCategoryArchived": { "description": "Budget form: the chosen category was archived" },
+  "errorBudgetCategoryNotExpense": "Budgets can only be set for expense categories.",
+  "@errorBudgetCategoryNotExpense": { "description": "Budget form: the chosen category is an income category" },
+  "errorBudgetCategoryRequired": "Choose a category.",
+  "@errorBudgetCategoryRequired": { "description": "Budget form: no category chosen for a category budget, or it no longer exists" },
+  "errorBudgetMonthOutOfRange": "Budgets can be set up to {months} months ahead.",
+  "@errorBudgetMonthOutOfRange": {
+    "description": "Budget error: the month is too far ahead (or before 2000)",
+    "placeholders": { "months": { "type": "int" } }
+  },
   "errorCategoryNameTaken": "You already have a category with this name.",
   "@errorCategoryNameTaken": { "description": "Category name field error: an active category of the same type already uses the name" },
   "errorCategoryTypeLocked": "This category is used by transactions, so its type can't be changed.",
@@ -269,6 +385,15 @@
 
   "settingsAccountLabel": "Account",
   "@settingsAccountLabel": { "description": "Settings section header for account actions (log out)" },
+  "settingsCurrency": "Currency",
+  "@settingsCurrency": { "description": "Settings row label for the user's currency" },
+  "settingsCurrencyLocked": "Chosen when you set up the app. It can't be changed, so all your amounts stay in one currency.",
+  "@settingsCurrencyLocked": { "description": "Settings: explains why the currency is read-only" },
+  "settingsCurrencyValue": "{code} ({symbol})",
+  "@settingsCurrencyValue": {
+    "description": "Settings: the user's currency, e.g. USD ($)",
+    "placeholders": { "code": { "type": "String" }, "symbol": { "type": "String" } }
+  },
   "settingsLogout": "Log out",
   "@settingsLogout": { "description": "Settings button and confirm action that signs the user out of this device" },
   "settingsLogoutAnyway": "Log out anyway",
@@ -284,6 +409,8 @@
   },
   "settingsManageLabel": "Manage",
   "@settingsManageLabel": { "description": "Settings section header for data the user manages (categories, later budgets)" },
+  "settingsProfileLabel": "Profile",
+  "@settingsProfileLabel": { "description": "Settings section header for the user's name, email and currency" },
   "settingsSyncLabel": "Sync",
   "@settingsSyncLabel": { "description": "Settings section header for the sync status and the Sync now button" },
   "settingsThemeDark": "Dark",

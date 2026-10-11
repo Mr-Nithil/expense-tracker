@@ -1,5 +1,5 @@
 import 'package:expense_tracker/features/categories/domain/entities/category.dart';
-import 'package:expense_tracker/features/categories/presentation/widgets/category_chip_of.dart';
+import 'package:expense_tracker/features/categories/presentation/shared/category_chip_of.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

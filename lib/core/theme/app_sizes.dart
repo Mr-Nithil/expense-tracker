@@ -13,6 +13,12 @@ abstract final class AppSizes {
   static const double progressSm = 20;
   static const double progressStroke = 2;
 
+  /// Thickness of `ProgressBar` (budget and goal progress).
+  static const double progressBarHeight = 8;
+
+  /// Bottom padding that keeps a list's last item clear of a floating action button.
+  static const double fabClearance = 80;
+
   /// Ring around the selected option in pickers (icons, colors).
   static const double selectionBorder = 2;
   static const double sheetHandleWidth = 32;

@@ -17,7 +17,7 @@ import 'package:expense_tracker/features/transactions/domain/entities/transactio
 import 'package:expense_tracker/features/transactions/domain/transaction_repository.dart';
 import 'package:expense_tracker/features/transactions/presentation/providers/transactions_providers.dart';
 import 'package:expense_tracker/features/transactions/presentation/screens/transactions_screen.dart';
-import 'package:expense_tracker/features/transactions/presentation/widgets/transaction_tile.dart';
+import 'package:expense_tracker/features/transactions/presentation/shared/transaction_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';

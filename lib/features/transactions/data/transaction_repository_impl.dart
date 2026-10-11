@@ -13,6 +13,8 @@ import 'package:expense_tracker/core/utils/date_utils.dart';
 import 'package:expense_tracker/core/utils/id.dart';
 import 'package:expense_tracker/core/utils/money.dart';
 import 'package:expense_tracker/features/transactions/data/mappers.dart';
+import 'package:expense_tracker/features/transactions/domain/entities/category_spending.dart';
+import 'package:expense_tracker/features/transactions/domain/entities/month_totals.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
 import 'package:expense_tracker/features/transactions/domain/services/transaction_validator.dart';
 import 'package:expense_tracker/features/transactions/domain/transaction_repository.dart';
@@ -50,6 +52,34 @@ class TransactionRepositoryImpl implements TransactionRepository {
           categoryId: filter.categoryId,
         )
         .map((rows) => [for (final row in rows) row.toEntity()]);
+  }
+
+  @override
+  Stream<List<CategorySpending>> watchMonthSpendingByCategory(DateTime month) {
+    final userId = session.currentUser?.userId;
+    if (userId == null) return Stream.value(const []);
+    return dao
+        .watchMonthSpendingByCategory(userId, month)
+        .map(
+          (rows) => [
+            for (final row in rows)
+              CategorySpending(categoryId: row.categoryId, amount: Money(row.spentMinor)),
+          ],
+        );
+  }
+
+  @override
+  Stream<MonthTotals> watchMonthTotals(DateTime month) {
+    final userId = session.currentUser?.userId;
+    if (userId == null) return Stream.value(MonthTotals.zero);
+    return dao
+        .watchMonthTotals(userId, month)
+        .map(
+          (totals) => MonthTotals(
+            income: Money(totals.incomeMinor),
+            expense: Money(totals.expenseMinor),
+          ),
+        );
   }
 
   @override

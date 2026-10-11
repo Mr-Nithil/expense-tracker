@@ -58,4 +58,30 @@ void main() {
     expect(arrow(tester, Icons.chevron_left).onPressed, isNull);
     expect(arrow(tester, Icons.chevron_right).onPressed, isNull);
   });
+
+  testWidgets('fits a small phone at 1.5x text', (tester) async {
+    tester.view
+      ..physicalSize = const Size(320, 640)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpApp(
+      MediaQuery(
+        data: const MediaQueryData(textScaler: TextScaler.linear(1.5)),
+        child: MonthSelector(month: DateTime(2026, 9), onChanged: (_) {}),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('September 2026'), findsOneWidget);
+  });
+
+  testWidgets('announces the month as a live region', (tester) async {
+    final handle = tester.ensureSemantics();
+    await pumpSelector(tester, DateTime(2026, 10));
+
+    final node = tester.getSemantics(find.text('October 2026'));
+    expect(node.label, 'October 2026');
+    expect(node.flagsCollection.isLiveRegion, isTrue);
+    handle.dispose();
+  });
 }

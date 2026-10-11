@@ -4,7 +4,7 @@ import 'package:expense_tracker/core/theme/app_spacing.dart';
 import 'package:expense_tracker/core/widgets/app_button.dart';
 import 'package:expense_tracker/core/widgets/loading_view.dart';
 import 'package:expense_tracker/features/categories/presentation/providers/categories_providers.dart';
-import 'package:expense_tracker/features/categories/presentation/widgets/category_chip_of.dart';
+import 'package:expense_tracker/features/categories/presentation/shared/category_chip_of.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
 import 'package:expense_tracker/features/transactions/presentation/category_type_of.dart';
 import 'package:flutter/material.dart';

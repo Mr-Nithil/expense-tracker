@@ -278,6 +278,156 @@ abstract class AppLocalizations {
   /// **'Create account'**
   String get authSignUpTitle;
 
+  /// Button and tooltip that open the sheet to add a budget for the shown month
+  ///
+  /// In en, this message translates to:
+  /// **'Add budget'**
+  String get budgetAdd;
+
+  /// Section header above the per-category budgets on the budget screen
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get budgetCategoriesHeader;
+
+  /// Snackbar after copying last month's budgets; count is how many were added (budgets the month already had are kept)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing new to copy from last month.} =1{Copied 1 budget from last month.} other{Copied {count} budgets from last month.}}'**
+  String budgetCopied(int count);
+
+  /// Action that copies the previous month's budgets into the shown month
+  ///
+  /// In en, this message translates to:
+  /// **'Copy last month\'s budgets'**
+  String get budgetCopyPrevious;
+
+  /// Empty state message of the budget screen when the month has no budgets
+  ///
+  /// In en, this message translates to:
+  /// **'Set a monthly limit to see how your spending is tracking.'**
+  String get budgetEmptyMessage;
+
+  /// Empty state title of the budget screen; month is pre-formatted, e.g. October 2026
+  ///
+  /// In en, this message translates to:
+  /// **'No budgets for {month}'**
+  String budgetEmptyTitle(String month);
+
+  /// Budget form: option for a budget on one expense category
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get budgetFormCategory;
+
+  /// Title of the sheet that edits a budget
+  ///
+  /// In en, this message translates to:
+  /// **'Edit budget'**
+  String get budgetFormEditTitle;
+
+  /// Label of the budget amount field
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly limit'**
+  String get budgetFormLimitLabel;
+
+  /// Title of the sheet that adds a budget
+  ///
+  /// In en, this message translates to:
+  /// **'New budget'**
+  String get budgetFormNewTitle;
+
+  /// Budget form: no expense category is left without a budget
+  ///
+  /// In en, this message translates to:
+  /// **'Every expense category already has a budget this month.'**
+  String get budgetFormNoCategoriesLeft;
+
+  /// Budget form: option for the overall budget (all expenses)
+  ///
+  /// In en, this message translates to:
+  /// **'Overall'**
+  String get budgetFormOverall;
+
+  /// Budget form: explains what the overall budget counts
+  ///
+  /// In en, this message translates to:
+  /// **'Covers all your expenses this month.'**
+  String get budgetFormOverallHint;
+
+  /// Budget form button that removes the budget being edited
+  ///
+  /// In en, this message translates to:
+  /// **'Remove budget'**
+  String get budgetFormRemove;
+
+  /// How far spending exceeds a budget; amount is pre-formatted money
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} over'**
+  String budgetOver(String amount);
+
+  /// Shown in the overall budget card when only category budgets are set
+  ///
+  /// In en, this message translates to:
+  /// **'Set an overall limit to track all your spending this month.'**
+  String get budgetOverallEmptyMessage;
+
+  /// Title of the overall budget card when no overall budget is set
+  ///
+  /// In en, this message translates to:
+  /// **'No overall budget'**
+  String get budgetOverallEmptyTitle;
+
+  /// Title of the card with the month's overall budget (all expenses)
+  ///
+  /// In en, this message translates to:
+  /// **'Overall budget'**
+  String get budgetOverallTitle;
+
+  /// Share of a budget spent so far, as a whole percent (can exceed 100)
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% used'**
+  String budgetPercentUsed(int percent);
+
+  /// Body of the dialog that confirms removing a budget
+  ///
+  /// In en, this message translates to:
+  /// **'Your transactions stay as they are.'**
+  String get budgetRemoveConfirmMessage;
+
+  /// Title of the dialog that confirms removing a budget
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this budget?'**
+  String get budgetRemoveConfirmTitle;
+
+  /// What is left of a budget; amount is pre-formatted money
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} left'**
+  String budgetRemaining(String amount);
+
+  /// Spent so far against a budget's limit; both are pre-formatted money, e.g. $250.00 of $500.00
+  ///
+  /// In en, this message translates to:
+  /// **'{spent} of {limit}'**
+  String budgetSpentOfLimit(String spent, String limit);
+
+  /// Budget state label when spending reached or passed the limit (100% or more)
+  ///
+  /// In en, this message translates to:
+  /// **'Limit reached'**
+  String get budgetStatusExceeded;
+
+  /// Budget state label when spending reached 80% of the limit
+  ///
+  /// In en, this message translates to:
+  /// **'Close to limit'**
+  String get budgetStatusWarning;
+
   /// Title of the budget tab and its bottom navigation label
   ///
   /// In en, this message translates to:
@@ -578,6 +728,72 @@ abstract class AppLocalizations {
   /// **'Yesterday'**
   String get commonYesterday;
 
+  /// Dashboard card: the month's income minus expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get dashboardBalance;
+
+  /// Dashboard budgets section when the month has no budgets; month is pre-formatted, e.g. October 2026
+  ///
+  /// In en, this message translates to:
+  /// **'No budgets for {month}.'**
+  String dashboardBudgetsEmpty(String month);
+
+  /// Dashboard budgets section action that opens the Budget tab on that month
+  ///
+  /// In en, this message translates to:
+  /// **'Set a budget'**
+  String get dashboardBudgetsSet;
+
+  /// Title of the dashboard section with the month's budget progress
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets'**
+  String get dashboardBudgetsTitle;
+
+  /// Dashboard recent-transactions section when the month has none; month is pre-formatted, e.g. October 2026
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions in {month} yet.'**
+  String dashboardRecentEmpty(String month);
+
+  /// Title of the dashboard section with the month's latest transactions
+  ///
+  /// In en, this message translates to:
+  /// **'Recent transactions'**
+  String get dashboardRecentTitle;
+
+  /// Dashboard spending-by-category section when the month has no expenses; month is pre-formatted, e.g. October 2026
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses in {month}.'**
+  String dashboardSpendingEmpty(String month);
+
+  /// Dashboard spending-by-category row that groups the smaller categories together (not called 'Other', which is also a default category name)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more category} other{{count} more categories}}'**
+  String dashboardSpendingOther(int count);
+
+  /// A category's share of the month's spending, as a whole percent
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String dashboardSpendingPercent(int percent);
+
+  /// A category's share of the month's spending when it rounds to 0 but is not zero
+  ///
+  /// In en, this message translates to:
+  /// **'<1%'**
+  String get dashboardSpendingPercentTiny;
+
+  /// Title of the dashboard section that breaks the month's expenses down by category
+  ///
+  /// In en, this message translates to:
+  /// **'Spending by category'**
+  String get dashboardSpendingTitle;
+
   /// Title of the dashboard tab and its bottom navigation label
   ///
   /// In en, this message translates to:
@@ -643,6 +859,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This password is too weak. Choose a stronger one.'**
   String get errorAuthWeakPassword;
+
+  /// Budget form: the chosen category was archived
+  ///
+  /// In en, this message translates to:
+  /// **'This category is archived. Choose another one.'**
+  String get errorBudgetCategoryArchived;
+
+  /// Budget form: the chosen category is an income category
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets can only be set for expense categories.'**
+  String get errorBudgetCategoryNotExpense;
+
+  /// Budget form: no category chosen for a category budget, or it no longer exists
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category.'**
+  String get errorBudgetCategoryRequired;
+
+  /// Budget error: the month is too far ahead (or before 2000)
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets can be set up to {months} months ahead.'**
+  String errorBudgetMonthOutOfRange(int months);
 
   /// Category name field error: an active category of the same type already uses the name
   ///
@@ -770,6 +1010,24 @@ abstract class AppLocalizations {
   /// **'Account'**
   String get settingsAccountLabel;
 
+  /// Settings row label for the user's currency
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get settingsCurrency;
+
+  /// Settings: explains why the currency is read-only
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen when you set up the app. It can\'t be changed, so all your amounts stay in one currency.'**
+  String get settingsCurrencyLocked;
+
+  /// Settings: the user's currency, e.g. USD ($)
+  ///
+  /// In en, this message translates to:
+  /// **'{code} ({symbol})'**
+  String settingsCurrencyValue(String code, String symbol);
+
   /// Settings button and confirm action that signs the user out of this device
   ///
   /// In en, this message translates to:
@@ -805,6 +1063,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage'**
   String get settingsManageLabel;
+
+  /// Settings section header for the user's name, email and currency
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get settingsProfileLabel;
 
   /// Settings section header for the sync status and the Sync now button
   ///

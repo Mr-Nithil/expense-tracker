@@ -40,6 +40,61 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase> with _$TransactionsD
     return query.watch();
   }
 
+  /// Sums of the non-deleted income and expenses with `occurred_on` in the month containing
+  /// [month]; 0 when there are none. Re-emitted when transactions change.
+  Stream<({int incomeMinor, int expenseMinor})> watchMonthTotals(String userId, DateTime month) {
+    final amount = transactions.amountMinor;
+    final income = coalesce([
+      amount.sum(filter: transactions.type.equals('income')),
+      const Constant(0),
+    ]);
+    final expense = coalesce([
+      amount.sum(filter: transactions.type.equals('expense')),
+      const Constant(0),
+    ]);
+    final query = selectOnly(transactions)
+      ..addColumns([income, expense])
+      ..where(_liveInMonth(userId, month));
+    return query.watchSingle().map(
+      (row) => (incomeMinor: row.read(income)!, expenseMinor: row.read(expense)!),
+    );
+  }
+
+  /// Non-deleted expenses of the month containing [month], summed per category: largest first
+  /// (ties by category id, so the order is stable). Re-emitted when transactions change.
+  Stream<List<({String categoryId, int spentMinor})>> watchMonthSpendingByCategory(
+    String userId,
+    DateTime month,
+  ) {
+    final spent = transactions.amountMinor.sum();
+    final query = selectOnly(transactions)
+      ..addColumns([transactions.categoryId, spent])
+      ..where(_liveInMonth(userId, month) & transactions.type.equals('expense'))
+      ..groupBy([transactions.categoryId])
+      ..orderBy([
+        OrderingTerm.desc(spent),
+        OrderingTerm.asc(transactions.categoryId),
+      ]);
+    return query.watch().map(
+      (rows) => [
+        for (final row in rows)
+          (categoryId: row.read(transactions.categoryId)!, spentMinor: row.read(spent)!),
+      ],
+    );
+  }
+
+  /// The user's non-deleted transactions with `occurred_on` in the month containing [month].
+  Expression<bool> _liveInMonth(String userId, DateTime month) {
+    final startDate = AppDateUtils.monthStart(month);
+    // `occurred_on` is `yyyy-MM-dd` text, which compares like the dates it holds.
+    final start = AppDateUtils.toIsoDate(startDate);
+    final end = AppDateUtils.toIsoDate(AppDateUtils.nextMonthStart(startDate));
+    return transactions.userId.equals(userId) &
+        transactions.deletedAt.isNull() &
+        transactions.occurredOn.isBiggerOrEqualValue(start) &
+        transactions.occurredOn.isSmallerThanValue(end);
+  }
+
   SimpleSelectStatement<$TransactionsTable, TransactionRow> _byId(String userId, String id) =>
       select(transactions)..where((t) => t.userId.equals(userId) & t.id.equals(id));
 

@@ -4,7 +4,7 @@ import 'package:expense_tracker/core/l10n/failure_l10n.dart';
 import 'package:expense_tracker/core/router/routes.dart';
 import 'package:expense_tracker/core/sync/sync_status_button.dart';
 import 'package:expense_tracker/core/sync/sync_trigger.dart';
-import 'package:expense_tracker/core/theme/app_spacing.dart';
+import 'package:expense_tracker/core/theme/app_sizes.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/core/utils/date_utils.dart';
 import 'package:expense_tracker/core/widgets/always_scrollable.dart';
@@ -17,10 +17,10 @@ import 'package:expense_tracker/features/transactions/domain/entities/transactio
 import 'package:expense_tracker/features/transactions/domain/services/transaction_grouping.dart';
 import 'package:expense_tracker/features/transactions/presentation/providers/transaction_list_controller.dart';
 import 'package:expense_tracker/features/transactions/presentation/providers/transactions_providers.dart';
+import 'package:expense_tracker/features/transactions/presentation/shared/transaction_form_sheet.dart';
+import 'package:expense_tracker/features/transactions/presentation/shared/transaction_tile.dart';
 import 'package:expense_tracker/features/transactions/presentation/widgets/transaction_day_header.dart';
 import 'package:expense_tracker/features/transactions/presentation/widgets/transaction_filter_bar.dart';
-import 'package:expense_tracker/features/transactions/presentation/widgets/transaction_form_sheet.dart';
-import 'package:expense_tracker/features/transactions/presentation/widgets/transaction_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -30,9 +30,6 @@ import 'package:go_router/go_router.dart';
 /// left deletes it (with Undo).
 class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key});
-
-  /// Keeps the last row clear of the floating button.
-  static const _fabClearance = AppSpacing.xxl + AppSpacing.xl;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -176,7 +173,7 @@ class _DayListState extends ConsumerState<_DayList> {
       for (final day in days) ...[day, ...day.transactions],
     ];
     return ListView.builder(
-      padding: const EdgeInsets.only(bottom: TransactionsScreen._fabClearance),
+      padding: const EdgeInsets.only(bottom: AppSizes.fabClearance),
       itemCount: items.length,
       itemBuilder: (context, index) => switch (items[index]) {
         final TransactionDay day => TransactionDayHeader(

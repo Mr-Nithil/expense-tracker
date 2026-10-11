@@ -12,7 +12,7 @@ import 'package:expense_tracker/features/transactions/data/transaction_repositor
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
 import 'package:expense_tracker/features/transactions/domain/services/transaction_validator.dart';
 import 'package:expense_tracker/features/transactions/domain/transaction_repository.dart';
-import 'package:expense_tracker/features/transactions/presentation/widgets/transaction_form_sheet.dart';
+import 'package:expense_tracker/features/transactions/presentation/shared/transaction_form_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

@@ -248,6 +248,173 @@ final class TransactionDaysFamily extends $Family
   String toString() => r'transactionDaysProvider';
 }
 
+/// Income and expense totals of the month containing [month]. Re-subscribes for a new user.
+
+@ProviderFor(monthTotals)
+final monthTotalsProvider = MonthTotalsFamily._();
+
+/// Income and expense totals of the month containing [month]. Re-subscribes for a new user.
+
+final class MonthTotalsProvider
+    extends $FunctionalProvider<AsyncValue<MonthTotals>, MonthTotals, Stream<MonthTotals>>
+    with $FutureModifier<MonthTotals>, $StreamProvider<MonthTotals> {
+  /// Income and expense totals of the month containing [month]. Re-subscribes for a new user.
+  MonthTotalsProvider._({
+    required MonthTotalsFamily super.from,
+    required DateTime super.argument,
+  }) : super(
+         retry: null,
+         name: r'monthTotalsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$monthTotalsHash();
+
+  @override
+  String toString() {
+    return r'monthTotalsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<MonthTotals> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<MonthTotals> create(Ref ref) {
+    final argument = this.argument as DateTime;
+    return monthTotals(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is MonthTotalsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$monthTotalsHash() => r'07bcfca1d92902f547f80502b5019f6fbad86135';
+
+/// Income and expense totals of the month containing [month]. Re-subscribes for a new user.
+
+final class MonthTotalsFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<MonthTotals>, DateTime> {
+  MonthTotalsFamily._()
+    : super(
+        retry: null,
+        name: r'monthTotalsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Income and expense totals of the month containing [month]. Re-subscribes for a new user.
+
+  MonthTotalsProvider call(DateTime month) => MonthTotalsProvider._(argument: month, from: this);
+
+  @override
+  String toString() => r'monthTotalsProvider';
+}
+
+/// Expenses of the month containing [month] by category, largest first, the tail folded into
+/// "Other". Re-subscribes for a new user.
+
+@ProviderFor(spendingBreakdown)
+final spendingBreakdownProvider = SpendingBreakdownFamily._();
+
+/// Expenses of the month containing [month] by category, largest first, the tail folded into
+/// "Other". Re-subscribes for a new user.
+
+final class SpendingBreakdownProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<SpendingBreakdown>,
+          SpendingBreakdown,
+          Stream<SpendingBreakdown>
+        >
+    with $FutureModifier<SpendingBreakdown>, $StreamProvider<SpendingBreakdown> {
+  /// Expenses of the month containing [month] by category, largest first, the tail folded into
+  /// "Other". Re-subscribes for a new user.
+  SpendingBreakdownProvider._({
+    required SpendingBreakdownFamily super.from,
+    required DateTime super.argument,
+  }) : super(
+         retry: null,
+         name: r'spendingBreakdownProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$spendingBreakdownHash();
+
+  @override
+  String toString() {
+    return r'spendingBreakdownProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<SpendingBreakdown> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<SpendingBreakdown> create(Ref ref) {
+    final argument = this.argument as DateTime;
+    return spendingBreakdown(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is SpendingBreakdownProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$spendingBreakdownHash() => r'2c9df257d2f643aa2ebb4281d13431ddcd999b30';
+
+/// Expenses of the month containing [month] by category, largest first, the tail folded into
+/// "Other". Re-subscribes for a new user.
+
+final class SpendingBreakdownFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<SpendingBreakdown>, DateTime> {
+  SpendingBreakdownFamily._()
+    : super(
+        retry: null,
+        name: r'spendingBreakdownProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Expenses of the month containing [month] by category, largest first, the tail folded into
+  /// "Other". Re-subscribes for a new user.
+
+  SpendingBreakdownProvider call(DateTime month) =>
+      SpendingBreakdownProvider._(argument: month, from: this);
+
+  @override
+  String toString() => r'spendingBreakdownProvider';
+}
+
 /// One transaction, including a soft-deleted one (`isDeleted`). Re-subscribes for a new user.
 
 @ProviderFor(transactionById)

@@ -40,6 +40,7 @@ void main() {
   Future<String> insert({
     required DateTime on,
     String type = 'expense',
+    int amount = 100,
     String? categoryId,
     String user = userId,
     DateTime? createdAt,
@@ -53,7 +54,7 @@ void main() {
         createdAt: createdAt ?? now,
         updatedAt: now,
         type: type,
-        amountMinor: 100,
+        amountMinor: amount,
         categoryId: categoryId ?? (type == 'expense' ? food : salary),
         occurredOn: on,
         deletedAt: Value(deletedAt),
@@ -133,4 +134,106 @@ void main() {
 
     expect(changed, 0);
   });
+
+  group('watchMonthTotals', () {
+    Future<({int incomeMinor, int expenseMinor})> totals() =>
+        db.transactionsDao.watchMonthTotals(userId, DateTime(2026, 10, 20)).first;
+
+    test('sums income and expenses of the month separately', () async {
+      await insert(on: DateTime(2026, 10, 1), type: 'income', amount: 500000);
+      await insert(on: DateTime(2026, 10, 5), amount: 1250);
+      await insert(on: DateTime(2026, 10, 31), amount: 750);
+
+      expect(await totals(), (incomeMinor: 500000, expenseMinor: 2000));
+    });
+
+    test('is zero for a month without transactions', () async {
+      expect(await totals(), (incomeMinor: 0, expenseMinor: 0));
+    });
+
+    test('ignores deleted rows, other months and other users', () async {
+      final otherFood = await insertCategory('Food', 'expense', user: 'u2');
+      await insert(on: DateTime(2026, 10, 5), amount: 100);
+      await insert(on: DateTime(2026, 10, 5), amount: 7, deletedAt: now);
+      await insert(on: DateTime(2026, 9, 30), amount: 8);
+      await insert(on: DateTime(2026, 11), amount: 9);
+      await insert(on: DateTime(2026, 10, 5), amount: 10, user: 'u2', categoryId: otherFood);
+
+      expect(await totals(), (incomeMinor: 0, expenseMinor: 100));
+    });
+
+    test('emits again when a transaction changes', () async {
+      final id = await insert(on: DateTime(2026, 10, 5), amount: 100);
+      final expenses = db.transactionsDao
+          .watchMonthTotals(userId, DateTime(2026, 10))
+          .map((t) => t.expenseMinor);
+
+      final expectation = expectLater(expenses, emitsInOrder([100, 300, 0]));
+      await pumpEventQueue();
+      await db.transactionsDao.updateTransaction(
+        userId,
+        id,
+        const TransactionsCompanion(amountMinor: Value(300)),
+      );
+      await pumpEventQueue();
+      await db.transactionsDao.updateTransaction(
+        userId,
+        id,
+        TransactionsCompanion(deletedAt: Value(now)),
+      );
+      await expectation;
+    });
+  });
+
+  group('watchMonthSpendingByCategory', () {
+    Future<List<({String categoryId, int spentMinor})>> spending() =>
+        db.transactionsDao.watchMonthSpendingByCategory(userId, DateTime(2026, 10, 20)).first;
+
+    test('sums expenses per category, largest first', () async {
+      final rent = await insertCategory('Rent', 'expense');
+      await insert(on: DateTime(2026, 10, 1), amount: 300);
+      await insert(on: DateTime(2026, 10, 31), amount: 200);
+      await insert(on: DateTime(2026, 10, 5), amount: 900, categoryId: rent);
+
+      expect(await spending(), [
+        (categoryId: rent, spentMinor: 900),
+        (categoryId: food, spentMinor: 500),
+      ]);
+    });
+
+    test('ignores income, deleted rows, other months and other users', () async {
+      final otherFood = await insertCategory('Food', 'expense', user: 'u2');
+      await insert(on: DateTime(2026, 10, 5), amount: 100);
+      await insert(on: DateTime(2026, 10, 5), type: 'income', amount: 5000);
+      await insert(on: DateTime(2026, 10, 5), amount: 7, deletedAt: now);
+      await insert(on: DateTime(2026, 9, 30), amount: 8);
+      await insert(on: DateTime(2026, 11), amount: 9);
+      await insert(on: DateTime(2026, 10, 5), amount: 10, user: 'u2', categoryId: otherFood);
+
+      expect(await spending(), [(categoryId: food, spentMinor: 100)]);
+    });
+
+    test('ties are ordered by category id', () async {
+      final a = await insertCategory('A', 'expense');
+      final b = await insertCategory('B', 'expense');
+      await insert(on: DateTime(2026, 10, 5), amount: 100, categoryId: b);
+      await insert(on: DateTime(2026, 10, 5), amount: 100, categoryId: a);
+
+      final ids = [for (final row in await spending()) row.categoryId];
+      expect(ids, [a, b]..sort());
+    });
+
+    test('is empty without expenses, and emits again when one is added', () async {
+      expect(await spending(), isEmpty);
+
+      final counts = db.transactionsDao
+          .watchMonthSpendingByCategory(userId, DateTime(2026, 10))
+          .map((rows) => rows.length);
+      final expectation = expectLater(counts, emitsInOrder([0, 1]));
+      await pumpEventQueue();
+      await insert(on: DateTime(2026, 10, 5));
+      await expectation;
+    });
+  });
+
 }

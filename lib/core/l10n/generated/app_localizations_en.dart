@@ -110,6 +110,102 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authSignUpTitle => 'Create account';
 
   @override
+  String get budgetAdd => 'Add budget';
+
+  @override
+  String get budgetCategoriesHeader => 'Categories';
+
+  @override
+  String budgetCopied(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Copied $count budgets from last month.',
+      one: 'Copied 1 budget from last month.',
+      zero: 'Nothing new to copy from last month.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get budgetCopyPrevious => 'Copy last month\'s budgets';
+
+  @override
+  String get budgetEmptyMessage => 'Set a monthly limit to see how your spending is tracking.';
+
+  @override
+  String budgetEmptyTitle(String month) {
+    return 'No budgets for $month';
+  }
+
+  @override
+  String get budgetFormCategory => 'Category';
+
+  @override
+  String get budgetFormEditTitle => 'Edit budget';
+
+  @override
+  String get budgetFormLimitLabel => 'Monthly limit';
+
+  @override
+  String get budgetFormNewTitle => 'New budget';
+
+  @override
+  String get budgetFormNoCategoriesLeft =>
+      'Every expense category already has a budget this month.';
+
+  @override
+  String get budgetFormOverall => 'Overall';
+
+  @override
+  String get budgetFormOverallHint => 'Covers all your expenses this month.';
+
+  @override
+  String get budgetFormRemove => 'Remove budget';
+
+  @override
+  String budgetOver(String amount) {
+    return '$amount over';
+  }
+
+  @override
+  String get budgetOverallEmptyMessage =>
+      'Set an overall limit to track all your spending this month.';
+
+  @override
+  String get budgetOverallEmptyTitle => 'No overall budget';
+
+  @override
+  String get budgetOverallTitle => 'Overall budget';
+
+  @override
+  String budgetPercentUsed(int percent) {
+    return '$percent% used';
+  }
+
+  @override
+  String get budgetRemoveConfirmMessage => 'Your transactions stay as they are.';
+
+  @override
+  String get budgetRemoveConfirmTitle => 'Remove this budget?';
+
+  @override
+  String budgetRemaining(String amount) {
+    return '$amount left';
+  }
+
+  @override
+  String budgetSpentOfLimit(String spent, String limit) {
+    return '$spent of $limit';
+  }
+
+  @override
+  String get budgetStatusExceeded => 'Limit reached';
+
+  @override
+  String get budgetStatusWarning => 'Close to limit';
+
+  @override
   String get budgetTitle => 'Budget';
 
   @override
@@ -269,6 +365,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonYesterday => 'Yesterday';
 
   @override
+  String get dashboardBalance => 'Balance';
+
+  @override
+  String dashboardBudgetsEmpty(String month) {
+    return 'No budgets for $month.';
+  }
+
+  @override
+  String get dashboardBudgetsSet => 'Set a budget';
+
+  @override
+  String get dashboardBudgetsTitle => 'Budgets';
+
+  @override
+  String dashboardRecentEmpty(String month) {
+    return 'No transactions in $month yet.';
+  }
+
+  @override
+  String get dashboardRecentTitle => 'Recent transactions';
+
+  @override
+  String dashboardSpendingEmpty(String month) {
+    return 'No expenses in $month.';
+  }
+
+  @override
+  String dashboardSpendingOther(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more categories',
+      one: '1 more category',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dashboardSpendingPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get dashboardSpendingPercentTiny => '<1%';
+
+  @override
+  String get dashboardSpendingTitle => 'Spending by category';
+
+  @override
   String get dashboardTitle => 'Dashboard';
 
   @override
@@ -304,6 +449,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorAuthWeakPassword => 'This password is too weak. Choose a stronger one.';
+
+  @override
+  String get errorBudgetCategoryArchived => 'This category is archived. Choose another one.';
+
+  @override
+  String get errorBudgetCategoryNotExpense => 'Budgets can only be set for expense categories.';
+
+  @override
+  String get errorBudgetCategoryRequired => 'Choose a category.';
+
+  @override
+  String errorBudgetMonthOutOfRange(int months) {
+    return 'Budgets can be set up to $months months ahead.';
+  }
 
   @override
   String get errorCategoryNameTaken => 'You already have a category with this name.';
@@ -377,6 +536,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAccountLabel => 'Account';
 
   @override
+  String get settingsCurrency => 'Currency';
+
+  @override
+  String get settingsCurrencyLocked =>
+      'Chosen when you set up the app. It can\'t be changed, so all your amounts stay in one currency.';
+
+  @override
+  String settingsCurrencyValue(String code, String symbol) {
+    return '$code ($symbol)';
+  }
+
+  @override
   String get settingsLogout => 'Log out';
 
   @override
@@ -403,6 +574,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsManageLabel => 'Manage';
+
+  @override
+  String get settingsProfileLabel => 'Profile';
 
   @override
   String get settingsSyncLabel => 'Sync';

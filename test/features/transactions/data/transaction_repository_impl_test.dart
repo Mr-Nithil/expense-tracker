@@ -8,6 +8,8 @@ import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/core/utils/id.dart';
 import 'package:expense_tracker/core/utils/money.dart';
 import 'package:expense_tracker/features/transactions/data/transaction_repository_impl.dart';
+import 'package:expense_tracker/features/transactions/domain/entities/category_spending.dart';
+import 'package:expense_tracker/features/transactions/domain/entities/month_totals.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
 import 'package:expense_tracker/features/transactions/domain/services/transaction_validator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -174,6 +176,46 @@ void main() {
       session.set(null);
       expect(await repository.watch(october).first, isEmpty);
       expect(await repository.watchById('any').first, isNull);
+    });
+  });
+
+  group('watchMonthTotals', () {
+    test('sums the month\'s income and expenses', () async {
+      await create(draft(type: TransactionType.income, amount: 500000));
+      await create(draft(amount: 1250));
+      await create(draft(amount: 750, on: DateTime(2026, 10, 31)));
+      await create(draft(amount: 999, on: DateTime(2026, 11)));
+
+      final totals = await repository.watchMonthTotals(DateTime(2026, 10, 20)).first;
+
+      expect(totals, const MonthTotals(income: Money(500000), expense: Money(2000)));
+      expect(totals.balance, const Money(498000));
+    });
+
+    test('is zero for a signed-out user', () async {
+      await create();
+      session.set(null);
+      expect(await repository.watchMonthTotals(DateTime(2026, 10)).first, MonthTotals.zero);
+    });
+  });
+
+  group('watchMonthSpendingByCategory', () {
+    test('lists the month\'s expenses per category, largest first', () async {
+      final rent = await category('Rent', 'expense');
+      await create(draft(amount: 500));
+      await create(draft(amount: 2000, categoryId: rent));
+      await create(draft(type: TransactionType.income, amount: 900000));
+
+      expect(await repository.watchMonthSpendingByCategory(DateTime(2026, 10)).first, [
+        CategorySpending(categoryId: rent, amount: const Money(2000)),
+        CategorySpending(categoryId: food, amount: const Money(500)),
+      ]);
+    });
+
+    test('is empty for a signed-out user', () async {
+      await create();
+      session.set(null);
+      expect(await repository.watchMonthSpendingByCategory(DateTime(2026, 10)).first, isEmpty);
     });
   });
 

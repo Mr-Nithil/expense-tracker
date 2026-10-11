@@ -1,4 +1,6 @@
 import 'package:expense_tracker/core/error/result.dart';
+import 'package:expense_tracker/features/transactions/domain/entities/category_spending.dart';
+import 'package:expense_tracker/features/transactions/domain/entities/month_totals.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
 
 /// The signed-in user's transactions, in the local DB (synced later).
@@ -10,6 +12,13 @@ import 'package:expense_tracker/features/transactions/domain/entities/transactio
 abstract interface class TransactionRepository {
   /// Non-deleted transactions matching [filter], newest first.
   Stream<List<Transaction>> watch(TransactionFilter filter);
+
+  /// Income and expense totals of the month containing [month]. Updates when transactions change.
+  Stream<MonthTotals> watchMonthTotals(DateTime month);
+
+  /// Expenses of the month containing [month] per category, largest first. Updates when
+  /// transactions change.
+  Stream<List<CategorySpending>> watchMonthSpendingByCategory(DateTime month);
 
   /// One transaction, including a soft-deleted one (`isDeleted`).
   Stream<Transaction?> watchById(String id);
