@@ -219,6 +219,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get calendarDayNet => 'Net';
+
+  @override
   String calendarNoTransactionsOn(String date) {
     return 'No transactions on $date.';
   }

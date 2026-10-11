@@ -1,6 +1,5 @@
 import 'package:expense_tracker/core/extensions/build_context_x.dart';
 import 'package:expense_tracker/core/l10n/failure_l10n.dart';
-import 'package:expense_tracker/core/router/routes.dart';
 import 'package:expense_tracker/core/theme/app_radius.dart';
 import 'package:expense_tracker/core/theme/app_sizes.dart';
 import 'package:expense_tracker/core/theme/app_spacing.dart';
@@ -9,18 +8,18 @@ import 'package:expense_tracker/core/utils/money.dart';
 import 'package:expense_tracker/core/widgets/app_button.dart';
 import 'package:expense_tracker/core/widgets/loading_view.dart';
 import 'package:expense_tracker/core/widgets/section_header.dart';
-import 'package:expense_tracker/features/calendar/presentation/providers/calendar_providers.dart';
+import 'package:expense_tracker/features/calendar/presentation/shared/calendar_day_sheet.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/day_totals.dart';
 import 'package:expense_tracker/features/transactions/domain/services/spending_levels.dart';
 import 'package:expense_tracker/features/transactions/presentation/providers/transactions_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 
-/// "Daily spending": the month as a grid of days shaded by how much was spent (one hue, darker
-/// = more, relative to the month's biggest day), with a "Less … More" key. "See all" opens the
-/// calendar on this month; tapping a day opens it on that day.
+/// "Daily spending": the dashboard's calendar. The month (from the dashboard's month selector) as
+/// a compact grid of days shaded by how much was spent (one hue, darker = more, relative to the
+/// month's biggest day), with a "Less … More" key. Tapping a day opens its pop-up
+/// ([CalendarDaySheet]: totals, transactions, add on that date).
 class DashboardHeatmapSection extends ConsumerWidget {
   const DashboardHeatmapSection({super.key, required this.month, required this.currencyCode});
 
@@ -31,29 +30,23 @@ class DashboardHeatmapSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
 
-    void openCalendar({DateTime? day}) {
-      final calendar = ref.read(calendarControllerProvider.notifier);
-      day == null ? calendar.setMonth(month) : calendar.selectDay(day);
-      context.pushNamed(Routes.calendar);
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionHeader(
-          title: l10n.dashboardHeatmapTitle,
-          actionLabel: l10n.commonSeeAll,
-          onAction: openCalendar,
-        ),
+        SectionHeader(title: l10n.dashboardHeatmapTitle),
         switch (ref.watch(monthDailyTotalsProvider(month))) {
+          // A compact grid, seven fixed-size days wide and centred, with the key below it.
           AsyncData(value: final totals) => Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _Grid(
-                month: month,
-                totals: totals,
-                currencyCode: currencyCode,
-                onDaySelected: (day) => openCalendar(day: day),
+              SizedBox(
+                width: AppSizes.heatmapCell * DateTime.daysPerWeek,
+                child: _Grid(
+                  month: month,
+                  totals: totals,
+                  currencyCode: currencyCode,
+                  onDaySelected: (day) =>
+                      CalendarDaySheet.show(context, day: day, currencyCode: currencyCode),
+                ),
               ),
               const Gap(AppSpacing.sm),
               const _Key(),
@@ -147,7 +140,7 @@ class _Grid extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: _Shades.of(context, SpendingLevels.of(spent, max)),
-                borderRadius: BorderRadius.circular(AppRadius.sm),
+                borderRadius: BorderRadius.circular(AppRadius.sm / 2),
               ),
             ),
           ),
@@ -197,7 +190,7 @@ class _Key extends StatelessWidget {
     final muted = context.text.labelSmall?.copyWith(color: context.colorScheme.onSurfaceVariant);
     return ExcludeSemantics(
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(l10n.dashboardHeatmapLess, style: muted),
           const Gap(AppSpacing.xs),

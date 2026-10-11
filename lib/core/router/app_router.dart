@@ -9,7 +9,6 @@ import 'package:expense_tracker/features/auth/presentation/screens/reset_passwor
 import 'package:expense_tracker/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:expense_tracker/features/auth/presentation/screens/splash_screen.dart';
 import 'package:expense_tracker/features/budget/presentation/screens/budget_screen.dart';
-import 'package:expense_tracker/features/calendar/presentation/screens/calendar_screen.dart';
 import 'package:expense_tracker/features/categories/presentation/screens/categories_screen.dart';
 import 'package:expense_tracker/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:expense_tracker/features/profile/presentation/screens/onboarding_screen.dart';
@@ -83,14 +82,6 @@ GoRouter router(Ref ref) {
                 name: Routes.dashboard,
                 path: Routes.dashboardPath,
                 builder: (context, state) => const DashboardScreen(),
-                routes: [
-                  GoRoute(
-                    name: Routes.calendar,
-                    // Relative to the dashboard ('/'): the full path is Routes.calendarPath.
-                    path: Routes.calendarPath.substring(Routes.dashboardPath.length),
-                    builder: (context, state) => const CalendarScreen(),
-                  ),
-                ],
               ),
             ],
           ),

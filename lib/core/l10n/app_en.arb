@@ -155,6 +155,8 @@
     "description": "Screen reader label of a calendar day; amount is the day's net (income minus expenses), pre-formatted and signed",
     "placeholders": { "date": { "type": "String" }, "amount": { "type": "String" } }
   },
+  "calendarDayNet": "Net",
+  "@calendarDayNet": { "description": "Day pop-up: the day's income minus expenses" },
   "calendarNoTransactionsOn": "No transactions on {date}.",
   "@calendarNoTransactionsOn": {
     "description": "Calendar: the selected day has no transactions; date is pre-formatted, e.g. Monday, October 5, 2026",

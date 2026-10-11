@@ -25,6 +25,9 @@ abstract final class AppSizes {
   /// Calendar weekday labels row, before text scaling.
   static const double calendarDaysOfWeekHeight = 20;
 
+  /// One day of the dashboard's compact spending heatmap (7 per row).
+  static const double heatmapCell = 32;
+
   /// Ring around the selected option in pickers (icons, colors).
   static const double selectionBorder = 2;
   static const double sheetHandleWidth = 32;

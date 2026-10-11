@@ -446,6 +446,12 @@ abstract class AppLocalizations {
   /// **'{date}: {amount}'**
   String calendarDayLabel(String date, String amount);
 
+  /// Day pop-up: the day's income minus expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get calendarDayNet;
+
   /// Calendar: the selected day has no transactions; date is pre-formatted, e.g. Monday, October 5, 2026
   ///
   /// In en, this message translates to:

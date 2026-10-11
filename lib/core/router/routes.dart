@@ -23,10 +23,6 @@ abstract final class Routes {
   static const dashboard = 'dashboard';
   static const dashboardPath = '/';
 
-  /// Nested under dashboard: opens inside the Dashboard tab (from the daily spending heatmap).
-  static const calendar = 'calendar';
-  static const calendarPath = '/calendar';
-
   static const transactions = 'transactions';
   static const transactionsPath = '/transactions';
 

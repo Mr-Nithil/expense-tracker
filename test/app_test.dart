@@ -7,8 +7,8 @@ import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
 import 'package:expense_tracker/core/services/secure_storage_service.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
-import 'package:expense_tracker/core/widgets/section_header.dart';
 import 'package:expense_tracker/features/auth/domain/entities/auth_user.dart';
+import 'package:expense_tracker/features/calendar/presentation/shared/calendar_day_sheet.dart';
 import 'package:expense_tracker/features/categories/domain/services/default_categories.dart';
 import 'package:expense_tracker/features/categories/presentation/providers/default_categories_seeder.dart';
 import 'package:flutter/material.dart';
@@ -326,30 +326,19 @@ void main() {
     expect(profile, isNull);
   });
 
-  testWidgets('the dashboard heatmap opens the calendar inside the Dashboard tab', (tester) async {
+  testWidgets('tapping a day on the dashboard heatmap opens its pop-up', (tester) async {
     await pumpApp(tester);
 
-    final seeAll = find.descendant(
-      of: find.ancestor(
-        of: find.text(l10n.dashboardHeatmapTitle),
-        matching: find.byType(SectionHeader),
-      ),
-      matching: find.text(l10n.commonSeeAll),
-    );
-    await tester.scrollUntilVisible(seeAll, 200);
-    await tester.ensureVisible(seeAll);
+    final today = find.bySemanticsLabel(RegExp('^Sunday, October 11, 2026:'));
+    await tester.scrollUntilVisible(find.text(l10n.dashboardHeatmapLess), 200);
+    await tester.ensureVisible(today);
     await tester.pumpAndSettle();
-    await tester.tap(seeAll);
+    await tester.tap(today);
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, l10n.calendarTitle), findsOneWidget);
-    final bar = tester.widget<NavigationBar>(find.byType(NavigationBar));
-    expect(bar.selectedIndex, 0);
-
-    await tester.tap(find.byType(BackButton));
-    await tester.pumpAndSettle();
-
-    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+    expect(find.byType(CalendarDaySheet), findsOneWidget);
+    expect(find.text('Sunday, October 11, 2026'), findsOneWidget);
+    expect(find.text(l10n.transactionsAdd), findsOneWidget);
   });
 
   testWidgets('settings opens the categories screen with the seeded defaults', (tester) async {

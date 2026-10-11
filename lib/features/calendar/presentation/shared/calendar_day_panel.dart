@@ -13,14 +13,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// The selected day under the calendar: its date, "Add transaction" (on that date) and its
-/// transactions; a row opens its detail page.
+/// One day's transactions: its date (optional), "Add transaction" (on that date) and its
+/// transactions; a row opens its detail page unless [onTransactionTap] says otherwise.
 class CalendarDayPanel extends ConsumerWidget {
-  const CalendarDayPanel({super.key, required this.day, required this.currencyCode});
+  const CalendarDayPanel({
+    super.key,
+    required this.day,
+    required this.currencyCode,
+    this.showDate = true,
+    this.onTransactionTap,
+  });
 
-  /// The selected day (local midnight).
+  /// The day (local midnight).
   final DateTime day;
   final String currencyCode;
+
+  /// Off when the date is already shown around the panel (e.g. a sheet title).
+  final bool showDate;
+
+  /// Replaces opening the detail page (e.g. to close a sheet first).
+  final ValueChanged<Transaction>? onTransactionTap;
+
+  void _openDetail(BuildContext context, Transaction transaction) => context.goNamed(
+    Routes.transactionDetail,
+    pathParameters: {Routes.transactionIdParam: transaction.id},
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,10 +50,10 @@ class CalendarDayPanel extends ConsumerWidget {
       children: [
         // The button moves under the date when both don't fit on one line.
         Wrap(
-          alignment: WrapAlignment.spaceBetween,
+          alignment: showDate ? WrapAlignment.spaceBetween : WrapAlignment.end,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Text(date, style: context.text.titleMedium),
+            if (showDate) Text(date, style: context.text.titleMedium),
             AppButton.text(
               label: l10n.transactionsAdd,
               icon: Icons.add,
@@ -58,9 +75,8 @@ class CalendarDayPanel extends ConsumerWidget {
                       key: ValueKey(transaction.id),
                       transaction: transaction,
                       currencyCode: currencyCode,
-                      onTap: () => context.goNamed(
-                        Routes.transactionDetail,
-                        pathParameters: {Routes.transactionIdParam: transaction.id},
+                      onTap: () => (onTransactionTap ?? (t) => _openDetail(context, t))(
+                        transaction,
                       ),
                     ),
                 ],

@@ -1,16 +1,15 @@
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
-import 'package:expense_tracker/core/router/routes.dart';
+import 'package:expense_tracker/core/theme/app_sizes.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/core/utils/money.dart';
-import 'package:expense_tracker/features/calendar/presentation/providers/calendar_providers.dart';
+import 'package:expense_tracker/features/calendar/presentation/shared/calendar_day_sheet.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_heatmap_section.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/day_totals.dart';
+import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
 import 'package:expense_tracker/features/transactions/presentation/providers/transactions_providers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../helpers/pump_app.dart';
 
@@ -29,39 +28,26 @@ void main() {
       d.date: d,
   };
 
-  /// The section on a dashboard route, and a calendar route that shows the calendar's state.
   Future<void> pump(
     WidgetTester tester,
     Stream<Map<DateTime, DayTotals>> Function() stream, {
     Brightness brightness = Brightness.light,
-  }) => tester.pumpRouterApp(
-    initialLocation: Routes.dashboardPath,
-    brightness: brightness,
-    overrides: [
-      clockProvider.overrideWithValue(FixedClock(DateTime(2026, 11, 3, 9))),
-      monthDailyTotalsProvider(october).overrideWith((ref) => stream()),
-    ],
-    routes: [
-      GoRoute(
-        name: Routes.dashboard,
-        path: Routes.dashboardPath,
-        builder: (_, _) => Scaffold(
-          body: SingleChildScrollView(
-            child: DashboardHeatmapSection(month: october, currencyCode: 'USD'),
-          ),
-        ),
-        routes: [
-          GoRoute(
-            name: Routes.calendar,
-            path: Routes.calendarPath.substring(1),
-            builder: (_, _) => Consumer(
-              builder: (_, ref, _) => Text('calendar ${ref.watch(calendarControllerProvider)}'),
-            ),
-          ),
-        ],
+  }) async {
+    await tester.pumpApp(
+      SingleChildScrollView(
+        child: DashboardHeatmapSection(month: october, currencyCode: 'USD'),
       ),
-    ],
-  );
+      brightness: brightness,
+      overrides: [
+        clockProvider.overrideWithValue(FixedClock(DateTime(2026, 11, 3, 9))),
+        monthDailyTotalsProvider(october).overrideWith((ref) => stream()),
+        transactionsProvider(TransactionFilter(month: october)).overrideWith(
+          (ref) => Stream.value(const <Transaction>[]),
+        ),
+      ],
+    );
+    await tester.pumpAndSettle();
+  }
 
   Color colorOfDay(WidgetTester tester, String dateLabel) {
     final cell = find.bySemanticsLabel(RegExp('^${RegExp.escape(dateLabel)}:'));
@@ -122,26 +108,23 @@ void main() {
     expect(tester.getCenter(firstDay).dx, moreOrLessEquals(thursdayX, epsilon: 1));
   });
 
-  testWidgets('tapping a day opens the calendar on that day', (tester) async {
+  testWidgets('tapping a day opens its pop-up', (tester) async {
     await pump(tester, () => Stream.value(totals));
 
     await tester.tap(find.bySemanticsLabel(RegExp('^Friday, October 9, 2026:')));
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('calendar ${(month: october, selectedDay: DateTime(2026, 10, 9))}'),
-      findsOneWidget,
-    );
+    final sheet = tester.widget<CalendarDaySheet>(find.byType(CalendarDaySheet));
+    expect(sheet.day, DateTime(2026, 10, 9));
+    expect(find.text('Friday, October 9, 2026'), findsOneWidget);
   });
 
-  testWidgets('See all opens the calendar on this month', (tester) async {
+  testWidgets('is compact: seven fixed-size days wide, without "See all"', (tester) async {
     await pump(tester, () => Stream.value(totals));
 
-    await tester.tap(find.text(l10n.commonSeeAll));
-    await tester.pumpAndSettle();
-
-    // Today (Nov 3) isn't in October, so nothing is selected.
-    expect(find.text('calendar ${(month: october, selectedDay: null)}'), findsOneWidget);
+    expect(find.text(l10n.commonSeeAll), findsNothing);
+    final firstDay = find.bySemanticsLabel(RegExp('^Thursday, October 1, 2026:'));
+    expect(tester.getSize(firstDay).width, AppSizes.heatmapCell);
   });
 
   testWidgets('days are buttons for screen readers', (tester) async {

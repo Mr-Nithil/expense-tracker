@@ -3,7 +3,7 @@ import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
 import 'package:expense_tracker/core/router/routes.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/core/utils/money.dart';
-import 'package:expense_tracker/features/calendar/presentation/widgets/calendar_day_panel.dart';
+import 'package:expense_tracker/features/calendar/presentation/shared/calendar_day_panel.dart';
 import 'package:expense_tracker/features/categories/domain/entities/category.dart';
 import 'package:expense_tracker/features/categories/presentation/providers/categories_providers.dart';
 import 'package:expense_tracker/features/profile/presentation/providers/profile_providers.dart';
@@ -63,6 +63,8 @@ void main() {
     WidgetTester tester,
     Stream<List<Transaction>> Function() transactions, {
     DateTime? selected,
+    bool showDate = true,
+    ValueChanged<Transaction>? onTransactionTap,
     Brightness brightness = Brightness.light,
   }) => tester.pumpRouterApp(
     initialLocation: '/calendar',
@@ -73,7 +75,12 @@ void main() {
         path: '/calendar',
         builder: (_, _) => Scaffold(
           body: SingleChildScrollView(
-            child: CalendarDayPanel(day: selected ?? day, currencyCode: 'USD'),
+            child: CalendarDayPanel(
+              day: selected ?? day,
+              currencyCode: 'USD',
+              showDate: showDate,
+              onTransactionTap: onTransactionTap,
+            ),
           ),
         ),
       ),
@@ -124,6 +131,24 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('detail a'), findsOneWidget);
+  });
+
+  testWidgets('can hide the date', (tester) async {
+    await pump(tester, () => Stream.value(month), showDate: false);
+
+    expect(find.text('Monday, October 5, 2026'), findsNothing);
+    expect(find.text(l10n.transactionsAdd), findsOneWidget);
+  });
+
+  testWidgets('a custom tap handler replaces opening the detail page', (tester) async {
+    Transaction? tapped;
+    await pump(tester, () => Stream.value(month), onTransactionTap: (t) => tapped = t);
+
+    await tester.tap(find.byType(TransactionTile).first);
+    await tester.pumpAndSettle();
+
+    expect(tapped?.id, 'a');
+    expect(find.text('detail a'), findsNothing);
   });
 
   testWidgets('an error offers a retry that reloads', (tester) async {
