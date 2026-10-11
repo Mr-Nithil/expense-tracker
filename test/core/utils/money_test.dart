@@ -126,4 +126,31 @@ void main() {
       expect(parse('0,5', locale: 'de_DE', currency: 'EUR'), const Money(50));
     });
   });
+
+  group('formatCompact', () {
+    String compact(int minor, {String currency = 'USD', bool signed = false}) =>
+        Money(minor).formatCompact(locale: 'en_US', currencyCode: currency, signed: signed);
+
+    test('shortens large amounts', () {
+      expect(compact(4500), r'$45');
+      expect(compact(123456), r'$1.23K');
+      expect(compact(340000000), r'$3.4M');
+    });
+
+    test('keeps the sign; signed adds + to positive amounts', () {
+      expect(compact(-123456), r'-$1.23K');
+      expect(compact(4500, signed: true), r'+$45');
+      expect(compact(-4500, signed: true), r'-$45');
+      expect(compact(0, signed: true), r'$0');
+    });
+
+    test('under a thousand, rounds to whole units', () {
+      expect(compact(4550), r'$46');
+      expect(compact(99949), r'$999');
+    });
+
+    test('respects currencies without decimals', () {
+      expect(compact(1500000, currency: 'JPY'), '¥1.5M');
+    });
+  });
 }

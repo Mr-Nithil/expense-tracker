@@ -12,6 +12,7 @@ import 'package:expense_tracker/features/categories/presentation/providers/categ
 import 'package:expense_tracker/features/dashboard/presentation/providers/dashboard_providers.dart';
 import 'package:expense_tracker/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_budget_section.dart';
+import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_heatmap_section.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_recent_section.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_spending_section.dart';
 import 'package:expense_tracker/features/dashboard/presentation/widgets/dashboard_summary_cards.dart';
@@ -46,6 +47,8 @@ void main() {
     currencyCodeProvider.overrideWith((ref) async => 'USD'),
     monthTotalsProvider(october).overrideWith((ref) => totals()),
     spendingBreakdownProvider(october).overrideWith((ref) => Stream.value(SpendingBreakdown.empty)),
+    monthDailyTotalsProvider(october).overrideWith((ref) => Stream.value({})),
+    monthDailyTotalsProvider(september).overrideWith((ref) => Stream.value({})),
     budgetOverviewProvider(october).overrideWith((ref) => Stream.value(const BudgetOverview())),
     transactionsProvider(TransactionFilter(month: october)).overrideWith((ref) => Stream.value([])),
     transactionsProvider(TransactionFilter(month: september)).overrideWith(
@@ -77,6 +80,8 @@ void main() {
     expect(find.text('October 2026'), findsOneWidget);
     expect(find.byType(DashboardSummaryCards), findsOneWidget);
     expect(find.text(r'$3,799.50'), findsOneWidget);
+    expect(find.byType(DashboardHeatmapSection), findsOneWidget);
+    await tester.scrollUntilVisible(find.byType(DashboardSpendingSection), 200);
     expect(find.byType(DashboardSpendingSection), findsOneWidget);
     await tester.scrollUntilVisible(find.byType(DashboardBudgetSection), 200);
     expect(find.byType(DashboardBudgetSection), findsOneWidget);
@@ -165,6 +170,7 @@ void main() {
         spendingBreakdownProvider(october).overrideWith(
           (ref) => Stream.value(SpendingBreakdown.empty),
         ),
+        monthDailyTotalsProvider(october).overrideWith((ref) => Stream.value({})),
         budgetOverviewProvider(october).overrideWith((ref) => Stream.value(const BudgetOverview())),
         transactionsProvider(TransactionFilter(month: october)).overrideWith(
           (ref) => Stream.value([]),

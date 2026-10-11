@@ -83,6 +83,38 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase> with _$TransactionsD
     );
   }
 
+  /// Non-deleted income and expense per day of the month containing [month], oldest day first.
+  /// Only days with transactions are listed. Re-emitted when transactions change.
+  Stream<List<({DateTime day, int incomeMinor, int expenseMinor})>> watchMonthDailyTotals(
+    String userId,
+    DateTime month,
+  ) {
+    final amount = transactions.amountMinor;
+    final income = coalesce([
+      amount.sum(filter: transactions.type.equals('income')),
+      const Constant(0),
+    ]);
+    final expense = coalesce([
+      amount.sum(filter: transactions.type.equals('expense')),
+      const Constant(0),
+    ]);
+    final query = selectOnly(transactions)
+      ..addColumns([transactions.occurredOn, income, expense])
+      ..where(_liveInMonth(userId, month))
+      ..groupBy([transactions.occurredOn])
+      ..orderBy([OrderingTerm.asc(transactions.occurredOn)]);
+    return query.watch().map(
+      (rows) => [
+        for (final row in rows)
+          (
+            day: row.readWithConverter<DateTime, String>(transactions.occurredOn)!,
+            incomeMinor: row.read(income)!,
+            expenseMinor: row.read(expense)!,
+          ),
+      ],
+    );
+  }
+
   /// The user's non-deleted transactions with `occurred_on` in the month containing [month].
   Expression<bool> _liveInMonth(String userId, DateTime month) {
     final startDate = AppDateUtils.monthStart(month);

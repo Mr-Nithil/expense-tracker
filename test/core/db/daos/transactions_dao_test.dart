@@ -236,4 +236,45 @@ void main() {
     });
   });
 
+  group('watchMonthDailyTotals', () {
+    Future<List<({DateTime day, int incomeMinor, int expenseMinor})>> daily() =>
+        db.transactionsDao.watchMonthDailyTotals(userId, DateTime(2026, 10, 20)).first;
+
+    test('sums income and expenses per day, oldest first, days with transactions only', () async {
+      await insert(on: DateTime(2026, 10, 31), amount: 700);
+      await insert(on: DateTime(2026, 10, 5), amount: 250);
+      await insert(on: DateTime(2026, 10, 5), amount: 150);
+      await insert(on: DateTime(2026, 10, 5), type: 'income', amount: 10000);
+      await insert(on: DateTime(2026, 10, 1), type: 'income', amount: 500);
+
+      expect(await daily(), [
+        (day: DateTime(2026, 10), incomeMinor: 500, expenseMinor: 0),
+        (day: DateTime(2026, 10, 5), incomeMinor: 10000, expenseMinor: 400),
+        (day: DateTime(2026, 10, 31), incomeMinor: 0, expenseMinor: 700),
+      ]);
+    });
+
+    test('ignores deleted rows, other months and other users', () async {
+      final otherFood = await insertCategory('Food', 'expense', user: 'u2');
+      await insert(on: DateTime(2026, 10, 5), amount: 100);
+      await insert(on: DateTime(2026, 10, 6), amount: 7, deletedAt: now);
+      await insert(on: DateTime(2026, 9, 30), amount: 8);
+      await insert(on: DateTime(2026, 11), amount: 9);
+      await insert(on: DateTime(2026, 10, 7), amount: 10, user: 'u2', categoryId: otherFood);
+
+      expect(await daily(), [(day: DateTime(2026, 10, 5), incomeMinor: 0, expenseMinor: 100)]);
+    });
+
+    test('is empty for a month without transactions, and emits again on a change', () async {
+      expect(await daily(), isEmpty);
+
+      final days = db.transactionsDao
+          .watchMonthDailyTotals(userId, DateTime(2026, 10))
+          .map((rows) => rows.length);
+      final expectation = expectLater(days, emitsInOrder([0, 1]));
+      await pumpEventQueue();
+      await insert(on: DateTime(2026, 10, 9));
+      await expectation;
+    });
+  });
 }

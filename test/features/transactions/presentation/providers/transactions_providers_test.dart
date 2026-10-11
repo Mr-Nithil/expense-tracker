@@ -168,6 +168,20 @@ void main() {
     expect(breakdown.shares.single.percent, 100);
   });
 
+  test('monthDailyTotals maps each day with transactions to its totals', () async {
+    container.listen(monthDailyTotalsProvider(DateTime(2026, 10)), (_, _) {});
+    await add(3, 100);
+    await add(3, 50);
+    await add(9, 200);
+    await pumpEventQueue();
+
+    final days = await container.read(monthDailyTotalsProvider(DateTime(2026, 10)).future);
+    expect(days.keys, [DateTime(2026, 10, 3), DateTime(2026, 10, 9)]);
+    expect(days[DateTime(2026, 10, 3)]!.expense, const Money(150));
+    expect(days[DateTime(2026, 10, 3)]!.net, const Money(-150));
+    expect(days[DateTime(2026, 10, 4)], isNull);
+  });
+
   test('transactionById follows updates and reports deletion', () async {
     final repository = container.read(transactionRepositoryProvider);
     final created = (await repository.create(

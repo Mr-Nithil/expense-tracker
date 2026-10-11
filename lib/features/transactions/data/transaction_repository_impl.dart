@@ -14,6 +14,7 @@ import 'package:expense_tracker/core/utils/id.dart';
 import 'package:expense_tracker/core/utils/money.dart';
 import 'package:expense_tracker/features/transactions/data/mappers.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/category_spending.dart';
+import 'package:expense_tracker/features/transactions/domain/entities/day_totals.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/month_totals.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
 import 'package:expense_tracker/features/transactions/domain/services/transaction_validator.dart';
@@ -64,6 +65,24 @@ class TransactionRepositoryImpl implements TransactionRepository {
           (rows) => [
             for (final row in rows)
               CategorySpending(categoryId: row.categoryId, amount: Money(row.spentMinor)),
+          ],
+        );
+  }
+
+  @override
+  Stream<List<DayTotals>> watchMonthDailyTotals(DateTime month) {
+    final userId = session.currentUser?.userId;
+    if (userId == null) return Stream.value(const []);
+    return dao
+        .watchMonthDailyTotals(userId, month)
+        .map(
+          (rows) => [
+            for (final row in rows)
+              DayTotals(
+                date: row.day,
+                income: Money(row.incomeMinor),
+                expense: Money(row.expenseMinor),
+              ),
           ],
         );
   }

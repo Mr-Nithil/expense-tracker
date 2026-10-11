@@ -19,6 +19,12 @@ abstract final class AppSizes {
   /// Bottom padding that keeps a list's last item clear of a floating action button.
   static const double fabClearance = 80;
 
+  /// Calendar day row (day number + net amount), before text scaling.
+  static const double calendarRowHeight = 56;
+
+  /// Calendar weekday labels row, before text scaling.
+  static const double calendarDaysOfWeekHeight = 20;
+
   /// Ring around the selected option in pickers (icons, colors).
   static const double selectionBorder = 2;
   static const double sheetHandleWidth = 32;

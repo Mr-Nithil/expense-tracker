@@ -9,6 +9,7 @@ import 'package:expense_tracker/core/utils/id.dart';
 import 'package:expense_tracker/core/utils/money.dart';
 import 'package:expense_tracker/features/transactions/data/transaction_repository_impl.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/category_spending.dart';
+import 'package:expense_tracker/features/transactions/domain/entities/day_totals.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/month_totals.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
 import 'package:expense_tracker/features/transactions/domain/services/transaction_validator.dart';
@@ -216,6 +217,32 @@ void main() {
       await create();
       session.set(null);
       expect(await repository.watchMonthSpendingByCategory(DateTime(2026, 10)).first, isEmpty);
+    });
+  });
+
+  group('watchMonthDailyTotals', () {
+    test('lists each day with transactions, oldest first', () async {
+      await create(draft(amount: 1200, on: DateTime(2026, 10, 11)));
+      await create(draft(type: TransactionType.income, amount: 50000, on: DateTime(2026, 10, 11)));
+      await create(draft(amount: 300, on: DateTime(2026, 10, 2)));
+
+      final days = await repository.watchMonthDailyTotals(DateTime(2026, 10)).first;
+
+      expect(days, [
+        DayTotals(date: DateTime(2026, 10, 2), income: Money.zero, expense: const Money(300)),
+        DayTotals(
+          date: DateTime(2026, 10, 11),
+          income: const Money(50000),
+          expense: const Money(1200),
+        ),
+      ]);
+      expect(days.last.net, const Money(48800));
+    });
+
+    test('is empty for a signed-out user', () async {
+      await create();
+      session.set(null);
+      expect(await repository.watchMonthDailyTotals(DateTime(2026, 10)).first, isEmpty);
     });
   });
 

@@ -209,6 +209,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetTitle => 'Budget';
 
   @override
+  String calendarDayEmpty(String date) {
+    return '$date: no transactions';
+  }
+
+  @override
+  String calendarDayLabel(String date, String amount) {
+    return '$date: $amount';
+  }
+
+  @override
+  String calendarNoTransactionsOn(String date) {
+    return 'No transactions on $date.';
+  }
+
+  @override
+  String get calendarTitle => 'Calendar';
+
+  @override
   String get categoryFormArchive => 'Archive';
 
   @override
@@ -377,6 +395,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboardBudgetsTitle => 'Budgets';
+
+  @override
+  String dashboardHeatmapDay(String date, String amount) {
+    return '$date: spent $amount';
+  }
+
+  @override
+  String dashboardHeatmapDayNone(String date) {
+    return '$date: no spending';
+  }
+
+  @override
+  String get dashboardHeatmapLess => 'Less';
+
+  @override
+  String get dashboardHeatmapMore => 'More';
+
+  @override
+  String get dashboardHeatmapTitle => 'Daily spending';
 
   @override
   String dashboardRecentEmpty(String month) {

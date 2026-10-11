@@ -2,6 +2,7 @@ import 'package:expense_tracker/core/session/session.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/core/utils/date_utils.dart';
 import 'package:expense_tracker/features/transactions/data/transaction_repository_provider.dart';
+import 'package:expense_tracker/features/transactions/domain/entities/day_totals.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/month_totals.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/spending_breakdown.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
@@ -80,6 +81,17 @@ Stream<SpendingBreakdown> spendingBreakdown(Ref ref, DateTime month) {
       .watch(transactionRepositoryProvider)
       .watchMonthSpendingByCategory(month)
       .map(SpendingBreakdown.of);
+}
+
+/// Income and expenses per day of the month containing [month], keyed by day (local midnight) in
+/// date order. A day without transactions has no entry. Re-subscribes for a new user.
+@riverpod
+Stream<Map<DateTime, DayTotals>> monthDailyTotals(Ref ref, DateTime month) {
+  ref.watch(sessionProvider.select((user) => user?.userId));
+  return ref
+      .watch(transactionRepositoryProvider)
+      .watchMonthDailyTotals(month)
+      .map((days) => {for (final day in days) day.date: day});
 }
 
 /// One transaction, including a soft-deleted one (`isDeleted`). Re-subscribes for a new user.

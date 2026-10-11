@@ -63,6 +63,24 @@ class Money implements Comparable<Money> {
     return signed && minor > 0 ? '+$text' : text;
   }
 
+  /// A short form for tight spaces (calendar cells), e.g. `$45`, `$1.2K`, `$3.4M` for
+  /// `en_US`/`USD`. Pair it with [format] for screen readers. With [signed], positive amounts get
+  /// a leading `+`.
+  String formatCompact({
+    required String locale,
+    required String currencyCode,
+    bool signed = false,
+  }) {
+    // Display-only conversion, as in [format].
+    final value = minor / _pow10(decimalDigitsFor(currencyCode));
+    // Under a thousand, compact formats keep the decimals ($45.00): round to whole units instead.
+    final formatter = value.abs() < 1000
+        ? NumberFormat.simpleCurrency(locale: locale, name: currencyCode, decimalDigits: 0)
+        : NumberFormat.compactSimpleCurrency(locale: locale, name: currencyCode);
+    final text = formatter.format(value);
+    return signed && minor > 0 ? '+$text' : text;
+  }
+
   /// This amount as editable input: the locale's decimal separator, the currency's number of
   /// decimals, no grouping or symbol (e.g. `1234.50`, JPY `1234`). Round-trips with [tryParse].
   String toInputString({required String locale, required String currencyCode}) {

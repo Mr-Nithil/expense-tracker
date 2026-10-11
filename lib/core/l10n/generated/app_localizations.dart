@@ -434,6 +434,30 @@ abstract class AppLocalizations {
   /// **'Budget'**
   String get budgetTitle;
 
+  /// Screen reader label of a calendar day without transactions; date is pre-formatted, e.g. October 5, 2026
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: no transactions'**
+  String calendarDayEmpty(String date);
+
+  /// Screen reader label of a calendar day; amount is the day's net (income minus expenses), pre-formatted and signed
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: {amount}'**
+  String calendarDayLabel(String date, String amount);
+
+  /// Calendar: the selected day has no transactions; date is pre-formatted, e.g. Monday, October 5, 2026
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions on {date}.'**
+  String calendarNoTransactionsOn(String date);
+
+  /// Title of the calendar screen
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get calendarTitle;
+
   /// Button in the edit-category sheet (and its confirm action) that archives the category
   ///
   /// In en, this message translates to:
@@ -751,6 +775,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Budgets'**
   String get dashboardBudgetsTitle;
+
+  /// Screen reader label of a day in the dashboard spending heatmap; date and amount are pre-formatted
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: spent {amount}'**
+  String dashboardHeatmapDay(String date, String amount);
+
+  /// Screen reader label of a day without expenses in the dashboard spending heatmap; date is pre-formatted
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: no spending'**
+  String dashboardHeatmapDayNone(String date);
+
+  /// Start of the dashboard spending heatmap key (light shades = less spent)
+  ///
+  /// In en, this message translates to:
+  /// **'Less'**
+  String get dashboardHeatmapLess;
+
+  /// End of the dashboard spending heatmap key (dark shades = more spent)
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get dashboardHeatmapMore;
+
+  /// Title of the dashboard section that shades each day of the month by how much was spent
+  ///
+  /// In en, this message translates to:
+  /// **'Daily spending'**
+  String get dashboardHeatmapTitle;
 
   /// Dashboard recent-transactions section when the month has none; month is pre-formatted, e.g. October 2026
   ///

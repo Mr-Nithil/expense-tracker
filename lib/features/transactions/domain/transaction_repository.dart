@@ -1,5 +1,6 @@
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/category_spending.dart';
+import 'package:expense_tracker/features/transactions/domain/entities/day_totals.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/month_totals.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
 
@@ -19,6 +20,10 @@ abstract interface class TransactionRepository {
   /// Expenses of the month containing [month] per category, largest first. Updates when
   /// transactions change.
   Stream<List<CategorySpending>> watchMonthSpendingByCategory(DateTime month);
+
+  /// Income and expenses per day of the month containing [month], oldest first; only days with
+  /// transactions. Updates when transactions change.
+  Stream<List<DayTotals>> watchMonthDailyTotals(DateTime month);
 
   /// One transaction, including a soft-deleted one (`isDeleted`).
   Stream<Transaction?> watchById(String id);

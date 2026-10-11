@@ -75,12 +75,17 @@ void main() {
   Future<void> openSheet(
     WidgetTester tester, {
     Transaction? transaction,
+    DateTime? initialDate,
     Brightness brightness = Brightness.light,
   }) async {
     await tester.pumpApp(
       Builder(
         builder: (context) => TextButton(
-          onPressed: () => TransactionFormSheet.show(context, transaction: transaction),
+          onPressed: () => TransactionFormSheet.show(
+            context,
+            transaction: transaction,
+            initialDate: initialDate,
+          ),
           child: const Text('open'),
         ),
       ),
@@ -120,6 +125,26 @@ void main() {
     expect(amountField(), findsOneWidget);
     expect(find.text('Food'), findsOneWidget);
     expect(find.text('Oct 11, 2026'), findsOneWidget);
+  });
+
+  testWidgets('a new transaction can start on a given date', (tester) async {
+    when(() => repository.create(any())).thenAnswer((_) async => Result.success(lunch));
+    await openSheet(tester, initialDate: DateTime(2026, 10, 3, 18));
+
+    expect(find.text('Oct 3, 2026'), findsOneWidget);
+    await tester.enterText(amountField(), '5');
+    await tapVisible(tester, find.text('Food'));
+    await save(tester);
+
+    final draft = verify(() => repository.create(captureAny())).captured.single as TransactionDraft;
+    expect(draft.occurredOn, DateTime(2026, 10, 3));
+  });
+
+  testWidgets('editing keeps the transaction\'s date, ignoring initialDate', (tester) async {
+    await openSheet(tester, transaction: lunch, initialDate: DateTime(2026, 10, 9));
+
+    expect(find.text('Oct 3, 2026'), findsOneWidget);
+    expect(find.text('Oct 9, 2026'), findsNothing);
   });
 
   testWidgets('saves a new expense and closes', (tester) async {

@@ -25,19 +25,26 @@ import 'package:gap/gap.dart';
 ///
 /// Errors show inside the sheet, next to the field they concern (a snackbar would sit behind it).
 class TransactionFormSheet extends ConsumerStatefulWidget {
-  const TransactionFormSheet({super.key, this.transaction});
+  const TransactionFormSheet({super.key, this.transaction, this.initialDate});
 
   /// The transaction to edit, or `null` to add one.
   final Transaction? transaction;
 
-  static Future<void> show(BuildContext context, {Transaction? transaction}) =>
-      AppBottomSheet.show<void>(
-        context,
-        title: transaction == null
-            ? context.l10n.transactionFormNewTitle
-            : context.l10n.transactionFormEditTitle,
-        child: TransactionFormSheet(transaction: transaction),
-      );
+  /// Starting date of a new transaction (e.g. the calendar's selected day); today when `null`.
+  /// Ignored when editing.
+  final DateTime? initialDate;
+
+  static Future<void> show(
+    BuildContext context, {
+    Transaction? transaction,
+    DateTime? initialDate,
+  }) => AppBottomSheet.show<void>(
+    context,
+    title: transaction == null
+        ? context.l10n.transactionFormNewTitle
+        : context.l10n.transactionFormEditTitle,
+    child: TransactionFormSheet(transaction: transaction, initialDate: initialDate),
+  );
 
   @override
   ConsumerState<TransactionFormSheet> createState() => _TransactionFormSheetState();
@@ -59,7 +66,10 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
   void initState() {
     super.initState();
     _today = AppDateUtils.dateOnly(ref.read(clockProvider).now());
-    _date = widget.transaction?.occurredOn ?? _today;
+    final initialDate = widget.initialDate;
+    _date =
+        widget.transaction?.occurredOn ??
+        (initialDate == null ? _today : AppDateUtils.dateOnly(initialDate));
   }
 
   @override

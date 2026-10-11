@@ -415,6 +415,95 @@ final class SpendingBreakdownFamily extends $Family
   String toString() => r'spendingBreakdownProvider';
 }
 
+/// Income and expenses per day of the month containing [month], keyed by day (local midnight) in
+/// date order. A day without transactions has no entry. Re-subscribes for a new user.
+
+@ProviderFor(monthDailyTotals)
+final monthDailyTotalsProvider = MonthDailyTotalsFamily._();
+
+/// Income and expenses per day of the month containing [month], keyed by day (local midnight) in
+/// date order. A day without transactions has no entry. Re-subscribes for a new user.
+
+final class MonthDailyTotalsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Map<DateTime, DayTotals>>,
+          Map<DateTime, DayTotals>,
+          Stream<Map<DateTime, DayTotals>>
+        >
+    with $FutureModifier<Map<DateTime, DayTotals>>, $StreamProvider<Map<DateTime, DayTotals>> {
+  /// Income and expenses per day of the month containing [month], keyed by day (local midnight) in
+  /// date order. A day without transactions has no entry. Re-subscribes for a new user.
+  MonthDailyTotalsProvider._({
+    required MonthDailyTotalsFamily super.from,
+    required DateTime super.argument,
+  }) : super(
+         retry: null,
+         name: r'monthDailyTotalsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$monthDailyTotalsHash();
+
+  @override
+  String toString() {
+    return r'monthDailyTotalsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<Map<DateTime, DayTotals>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<Map<DateTime, DayTotals>> create(Ref ref) {
+    final argument = this.argument as DateTime;
+    return monthDailyTotals(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is MonthDailyTotalsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$monthDailyTotalsHash() => r'e81de2bbc48db650264711d0eadfa39122429007';
+
+/// Income and expenses per day of the month containing [month], keyed by day (local midnight) in
+/// date order. A day without transactions has no entry. Re-subscribes for a new user.
+
+final class MonthDailyTotalsFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<Map<DateTime, DayTotals>>, DateTime> {
+  MonthDailyTotalsFamily._()
+    : super(
+        retry: null,
+        name: r'monthDailyTotalsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Income and expenses per day of the month containing [month], keyed by day (local midnight) in
+  /// date order. A day without transactions has no entry. Re-subscribes for a new user.
+
+  MonthDailyTotalsProvider call(DateTime month) =>
+      MonthDailyTotalsProvider._(argument: month, from: this);
+
+  @override
+  String toString() => r'monthDailyTotalsProvider';
+}
+
 /// One transaction, including a soft-deleted one (`isDeleted`). Re-subscribes for a new user.
 
 @ProviderFor(transactionById)
