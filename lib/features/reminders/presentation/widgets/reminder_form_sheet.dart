@@ -237,7 +237,7 @@ class _ReminderFormSheetState extends ConsumerState<ReminderFormSheet> {
               ),
               items: [
                 for (var day = 1; day <= 31; day++)
-                  DropdownMenuItem(value: day, child: Text(day.toString())),
+                  DropdownMenuItem(value: day, child: Text(context.formatNumber(day))),
               ],
               onChanged: isSaving
                   ? null

@@ -6,14 +6,17 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'accessibility.dart';
 import 'test_database.dart';
 
 extension PumpApp on WidgetTester {
-  /// Pumps [widget] inside a themed, localized [MaterialApp] (en_US) with a [Scaffold].
+  /// Pumps [widget] inside a themed, localized [MaterialApp] ([locale], en_US by default) with a
+  /// [Scaffold].
   Future<void> pumpApp(
     Widget widget, {
     Brightness brightness = Brightness.light,
     List<Override> overrides = const [],
+    Locale locale = const Locale('en', 'US'),
   }) {
     return pumpWidget(
       ProviderScope(
@@ -21,7 +24,7 @@ extension PumpApp on WidgetTester {
         overrides: overrides,
         child: MaterialApp(
           theme: brightness == Brightness.light ? AppTheme.light() : AppTheme.dark(),
-          locale: const Locale('en', 'US'),
+          locale: locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: const [Locale('en', 'US'), ...AppLocalizations.supportedLocales],
           home: Scaffold(body: widget),
@@ -39,6 +42,7 @@ extension PumpRouterApp on WidgetTester {
     required String initialLocation,
     Brightness brightness = Brightness.light,
     List<Override> overrides = const [],
+    Locale locale = const Locale('en', 'US'),
   }) async {
     final router = GoRouter(initialLocation: initialLocation, routes: routes);
     addTearDown(router.dispose);
@@ -48,7 +52,7 @@ extension PumpRouterApp on WidgetTester {
         overrides: overrides,
         child: MaterialApp.router(
           theme: brightness == Brightness.light ? AppTheme.light() : AppTheme.dark(),
-          locale: const Locale('en', 'US'),
+          locale: locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: const [Locale('en', 'US'), ...AppLocalizations.supportedLocales],
           routerConfig: router,
@@ -59,12 +63,16 @@ extension PumpRouterApp on WidgetTester {
   }
 }
 
-/// Runs [body] once in light and once in dark theme.
+/// Runs [body] once in light and once in dark theme, then checks what it left on screen against
+/// the accessibility guidelines (tap targets, labels, text contrast; M9.5).
 void testWidgetsBothThemes(
   String description,
   Future<void> Function(WidgetTester, Brightness) body,
 ) {
   for (final brightness in Brightness.values) {
-    testWidgets('$description (${brightness.name})', (tester) => body(tester, brightness));
+    testWidgets('$description (${brightness.name})', (tester) async {
+      await body(tester, brightness);
+      await expectAccessible(tester);
+    });
   }
 }

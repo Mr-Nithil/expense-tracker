@@ -1,8 +1,10 @@
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
+import 'package:expense_tracker/core/l10n/generated/app_localizations_si.dart';
 import 'package:expense_tracker/core/sync/sync_status.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
+import 'package:expense_tracker/core/utils/date_utils.dart';
 import 'package:expense_tracker/core/utils/money.dart';
 import 'package:expense_tracker/core/widgets/sync_status_indicator.dart';
 import 'package:expense_tracker/features/budget/data/budget_repository_provider.dart';
@@ -25,6 +27,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_sync_trigger.dart';
 import '../../../../helpers/pump_app.dart';
 
@@ -88,10 +91,12 @@ void main() {
     BudgetOverview overview, {
     Brightness brightness = Brightness.light,
     List<Override> extra = const [],
+    Locale locale = const Locale('en', 'US'),
   }) async {
     await tester.pumpApp(
       const BudgetScreen(),
       brightness: brightness,
+      locale: locale,
       overrides: [...overrides(() => Stream.value(overview)), ...extra],
     );
     await tester.pumpAndSettle();
@@ -110,6 +115,17 @@ void main() {
     expect(find.text(l10n.budgetCategoriesHeader), findsOneWidget);
     expect(find.byType(BudgetProgressTile), findsOneWidget);
     expect(find.text('Food'), findsOneWidget);
+  });
+
+  testWidgets('renders in Sinhala without overflow', (tester) async {
+    final si = AppLocalizationsSi();
+    await pumpScreen(tester, full, locale: const Locale('si'));
+
+    expect(find.text(si.budgetTitle), findsOneWidget);
+    expect(find.text(AppDateUtils.formatMonthYear(october, 'si')), findsOneWidget);
+    expect(find.text(si.budgetOverallTitle), findsOneWidget);
+    expect(find.text(si.budgetCategoriesHeader), findsOneWidget);
+    expect(find.text(si.budgetPercentUsed(25)), findsNWidgets(2));
   });
 
   testWidgets('the app bar shows the sync state', (tester) async {
@@ -358,6 +374,21 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(l10n.errorStorage), findsOneWidget);
+    });
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await pumpScreen(tester, full, brightness: brightness);
+      await expectAccessible(tester);
+      await scrollThrough(tester);
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await pumpScreen(tester, full);
+      await scrollThrough(tester);
     });
   });
 }

@@ -10,7 +10,11 @@ void main() {
       AppScaffold(
         title: 'Title',
         actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.add), tooltip: 'Add')],
-        floatingActionButton: FloatingActionButton(onPressed: () {}, child: const Icon(Icons.edit)),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          tooltip: 'Edit',
+          child: const Icon(Icons.edit),
+        ),
         body: const Text('Body'),
       ),
       brightness: brightness,

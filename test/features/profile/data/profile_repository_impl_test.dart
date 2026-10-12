@@ -166,11 +166,73 @@ void main() {
 
       expect(result.valueOrNull?.themeMode, AppThemeMode.light);
       expect((await storedRow())?.displayName, 'Nithil');
+      expect((await storedRow())?.syncStatus, SyncStatus.pending);
     });
 
     test('fails with AuthFailure without a session', () async {
       session.set(null);
       expect((await repository.setThemeMode(AppThemeMode.dark)).failureOrNull, isA<AuthFailure>());
+    });
+  });
+
+  group('setLocale', () {
+    test('saves the language, marks the row pending and asks for a sync', () async {
+      await seedRow(currency: 'USD');
+
+      final result = await repository.setLocale('si');
+
+      expect(result.valueOrNull?.locale, 'si');
+      final row = (await storedRow())!;
+      expect(row.locale, 'si');
+      expect(row.updatedAt, now);
+      expect(row.syncStatus, SyncStatus.pending);
+      expect(row.currencyCode, 'USD');
+      expect(row.themeMode, 'system');
+      expect(trigger.requests, 1);
+    });
+
+    test('null goes back to the device language', () async {
+      await seedRow(currency: 'USD');
+      await repository.setLocale('si');
+
+      final result = await repository.setLocale(null);
+
+      expect(result.valueOrNull?.locale, isNull);
+      expect((await storedRow())?.locale, isNull);
+    });
+
+    test('saving the current language again changes nothing', () async {
+      await seedRow(currency: 'USD');
+      await repository.setLocale('en');
+      trigger.requests = 0;
+
+      await repository.setLocale('en');
+
+      expect(trigger.requests, 0);
+    });
+
+    test('rejects a language the app does not support without writing', () async {
+      await seedRow(currency: 'USD');
+
+      final result = await repository.setLocale('fr');
+
+      expect(result.failureOrNull, isA<ValidationFailure>());
+      expect((await storedRow())?.locale, isNull);
+      expect((await storedRow())?.syncStatus, SyncStatus.synced);
+      expect(trigger.requests, 0);
+    });
+
+    test('creates the profile row when there is none yet', () async {
+      final result = await repository.setLocale('si');
+
+      expect(result.valueOrNull?.locale, 'si');
+      expect((await storedRow())?.displayName, 'Nithil');
+      expect((await storedRow())?.syncStatus, SyncStatus.pending);
+    });
+
+    test('fails with AuthFailure without a session', () async {
+      session.set(null);
+      expect((await repository.setLocale('si')).failureOrNull, isA<AuthFailure>());
     });
   });
 }

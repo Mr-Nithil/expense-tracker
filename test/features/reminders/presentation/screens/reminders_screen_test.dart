@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_notification_service.dart';
 import '../../../../helpers/fake_sync_trigger.dart';
 import '../../../../helpers/pump_app.dart';
@@ -23,10 +24,15 @@ void main() {
   late ProviderContainer container;
 
   /// The real repository on an in-memory DB; notifications and sync are fakes.
-  Future<void> pump(WidgetTester tester, {List<String> titles = const []}) async {
+  Future<void> pump(
+    WidgetTester tester, {
+    List<String> titles = const [],
+    Brightness brightness = Brightness.light,
+  }) async {
     notifications = FakeNotificationService();
     await tester.pumpApp(
       const RemindersScreen(),
+      brightness: brightness,
       overrides: [
         databaseProvider.overrideWithValue(createTestDatabase()),
         FakeSyncTrigger().providerOverride,
@@ -115,5 +121,18 @@ void main() {
 
     expect(find.byType(ReminderTile), findsOneWidget);
     expect(notifications.permissionRequests, 1);
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await pump(tester, titles: ['Log expenses', 'Check budget'], brightness: brightness);
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await pump(tester, titles: ['Log expenses', 'Check budget']);
+      await scrollThrough(tester);
+    });
   });
 }

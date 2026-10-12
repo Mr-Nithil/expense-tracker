@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/pump_app.dart';
 
 void main() {
@@ -47,9 +48,14 @@ void main() {
     updatedAt: at,
   );
 
-  Future<void> open(WidgetTester tester, {DateTime? on}) async {
+  Future<void> open(
+    WidgetTester tester, {
+    DateTime? on,
+    Brightness brightness = Brightness.light,
+  }) async {
     await tester.pumpRouterApp(
       initialLocation: Routes.dashboardPath,
+      brightness: brightness,
       overrides: [
         clockProvider.overrideWithValue(FixedClock(now)),
         currencyCodeProvider.overrideWith((ref) async => 'USD'),
@@ -143,5 +149,18 @@ void main() {
 
     expect(find.bySemanticsLabel(RegExp(r'Income.*\$50\.00', dotAll: true)), findsOneWidget);
     handle.dispose();
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await open(tester, brightness: brightness);
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await open(tester);
+      await scrollThrough(tester);
+    });
   });
 }

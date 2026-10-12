@@ -48,7 +48,7 @@ class DefaultCategoriesSeeder {
 DefaultCategoriesSeeder defaultCategoriesSeeder(Ref ref) => DefaultCategoriesSeeder(
   repository: ref.watch(categoryRepositoryProvider),
   l10n: appLocalizationsFor(
-    ref.watch(localeControllerProvider),
+    ref.watch(localeControllerProvider).value,
     device: PlatformDispatcher.instance.locale,
   ),
 );

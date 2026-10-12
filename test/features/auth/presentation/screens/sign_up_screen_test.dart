@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/pump_app.dart';
 
 class _MockAuthRepository extends Mock implements AuthRepository {}
@@ -188,5 +189,18 @@ void main() {
     verify(
       () => repository.signUp(email: email, password: password, displayName: 'Me'),
     ).called(1);
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await pumpSignUp(tester, brightness: brightness);
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await pumpSignUp(tester);
+      await scrollThrough(tester);
+    });
   });
 }

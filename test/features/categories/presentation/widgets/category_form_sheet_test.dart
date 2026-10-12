@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/pump_app.dart';
 
 class _MockCategoryRepository extends Mock implements CategoryRepository {}
@@ -230,6 +231,19 @@ void main() {
 
       verifyNever(() => repository.archive(any()));
       expect(sheet(), findsOneWidget);
+    });
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await openSheet(tester, brightness: brightness);
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await openSheet(tester);
+      await scrollThrough(tester);
     });
   });
 }

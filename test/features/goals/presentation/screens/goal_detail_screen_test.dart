@@ -20,6 +20,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_sync_trigger.dart';
 import '../../../../helpers/pump_app.dart';
 import '../../../../helpers/test_database.dart';
@@ -32,9 +33,14 @@ void main() {
   late Goal goal;
 
   /// The real repository on an in-memory DB, with the Goals list and a goal's page as routes.
-  Future<void> pump(WidgetTester tester, {List<int> contributions = const [3000, 2000]}) async {
+  Future<void> pump(
+    WidgetTester tester, {
+    List<int> contributions = const [3000, 2000],
+    Brightness brightness = Brightness.light,
+  }) async {
     await tester.pumpRouterApp(
       initialLocation: Routes.goalsPath,
+      brightness: brightness,
       overrides: [
         // Never reach Supabase: in-memory DB, fake sync trigger and status.
         databaseProvider.overrideWithValue(createTestDatabase()),
@@ -177,5 +183,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(l10n.goalDetailMissingTitle), findsOneWidget);
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await pump(tester, brightness: brightness);
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await pump(tester);
+      await scrollThrough(tester);
+    });
   });
 }

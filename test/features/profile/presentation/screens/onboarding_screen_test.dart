@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/pump_app.dart';
 
 class _MockProfileRepository extends Mock implements ProfileRepository {}
@@ -113,5 +114,20 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(l10n.errorStorage), findsOneWidget);
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await pumpOnboarding(tester, brightness: brightness);
+      await tester.pumpAndSettle();
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await pumpOnboarding(tester);
+      await tester.pumpAndSettle();
+      await scrollThrough(tester);
+    });
   });
 }

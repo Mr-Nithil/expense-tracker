@@ -4,6 +4,7 @@ import 'package:expense_tracker/core/db/daos/profiles_dao.dart';
 import 'package:expense_tracker/core/db/tables/sync_columns.dart';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
+import 'package:expense_tracker/core/l10n/generated/app_localizations.dart';
 import 'package:expense_tracker/core/logging/app_logger.dart';
 import 'package:expense_tracker/core/session/session.dart';
 import 'package:expense_tracker/core/sync/sync_trigger.dart';
@@ -28,6 +29,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   final SyncTrigger syncTrigger;
 
   static const currencyField = 'currencyCode';
+  static const localeField = 'locale';
 
   @override
   Stream<Profile?> watchProfile() {
@@ -92,18 +94,42 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<Result<Profile>> setThemeMode(AppThemeMode mode) async {
+  Future<Result<Profile>> setThemeMode(AppThemeMode mode) => _savePreference(
+    'setThemeMode',
+    isUnchanged: (row) => row.themeMode == mode.dbValue,
+    change: ProfilesCompanion(themeMode: Value(mode.dbValue)),
+  );
+
+  @override
+  Future<Result<Profile>> setLocale(String? languageCode) async {
+    if (languageCode != null &&
+        !AppLocalizations.supportedLocales.any((l) => l.languageCode == languageCode)) {
+      return const Result.failure(ValidationFailure('unsupportedLocale', field: localeField));
+    }
+    return _savePreference(
+      'setLocale',
+      isUnchanged: (row) => row.locale == languageCode,
+      change: ProfilesCompanion(locale: Value(languageCode)),
+    );
+  }
+
+  /// Writes a synced preference column ([change]) unless [isUnchanged]. Without a local row yet
+  /// (not pulled), first creates it, carrying the display name like [setCurrency].
+  Future<Result<Profile>> _savePreference(
+    String operation, {
+    required bool Function(ProfileRow row) isUnchanged,
+    required ProfilesCompanion change,
+  }) async {
     try {
       final user = session.requireUser();
       return await dao.transaction(() async {
         final existing = await dao.getProfile(user.userId);
-        if (existing != null && existing.themeMode == mode.dbValue) {
+        if (existing != null && isUnchanged(existing)) {
           return Result.success(existing.toEntity());
         }
 
         final now = clock.now().toUtc();
         if (existing == null) {
-          // Same as setCurrency: create the row, carrying the display name.
           await dao.insertProfile(
             ProfilesCompanion.insert(
               id: user.userId,
@@ -111,30 +137,23 @@ class ProfileRepositoryImpl implements ProfileRepository {
               createdAt: now,
               updatedAt: now,
               displayName: Value(user.displayName),
-              themeMode: Value(mode.dbValue),
-              syncStatus: const Value(SyncStatus.pending),
-            ),
-          );
-        } else {
-          await dao.updateProfile(
-            user.userId,
-            ProfilesCompanion(
-              themeMode: Value(mode.dbValue),
-              updatedAt: Value(now),
-              syncStatus: const Value(SyncStatus.pending),
             ),
           );
         }
+        await dao.updateProfile(
+          user.userId,
+          change.copyWith(updatedAt: Value(now), syncStatus: const Value(SyncStatus.pending)),
+        );
 
         final saved = await dao.getProfile(user.userId);
         syncTrigger.requestSync();
         return Result.success(saved!.toEntity());
       });
     } on StateError catch (_) {
-      return const Result.failure(AuthFailure('setThemeMode: no session'));
+      return Result.failure(AuthFailure('$operation: no session'));
     } catch (error, stackTrace) {
-      AppLogger.error('setThemeMode failed', error, stackTrace);
-      return Result.failure(StorageFailure('setThemeMode: $error'));
+      AppLogger.error('$operation failed', error, stackTrace);
+      return Result.failure(StorageFailure('$operation: $error'));
     }
   }
 }

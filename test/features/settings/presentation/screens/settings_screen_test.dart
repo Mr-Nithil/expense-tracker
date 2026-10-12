@@ -2,6 +2,7 @@ import 'package:expense_tracker/core/db/database_provider.dart';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
+import 'package:expense_tracker/core/l10n/generated/app_localizations_si.dart';
 import 'package:expense_tracker/core/sync/sync_status.dart';
 import 'package:expense_tracker/features/auth/data/logout_repository_provider.dart';
 import 'package:expense_tracker/features/auth/domain/logout_repository.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_notification_service.dart';
 import '../../../../helpers/fake_sync_trigger.dart';
 import '../../../../helpers/pump_app.dart';
@@ -43,12 +45,19 @@ void main() {
     when(() => repository.logout()).thenAnswer((_) async => Result.ok);
   });
 
-  Future<void> pumpSettings(WidgetTester tester, {int pending = 0}) async {
+  Future<void> pumpSettings(
+    WidgetTester tester, {
+    int pending = 0,
+    Locale locale = const Locale('en', 'US'),
+    Brightness brightness = Brightness.light,
+  }) async {
     when(
       () => repository.pendingChangesCount(),
     ).thenAnswer((_) async => Result.success(pending));
     await tester.pumpApp(
       const SettingsScreen(),
+      locale: locale,
+      brightness: brightness,
       overrides: [
         databaseProvider.overrideWithValue(createTestDatabase()),
         logoutRepositoryProvider.overrideWithValue(repository),
@@ -96,6 +105,18 @@ void main() {
     expect(find.text(l10n.categoriesTitle), findsOneWidget);
     await reveal(tester, find.widgetWithText(FilledButton, l10n.settingsLogout));
     expect(find.text(l10n.settingsAccountLabel), findsOneWidget);
+  });
+
+  testWidgets('renders in Sinhala without overflow', (tester) async {
+    final si = AppLocalizationsSi();
+    await pumpSettings(tester, locale: const Locale('si'));
+
+    expect(find.text(si.settingsTitle), findsOneWidget);
+    await reveal(tester, find.text(si.settingsManageLabel));
+    await reveal(tester, find.widgetWithText(FilledButton, si.settingsLogout));
+    await tester.tap(find.widgetWithText(FilledButton, si.settingsLogout));
+    await tester.pumpAndSettle();
+    expect(inDialog(si.settingsLogoutConfirmMessage), findsOneWidget);
   });
 
   testWidgets('with nothing pending, asks a plain confirmation and logs out', (tester) async {
@@ -238,6 +259,21 @@ void main() {
 
       expect(find.text(l10n.settingsBudgetAlertsPermissionDenied), findsOneWidget);
       expect(tester.widget<SwitchListTile>(alertsSwitch()).value, isTrue);
+    });
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await pumpSettings(tester, brightness: brightness);
+      await expectAccessible(tester);
+      await scrollThrough(tester);
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await pumpSettings(tester);
+      await scrollThrough(tester);
     });
   });
 }

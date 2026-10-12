@@ -4,6 +4,7 @@ import 'package:expense_tracker/features/auth/presentation/screens/splash_screen
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/pump_app.dart';
 
 void main() {
@@ -41,6 +42,19 @@ void main() {
     await pumpSplash(tester, InitialSyncStatus.done);
 
     expect(find.text(l10n.authSplashSyncing), findsNothing);
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await pumpSplash(tester, InitialSyncStatus.running, brightness: brightness);
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await pumpSplash(tester, InitialSyncStatus.running);
+      await tester.pump();
+    });
   });
 }
 

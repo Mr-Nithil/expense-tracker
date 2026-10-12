@@ -90,4 +90,4 @@ final class NotificationSetupProvider
   }
 }
 
-String _$notificationSetupHash() => r'114c8576df94a82b6b89927f6515a7c82fbc2bee';
+String _$notificationSetupHash() => r'27d5ccc8d3f9a428582f6ff056367c0d5ce2498f';

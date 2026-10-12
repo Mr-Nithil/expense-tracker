@@ -202,7 +202,7 @@ NotificationService notificationService(Ref ref) => LocalNotificationService();
 @Riverpod(keepAlive: true)
 Future<void> notificationSetup(Ref ref) async {
   final l10n = appLocalizationsFor(
-    ref.read(localeControllerProvider),
+    ref.read(localeControllerProvider).value,
     device: PlatformDispatcher.instance.locale,
   );
   try {

@@ -69,7 +69,7 @@ class CalendarDayCell extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              day.day.toString(),
+              context.formatNumber(day.day),
               style: isToday
                   ? context.text.bodyMedium?.copyWith(color: context.colorScheme.primary)
                   : context.text.bodyMedium,

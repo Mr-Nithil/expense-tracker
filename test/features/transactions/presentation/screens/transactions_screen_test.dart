@@ -24,6 +24,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_sync_trigger.dart';
 import '../../../../helpers/pump_app.dart';
 
@@ -414,6 +415,21 @@ void main() {
       await pull(tester, find.byType(TransactionTile));
 
       expect(find.text(l10n.errorNetwork), findsOneWidget);
+    });
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await pumpScreen(tester, [tx('a', 11, 1250), tx('b', 9, 400)], brightness: brightness);
+      await expectAccessible(tester);
+      await scrollThrough(tester);
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await pumpScreen(tester, [tx('a', 11, 1250), tx('b', 9, 400)]);
+      await scrollThrough(tester);
     });
   });
 }

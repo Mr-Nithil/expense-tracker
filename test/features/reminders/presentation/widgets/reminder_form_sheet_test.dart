@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/pump_app.dart';
 
 class _MockReminderRepository extends Mock implements ReminderRepository {}
@@ -191,5 +192,18 @@ void main() {
     expect(updated.title, 'Pay the rent');
     expect(updated.dayOfMonth, 1);
     expect(popped, isTrue);
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await open(tester, b: brightness);
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await open(tester);
+      await scrollThrough(tester);
+    });
   });
 }

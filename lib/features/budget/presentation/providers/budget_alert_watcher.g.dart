@@ -52,7 +52,7 @@ final class BudgetAlertWatcherProvider extends $NotifierProvider<BudgetAlertWatc
   }
 }
 
-String _$budgetAlertWatcherHash() => r'a06079ef99293dacd5541762c691dfc0db43bfa2';
+String _$budgetAlertWatcherHash() => r'ead425d1c4e7c407951b2d8918dfb7056e6712ce';
 
 /// Shows a budget alert when a budget of the current month crosses 80% or 100% (watched by
 /// `App`). The first values after start are only a baseline, so opening the app never replays

@@ -20,6 +20,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/pump_app.dart';
 
 class _MockTransactionRepository extends Mock implements TransactionRepository {}
@@ -218,5 +219,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(r'-$12.50'), findsOneWidget);
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await pumpDetail(tester, transaction: lunch(), brightness: brightness);
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await pumpDetail(tester, transaction: lunch());
+      await scrollThrough(tester);
+    });
   });
 }

@@ -46,7 +46,7 @@
   "authPasswordHint": "At least {minLength} characters",
   "@authPasswordHint": {
     "description": "Hint inside the new-password field on sign-up",
-    "placeholders": { "minLength": { "type": "int" } }
+    "placeholders": { "minLength": { "type": "int", "format": "decimalPattern" } }
   },
   "authResendConfirmation": "Resend email",
   "@authResendConfirmation": { "description": "Snackbar action that sends the sign-up confirmation email again" },
@@ -89,14 +89,14 @@
   "budgetAlertWarningTitle": "{name}: {percent}% used",
   "@budgetAlertWarningTitle": {
     "description": "Budget alert notification title from 80%; name is the category name or 'Overall budget'",
-    "placeholders": { "name": { "type": "String" }, "percent": { "type": "int" } }
+    "placeholders": { "name": { "type": "String" }, "percent": { "type": "int", "format": "decimalPattern" } }
   },
   "budgetCategoriesHeader": "Categories",
   "@budgetCategoriesHeader": { "description": "Section header above the per-category budgets on the budget screen" },
   "budgetCopied": "{count, plural, =0{Nothing new to copy from last month.} =1{Copied 1 budget from last month.} other{Copied {count} budgets from last month.}}",
   "@budgetCopied": {
     "description": "Snackbar after copying last month's budgets; count is how many were added (budgets the month already had are kept)",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
   },
   "budgetCopyPrevious": "Copy last month's budgets",
   "@budgetCopyPrevious": { "description": "Action that copies the previous month's budgets into the shown month" },
@@ -137,7 +137,7 @@
   "budgetPercentUsed": "{percent}% used",
   "@budgetPercentUsed": {
     "description": "Share of a budget spent so far, as a whole percent (can exceed 100)",
-    "placeholders": { "percent": { "type": "int" } }
+    "placeholders": { "percent": { "type": "int", "format": "decimalPattern" } }
   },
   "budgetRemoveConfirmMessage": "Your transactions stay as they are.",
   "@budgetRemoveConfirmMessage": { "description": "Body of the dialog that confirms removing a budget" },
@@ -187,7 +187,7 @@
   "categoryFormColorOption": "Color {index} of {count}",
   "@categoryFormColorOption": {
     "description": "Screen-reader label of one color in the category color picker",
-    "placeholders": { "index": { "type": "int" }, "count": { "type": "int" } }
+    "placeholders": { "index": { "type": "int", "format": "decimalPattern" }, "count": { "type": "int", "format": "decimalPattern" } }
   },
   "categoryFormEditTitle": "Edit category",
   "@categoryFormEditTitle": { "description": "Title of the category sheet when editing" },
@@ -196,7 +196,7 @@
   "categoryFormIconOption": "Icon {index} of {count}",
   "@categoryFormIconOption": {
     "description": "Screen-reader label of one icon in the category icon picker",
-    "placeholders": { "index": { "type": "int" }, "count": { "type": "int" } }
+    "placeholders": { "index": { "type": "int", "format": "decimalPattern" }, "count": { "type": "int", "format": "decimalPattern" } }
   },
   "categoryFormNameLabel": "Name",
   "@categoryFormNameLabel": { "description": "Label of the name field in the category sheet" },
@@ -262,10 +262,6 @@
   "@commonAll": { "description": "Filter option that shows everything (e.g. both expense and income)" },
   "commonCancel": "Cancel",
   "@commonCancel": { "description": "Generic cancel button" },
-  "commonComingSoonMessage": "This screen is still being built.",
-  "@commonComingSoonMessage": { "description": "Body text of a placeholder screen" },
-  "commonComingSoonTitle": "Coming soon",
-  "@commonComingSoonTitle": { "description": "Title of a placeholder screen" },
   "commonConfirm": "Confirm",
   "@commonConfirm": { "description": "Generic confirm button in dialogs" },
   "commonDelete": "Delete",
@@ -276,6 +272,8 @@
   "@commonExpense": { "description": "The expense type (transactions, categories); used as a tab or toggle label" },
   "commonIncome": "Income",
   "@commonIncome": { "description": "The income type (transactions, categories); used as a tab or toggle label" },
+  "commonListSeparator": ", ",
+  "@commonListSeparator": { "description": "Separator between the items of a short inline list, e.g. weekday names in a reminder schedule (Mon, Thu)" },
   "commonLoading": "Loading",
   "@commonLoading": { "description": "Accessibility label for a loading indicator" },
   "commonNextMonth": "Next month",
@@ -312,7 +310,7 @@
   "dashboardGoalsReached": "{count, plural, =1{1 goal reached} other{{count} goals reached}}",
   "@dashboardGoalsReached": {
     "description": "Dashboard goals section: how many goals have reached their target",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
   },
   "dashboardGoalsSet": "Set a goal",
   "@dashboardGoalsSet": { "description": "Dashboard goals section action that opens the Goals tab" },
@@ -352,12 +350,12 @@
   "dashboardSpendingOther": "{count, plural, =1{1 more category} other{{count} more categories}}",
   "@dashboardSpendingOther": {
     "description": "Dashboard spending-by-category row that groups the smaller categories together (not called 'Other', which is also a default category name)",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
   },
   "dashboardSpendingPercent": "{percent}%",
   "@dashboardSpendingPercent": {
     "description": "A category's share of the month's spending, as a whole percent",
-    "placeholders": { "percent": { "type": "int" } }
+    "placeholders": { "percent": { "type": "int", "format": "decimalPattern" } }
   },
   "dashboardSpendingPercentTiny": "<1%",
   "@dashboardSpendingPercentTiny": { "description": "A category's share of the month's spending when it rounds to 0 but is not zero" },
@@ -395,7 +393,7 @@
   "errorBudgetMonthOutOfRange": "Budgets can be set up to {months} months ahead.",
   "@errorBudgetMonthOutOfRange": {
     "description": "Budget error: the month is too far ahead (or before 2000)",
-    "placeholders": { "months": { "type": "int" } }
+    "placeholders": { "months": { "type": "int", "format": "decimalPattern" } }
   },
   "errorCategoryNameTaken": "You already have a category with this name.",
   "@errorCategoryNameTaken": { "description": "Category name field error: an active category of the same type already uses the name" },
@@ -410,7 +408,7 @@
   "errorGoalDeadlineOutOfRange": "Choose a deadline within the next {years} years.",
   "@errorGoalDeadlineOutOfRange": {
     "description": "Goal form: the deadline is before 2000 or too far ahead",
-    "placeholders": { "years": { "type": "int" } }
+    "placeholders": { "years": { "type": "int", "format": "decimalPattern" } }
   },
   "errorGoalNotFound": "This goal no longer exists.",
   "@errorGoalNotFound": { "description": "Add money or undo failed because the goal was deleted (e.g. on another device)" },
@@ -423,7 +421,7 @@
   "errorPasswordTooShort": "Use at least {minLength} characters.",
   "@errorPasswordTooShort": {
     "description": "Form field error when a new password is shorter than the minimum",
-    "placeholders": { "minLength": { "type": "int" } }
+    "placeholders": { "minLength": { "type": "int", "format": "decimalPattern" } }
   },
   "errorReminderDayOfMonthRequired": "Choose a day of the month.",
   "@errorReminderDayOfMonthRequired": { "description": "Reminder form: monthly repeat without a day" },
@@ -527,7 +525,7 @@
   "goalsPercent": "{percent}%",
   "@goalsPercent": {
     "description": "Share of a goal's target saved, as a whole percent (can exceed 100)",
-    "placeholders": { "percent": { "type": "int" } }
+    "placeholders": { "percent": { "type": "int", "format": "decimalPattern" } }
   },
   "goalsSavedOfTarget": "{saved} of {target}",
   "@goalsSavedOfTarget": {
@@ -537,6 +535,8 @@
   "goalsTitle": "Goals",
   "@goalsTitle": { "description": "Title of the goals tab and its bottom navigation label" },
 
+  "languageNativeName": "English",
+  "@languageNativeName": { "description": "The name of THIS file's language written in that language (e.g. 'Deutsch' for German), shown in the language picker. Not the word 'English'." },
   "notificationsChannelBudgetAlerts": "Budget alerts",
   "@notificationsChannelBudgetAlerts": { "description": "Android notification channel name (system settings) for budget threshold alerts" },
   "notificationsChannelBudgetAlertsDescription": "When a budget is close to or over its limit.",
@@ -597,7 +597,7 @@
   "reminderMonthly": "Monthly on day {day} at {time}",
   "@reminderMonthly": {
     "description": "Reminder schedule: monthly; time is pre-formatted",
-    "placeholders": { "day": { "type": "int" }, "time": { "type": "String" } }
+    "placeholders": { "day": { "type": "int", "format": "decimalPattern" }, "time": { "type": "String" } }
   },
   "reminderRepeatDaily": "Daily",
   "@reminderRepeatDaily": { "description": "Reminder repeat option" },
@@ -642,6 +642,12 @@
     "description": "Settings: the user's currency, e.g. USD ($)",
     "placeholders": { "code": { "type": "String" }, "symbol": { "type": "String" } }
   },
+  "settingsLanguageChoose": "Choose a language",
+  "@settingsLanguageChoose": { "description": "Title of the dialog that picks the app language" },
+  "settingsLanguageDevice": "Device language",
+  "@settingsLanguageDevice": { "description": "Language option that follows the phone's language setting" },
+  "settingsLanguageLabel": "Language",
+  "@settingsLanguageLabel": { "description": "Settings section header and accessibility label of the app language picker" },
   "settingsLogout": "Log out",
   "@settingsLogout": { "description": "Settings button and confirm action that signs the user out of this device" },
   "settingsLogoutAnyway": "Log out anyway",
@@ -653,7 +659,7 @@
   "settingsLogoutPendingMessage": "{count, plural, =1{1 change on this device hasn't synced yet. If you log out now, it will be lost.} other{{count} changes on this device haven't synced yet. If you log out now, they will be lost.}}",
   "@settingsLogoutPendingMessage": {
     "description": "Logout dialog warning when unsynced local changes would be deleted",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
   },
   "settingsManageLabel": "Manage",
   "@settingsManageLabel": { "description": "Settings section header for data the user manages (categories, later budgets)" },
@@ -683,7 +689,7 @@
   "syncStatusPending": "{count, plural, =1{1 change waiting to sync} other{{count} changes waiting to sync}}",
   "@syncStatusPending": {
     "description": "Sync indicator: local changes not on the server yet",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
   },
   "syncStatusSynced": "All changes synced",
   "@syncStatusSynced": { "description": "Sync indicator: everything is on the server" },

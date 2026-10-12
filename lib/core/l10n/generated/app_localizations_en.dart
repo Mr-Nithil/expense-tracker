@@ -70,7 +70,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String authPasswordHint(int minLength) {
-    return 'At least $minLength characters';
+    final intl.NumberFormat minLengthNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String minLengthString = minLengthNumberFormat.format(minLength);
+
+    return 'At least $minLengthString characters';
   }
 
   @override
@@ -124,7 +127,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String budgetAlertWarningTitle(String name, int percent) {
-    return '$name: $percent% used';
+    final intl.NumberFormat percentNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String percentString = percentNumberFormat.format(percent);
+
+    return '$name: $percentString% used';
   }
 
   @override
@@ -132,10 +138,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String budgetCopied(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Copied $count budgets from last month.',
+      other: 'Copied $countString budgets from last month.',
       one: 'Copied 1 budget from last month.',
       zero: 'Nothing new to copy from last month.',
     );
@@ -195,7 +204,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String budgetPercentUsed(int percent) {
-    return '$percent% used';
+    final intl.NumberFormat percentNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String percentString = percentNumberFormat.format(percent);
+
+    return '$percentString% used';
   }
 
   @override
@@ -252,7 +264,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String categoryFormColorOption(int index, int count) {
-    return 'Color $index of $count';
+    final intl.NumberFormat indexNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String indexString = indexNumberFormat.format(index);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'Color $indexString of $countString';
   }
 
   @override
@@ -263,7 +280,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String categoryFormIconOption(int index, int count) {
-    return 'Icon $index of $count';
+    final intl.NumberFormat indexNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String indexString = indexNumberFormat.format(index);
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    return 'Icon $indexString of $countString';
   }
 
   @override
@@ -353,12 +375,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonCancel => 'Cancel';
 
   @override
-  String get commonComingSoonMessage => 'This screen is still being built.';
-
-  @override
-  String get commonComingSoonTitle => 'Coming soon';
-
-  @override
   String get commonConfirm => 'Confirm';
 
   @override
@@ -372,6 +388,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonIncome => 'Income';
+
+  @override
+  String get commonListSeparator => ', ';
 
   @override
   String get commonLoading => 'Loading';
@@ -419,10 +438,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String dashboardGoalsReached(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count goals reached',
+      other: '$countString goals reached',
       one: '1 goal reached',
     );
     return '$_temp0';
@@ -470,10 +492,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String dashboardSpendingOther(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count more categories',
+      other: '$countString more categories',
       one: '1 more category',
     );
     return '$_temp0';
@@ -481,7 +506,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String dashboardSpendingPercent(int percent) {
-    return '$percent%';
+    final intl.NumberFormat percentNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String percentString = percentNumberFormat.format(percent);
+
+    return '$percentString%';
   }
 
   @override
@@ -538,7 +566,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String errorBudgetMonthOutOfRange(int months) {
-    return 'Budgets can be set up to $months months ahead.';
+    final intl.NumberFormat monthsNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String monthsString = monthsNumberFormat.format(months);
+
+    return 'Budgets can be set up to $monthsString months ahead.';
   }
 
   @override
@@ -559,7 +590,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String errorGoalDeadlineOutOfRange(int years) {
-    return 'Choose a deadline within the next $years years.';
+    final intl.NumberFormat yearsNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String yearsString = yearsNumberFormat.format(years);
+
+    return 'Choose a deadline within the next $yearsString years.';
   }
 
   @override
@@ -576,7 +610,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String errorPasswordTooShort(int minLength) {
-    return 'Use at least $minLength characters.';
+    final intl.NumberFormat minLengthNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String minLengthString = minLengthNumberFormat.format(minLength);
+
+    return 'Use at least $minLengthString characters.';
   }
 
   @override
@@ -713,7 +750,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String goalsPercent(int percent) {
-    return '$percent%';
+    final intl.NumberFormat percentNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String percentString = percentNumberFormat.format(percent);
+
+    return '$percentString%';
   }
 
   @override
@@ -723,6 +763,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goalsTitle => 'Goals';
+
+  @override
+  String get languageNativeName => 'English';
 
   @override
   String get notificationsChannelBudgetAlerts => 'Budget alerts';
@@ -802,7 +845,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String reminderMonthly(int day, String time) {
-    return 'Monthly on day $day at $time';
+    final intl.NumberFormat dayNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String dayString = dayNumberFormat.format(day);
+
+    return 'Monthly on day $dayString at $time';
   }
 
   @override
@@ -867,6 +913,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get settingsLanguageChoose => 'Choose a language';
+
+  @override
+  String get settingsLanguageDevice => 'Device language';
+
+  @override
+  String get settingsLanguageLabel => 'Language';
+
+  @override
   String get settingsLogout => 'Log out';
 
   @override
@@ -881,11 +936,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsLogoutPendingMessage(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other:
-          '$count changes on this device haven\'t synced yet. If you log out now, they will be lost.',
+          '$countString changes on this device haven\'t synced yet. If you log out now, they will be lost.',
       one: '1 change on this device hasn\'t synced yet. If you log out now, it will be lost.',
     );
     return '$_temp0';
@@ -929,10 +987,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String syncStatusPending(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count changes waiting to sync',
+      other: '$countString changes waiting to sync',
       one: '1 change waiting to sync',
     );
     return '$_temp0';

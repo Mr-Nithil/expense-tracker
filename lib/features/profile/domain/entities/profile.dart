@@ -14,6 +14,9 @@ abstract class Profile with _$Profile {
     String? displayName,
     String? currencyCode,
     @Default(AppThemeMode.system) AppThemeMode themeMode,
+
+    /// The app language code (e.g. `si`), or `null` to follow the device. Synced.
+    String? locale,
   }) = _Profile;
 
   const Profile._();

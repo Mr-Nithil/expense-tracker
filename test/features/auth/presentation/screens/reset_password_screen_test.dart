@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_auth_repository.dart';
 import '../../../../helpers/pump_app.dart';
 
@@ -104,5 +105,18 @@ void main() {
 
     verify(() => repository.signOut()).called(1);
     verifyNoUpdate();
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await pumpScreen(tester, brightness: brightness);
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await pumpScreen(tester);
+      await scrollThrough(tester);
+    });
   });
 }

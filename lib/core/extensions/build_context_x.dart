@@ -3,6 +3,7 @@ import 'package:expense_tracker/core/theme/app_colors.dart';
 import 'package:expense_tracker/core/theme/app_durations.dart';
 import 'package:expense_tracker/core/utils/date_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 /// Shortcuts for theme, localization and locale-aware formatting.
 extension BuildContextX on BuildContext {
@@ -21,6 +22,10 @@ extension BuildContextX on BuildContext {
   String get localeTag => Localizations.localeOf(this).toString();
 
   String formatDate(DateTime date) => AppDateUtils.formatShortDate(date, localeTag);
+
+  /// A whole number in the current locale's digits and grouping (e.g. `1,234`). Never use
+  /// `toString()` for numbers shown to the user.
+  String formatNumber(int value) => NumberFormat.decimalPattern(localeTag).format(value);
 
   /// Shows [message] in a snackbar, replacing any snackbar that is currently visible.
   ///

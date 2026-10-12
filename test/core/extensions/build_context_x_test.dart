@@ -66,4 +66,22 @@ void main() {
 
     expect(undone, 1);
   });
+
+  for (final locale in const [Locale('en', 'US'), Locale('si')]) {
+    testWidgets('formatNumber uses the locale grouping ($locale)', (tester) async {
+      late BuildContext context;
+      await tester.pumpApp(
+        Builder(
+          builder: (c) {
+            context = c;
+            return const SizedBox();
+          },
+        ),
+        locale: locale,
+      );
+
+      expect(context.formatNumber(1234567), '1,234,567');
+      expect(context.formatNumber(7), '7');
+    });
+  }
 }

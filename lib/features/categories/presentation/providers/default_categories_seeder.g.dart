@@ -54,4 +54,4 @@ final class DefaultCategoriesSeederProvider
   }
 }
 
-String _$defaultCategoriesSeederHash() => r'dbb6703a167a5dd79b081a8ca214b2a8cbe16df7';
+String _$defaultCategoriesSeederHash() => r'34aac0910abfcde37889f619f1f8995cd62ef025';

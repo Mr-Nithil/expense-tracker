@@ -8,14 +8,23 @@ part of 'locale_controller.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The app locale. `null` follows the device. Persisted and synced in M9.3.
+/// The app language: the signed-in user's profile `locale` (synced, so it follows the user to
+/// other devices), or `null` to follow the device (signed out, not chosen, or not supported).
+///
+/// Read-only: the language is changed through the profile repository (the single write path).
 
 @ProviderFor(LocaleController)
 final localeControllerProvider = LocaleControllerProvider._();
 
-/// The app locale. `null` follows the device. Persisted and synced in M9.3.
-final class LocaleControllerProvider extends $NotifierProvider<LocaleController, Locale?> {
-  /// The app locale. `null` follows the device. Persisted and synced in M9.3.
+/// The app language: the signed-in user's profile `locale` (synced, so it follows the user to
+/// other devices), or `null` to follow the device (signed out, not chosen, or not supported).
+///
+/// Read-only: the language is changed through the profile repository (the single write path).
+final class LocaleControllerProvider extends $StreamNotifierProvider<LocaleController, Locale?> {
+  /// The app language: the signed-in user's profile `locale` (synced, so it follows the user to
+  /// other devices), or `null` to follow the device (signed out, not chosen, or not supported).
+  ///
+  /// Read-only: the language is changed through the profile repository (the single write path).
   LocaleControllerProvider._()
     : super(
         from: null,
@@ -33,29 +42,29 @@ final class LocaleControllerProvider extends $NotifierProvider<LocaleController,
   @$internal
   @override
   LocaleController create() => LocaleController();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Locale? value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<Locale?>(value),
-    );
-  }
 }
 
-String _$localeControllerHash() => r'e4d0fa49dd5ce82781813ee90666612f088cf486';
+String _$localeControllerHash() => r'f4e62c05f2b9138611a801c64dfaed8c30a26caf';
 
-/// The app locale. `null` follows the device. Persisted and synced in M9.3.
+/// The app language: the signed-in user's profile `locale` (synced, so it follows the user to
+/// other devices), or `null` to follow the device (signed out, not chosen, or not supported).
+///
+/// Read-only: the language is changed through the profile repository (the single write path).
 
-abstract class _$LocaleController extends $Notifier<Locale?> {
-  Locale? build();
+abstract class _$LocaleController extends $StreamNotifier<Locale?> {
+  Stream<Locale?> build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<Locale?, Locale?>;
+    final ref = this.ref as $Ref<AsyncValue<Locale?>, Locale?>;
     final element =
         ref.element
-            as $ClassProviderElement<AnyNotifier<Locale?, Locale?>, Locale?, Object?, Object?>;
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<Locale?>, Locale?>,
+              AsyncValue<Locale?>,
+              Object?,
+              Object?
+            >;
     element.handleCreate(ref, build);
   }
 }

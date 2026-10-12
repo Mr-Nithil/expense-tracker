@@ -44,7 +44,7 @@ class BudgetAlertWatcher extends _$BudgetAlertWatcher {
       if (!await _once(budgetAlertsEnabledProvider)) return;
       final currency = await _once(currencyCodeProvider);
       final l10n = appLocalizationsFor(
-        ref.read(localeControllerProvider),
+        ref.read(localeControllerProvider).value,
         device: PlatformDispatcher.instance.locale,
       );
       final locale = l10n.localeName;

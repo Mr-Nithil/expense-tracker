@@ -13,8 +13,11 @@ abstract final class ReminderDescription {
       ReminderRepeat.daily => l10n.reminderEveryDay(time),
       ReminderRepeat.weekly => l10n.reminderWeekly(
         weekdaysInLocaleOrder(
-          context,
-        ).where(reminder.weekdays.contains).map((day) => weekdayName(context, day)).join(', '),
+              context,
+            )
+            .where(reminder.weekdays.contains)
+            .map((day) => weekdayName(context, day))
+            .join(l10n.commonListSeparator),
         time,
       ),
       ReminderRepeat.monthly => l10n.reminderMonthly(reminder.dayOfMonth ?? 1, time),

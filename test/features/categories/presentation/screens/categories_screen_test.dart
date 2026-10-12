@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/pump_app.dart';
 
 void main() {
@@ -125,5 +126,22 @@ void main() {
 
     expect(find.text(l10n.categoryFormEditTitle), findsOneWidget);
     expect(tester.widget<CategoryFormSheet>(find.byType(CategoryFormSheet)).category?.name, 'Food');
+  });
+
+  group('accessibility (M9.5)', () {
+    testWidgetsBothThemes('meets the guidelines', (tester, brightness) async {
+      await pumpScreen(
+        tester,
+        expense: [category('Food', CategoryType.expense)],
+        brightness: brightness,
+      );
+      await expectAccessible(tester);
+    });
+
+    testWidgets('large text (2x) fits', (tester) async {
+      useTextScale(tester, 2);
+      await pumpScreen(tester, expense: [category('Food', CategoryType.expense)]);
+      await scrollThrough(tester);
+    });
   });
 }

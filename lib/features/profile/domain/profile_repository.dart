@@ -13,4 +13,10 @@ abstract interface class ProfileRepository {
   /// Sets the theme preference (synced, so it follows the user to other devices). Saving the
   /// current value again is a no-op. Fails with an `AuthFailure` without a session.
   Future<Result<Profile>> setThemeMode(AppThemeMode mode);
+
+  /// Sets the app language ([languageCode], e.g. `si`; `null` follows the device). Synced, so it
+  /// follows the user to other devices. Saving the current value again is a no-op. Fails with a
+  /// `ValidationFailure` for a language the app doesn't support and with an `AuthFailure` without
+  /// a session.
+  Future<Result<Profile>> setLocale(String? languageCode);
 }

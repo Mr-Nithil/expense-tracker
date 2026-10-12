@@ -24,5 +24,6 @@ extension ProfileRowMapper on ProfileRow {
     displayName: displayName,
     currencyCode: currencyCode,
     themeMode: AppThemeModeDb.fromDb(themeMode),
+    locale: locale,
   );
 }

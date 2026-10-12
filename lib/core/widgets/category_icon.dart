@@ -1,7 +1,8 @@
 import 'package:expense_tracker/core/theme/app_sizes.dart';
+import 'package:expense_tracker/core/theme/contrast.dart';
 import 'package:flutter/material.dart';
 
-/// A category's icon in a circle tinted with its color. Use wherever a category is shown
+/// A category's icon in a circle tinted with its color (the glyph is adjusted for contrast). Use wherever a category is shown
 /// (lists, pickers, transactions). Decorative: the surrounding row provides the label.
 ///
 /// Takes plain values (icon key + ARGB color) because core never imports features.
@@ -67,15 +68,22 @@ class CategoryIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tint = Color(color);
+    final background = tint.withValues(alpha: _tintAlpha);
+    // The stored color is shared by both themes: draw the glyph at 3:1 at least against its
+    // circle on the darkest light / lightest dark surface, so it stays visible in both.
+    final glyph = Contrast.ensure(
+      tint,
+      on: Color.alphaBlend(background, Theme.of(context).colorScheme.surfaceContainerHighest),
+    );
     return ExcludeSemantics(
       child: Container(
         width: size,
         height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: tint.withValues(alpha: _tintAlpha),
+          color: background,
         ),
-        child: Icon(iconFor(iconKey), color: tint, size: size * _iconScale),
+        child: Icon(iconFor(iconKey), color: glyph, size: size * _iconScale),
       ),
     );
   }

@@ -37,7 +37,7 @@ class App extends ConsumerWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ref.watch(themeModeControllerProvider).value ?? ThemeMode.system,
-      locale: ref.watch(localeControllerProvider),
+      locale: ref.watch(localeControllerProvider).value,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: ref.watch(routerProvider),

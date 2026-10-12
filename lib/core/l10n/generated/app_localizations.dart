@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_si.dart';
 
 // ignore_for_file: type=lint
 
@@ -90,7 +91,7 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+  static const List<Locale> supportedLocales = <Locale>[Locale('en'), Locale('si')];
 
   /// App name shown in the task switcher and title bar
   ///
@@ -680,18 +681,6 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get commonCancel;
 
-  /// Body text of a placeholder screen
-  ///
-  /// In en, this message translates to:
-  /// **'This screen is still being built.'**
-  String get commonComingSoonMessage;
-
-  /// Title of a placeholder screen
-  ///
-  /// In en, this message translates to:
-  /// **'Coming soon'**
-  String get commonComingSoonTitle;
-
   /// Generic confirm button in dialogs
   ///
   /// In en, this message translates to:
@@ -721,6 +710,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Income'**
   String get commonIncome;
+
+  /// Separator between the items of a short inline list, e.g. weekday names in a reminder schedule (Mon, Thu)
+  ///
+  /// In en, this message translates to:
+  /// **', '**
+  String get commonListSeparator;
 
   /// Accessibility label for a loading indicator
   ///
@@ -1310,6 +1305,12 @@ abstract class AppLocalizations {
   /// **'Goals'**
   String get goalsTitle;
 
+  /// The name of THIS file's language written in that language (e.g. 'Deutsch' for German), shown in the language picker. Not the word 'English'.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageNativeName;
+
   /// Android notification channel name (system settings) for budget threshold alerts
   ///
   /// In en, this message translates to:
@@ -1549,6 +1550,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{code} ({symbol})'**
   String settingsCurrencyValue(String code, String symbol);
+
+  /// Title of the dialog that picks the app language
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a language'**
+  String get settingsLanguageChoose;
+
+  /// Language option that follows the phone's language setting
+  ///
+  /// In en, this message translates to:
+  /// **'Device language'**
+  String get settingsLanguageDevice;
+
+  /// Settings section header and accessibility label of the app language picker
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguageLabel;
 
   /// Settings button and confirm action that signs the user out of this device
   ///
@@ -1812,7 +1831,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'si'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -1823,6 +1842,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'si':
+      return AppLocalizationsSi();
   }
 
   throw FlutterError(
