@@ -8,7 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_database.dart';
 
-/// Columns and foreign keys of every `create table public.<name>` in the Supabase migrations.
+/// Columns and foreign keys of every `create table public.<name>` in the Supabase migrations,
+/// plus columns added later with `alter table … add column`.
 ({Map<String, Map<String, String>> columns, Map<String, Set<String>> parents}) readRemoteSchema() {
   final sql = [
     for (final file in _migrationFiles())
@@ -28,6 +29,14 @@ import '../../helpers/test_database.dart';
     final body = table.group(2)!;
     columns[name] = {for (final c in column.allMatches(body)) c.group(1)!: c.group(2)!};
     parents[name] = {for (final r in reference.allMatches(body)) r.group(1)!}..remove(name);
+  }
+  // Later migrations: `alter table public.<t> add column <c> <type>` (e.g. 0003).
+  final added = RegExp(
+    r'alter table public\.(\w+)\s+add column ([a-z_]+)\s+'
+    r'(uuid|text|bigint|integer|smallint|boolean|date|timestamptz)\b',
+  );
+  for (final match in added.allMatches(sql)) {
+    columns[match.group(1)!]![match.group(2)!] = match.group(3)!;
   }
   return (columns: columns, parents: parents);
 }

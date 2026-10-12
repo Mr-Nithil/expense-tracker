@@ -18,6 +18,7 @@ import 'package:mocktail/mocktail.dart';
 
 import 'helpers/fake_auth_repository.dart';
 import 'helpers/fake_connectivity_service.dart';
+import 'helpers/fake_notification_service.dart';
 import 'helpers/fake_sync_gateway.dart';
 import 'helpers/test_database.dart';
 
@@ -59,6 +60,8 @@ void main() {
         FakeSyncGateway().providerOverride,
         FakeConnectivityService().providerOverride,
         secureStorageServiceProvider.overrideWithValue(secureStorage),
+        // No plugin in tests.
+        FakeNotificationService().providerOverride,
       ],
     );
     await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const App()));
@@ -353,6 +356,25 @@ void main() {
     expect(find.text(l10n.transactionsAdd), findsOneWidget);
   });
 
+  testWidgets('settings opens the reminders screen inside the Settings tab', (tester) async {
+    await pumpApp(tester);
+
+    await tester.tap(
+      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
+    );
+    await tester.pumpAndSettle();
+    final reminders = find.text(l10n.remindersTitle);
+    await tester.scrollUntilVisible(reminders, 200);
+    await tester.ensureVisible(reminders);
+    await tester.pumpAndSettle();
+    await tester.tap(reminders);
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, l10n.remindersTitle), findsOneWidget);
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.text(l10n.remindersEmptyTitle), findsOneWidget);
+  });
+
   testWidgets('settings opens the categories screen with the seeded defaults', (tester) async {
     final container = await pumpApp(tester);
     await tester.runAsync(() => container.read(defaultCategoriesSeederProvider).seed());
@@ -361,7 +383,11 @@ void main() {
       find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text(l10n.categoriesTitle));
+    final categoriesRow = find.text(l10n.categoriesTitle);
+    await tester.scrollUntilVisible(categoriesRow, 200);
+    await tester.ensureVisible(categoriesRow);
+    await tester.pumpAndSettle();
+    await tester.tap(categoriesRow);
     await tester.pumpAndSettle();
 
     expect(find.widgetWithText(AppBar, l10n.categoriesTitle), findsOneWidget);
@@ -379,7 +405,11 @@ void main() {
       find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text(l10n.categoriesTitle));
+    final categoriesRow = find.text(l10n.categoriesTitle);
+    await tester.scrollUntilVisible(categoriesRow, 200);
+    await tester.ensureVisible(categoriesRow);
+    await tester.pumpAndSettle();
+    await tester.tap(categoriesRow);
     await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip(l10n.categoriesAdd));
@@ -403,7 +433,11 @@ void main() {
       find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text(l10n.categoriesTitle));
+    final categoriesRow = find.text(l10n.categoriesTitle);
+    await tester.scrollUntilVisible(categoriesRow, 200);
+    await tester.ensureVisible(categoriesRow);
+    await tester.pumpAndSettle();
+    await tester.tap(categoriesRow);
     await tester.pumpAndSettle();
 
     await tester.tap(find.text(l10n.categoryDefaultFood));

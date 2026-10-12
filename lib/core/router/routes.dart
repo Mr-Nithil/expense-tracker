@@ -49,6 +49,10 @@ abstract final class Routes {
   static const categories = 'categories';
   static const categoriesPath = '/settings/categories';
 
+  /// Nested under settings: opens inside the Settings tab.
+  static const reminders = 'reminders';
+  static const remindersPath = '/settings/reminders';
+
   /// Routes of the auth flow. A signed-in user is sent from these to the dashboard.
   static const authPaths = {
     splashPath,

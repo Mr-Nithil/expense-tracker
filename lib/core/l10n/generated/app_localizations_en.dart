@@ -113,6 +113,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get budgetAdd => 'Add budget';
 
   @override
+  String budgetAlertBody(String spent, String limit) {
+    return '$spent of $limit spent this month.';
+  }
+
+  @override
+  String budgetAlertExceededTitle(String name) {
+    return '$name: limit reached';
+  }
+
+  @override
+  String budgetAlertWarningTitle(String name, int percent) {
+    return '$name: $percent% used';
+  }
+
+  @override
   String get budgetCategoriesHeader => 'Categories';
 
   @override
@@ -565,6 +580,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get errorReminderDayOfMonthRequired => 'Choose a day of the month.';
+
+  @override
+  String get errorReminderWeekdaysRequired => 'Choose at least one day.';
+
+  @override
   String get errorStorage => 'Couldn\'t save on this device. Please try again.';
 
   @override
@@ -704,6 +725,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get goalsTitle => 'Goals';
 
   @override
+  String get notificationsChannelBudgetAlerts => 'Budget alerts';
+
+  @override
+  String get notificationsChannelBudgetAlertsDescription =>
+      'When a budget is close to or over its limit.';
+
+  @override
+  String get notificationsChannelReminders => 'Reminders';
+
+  @override
+  String get notificationsChannelRemindersDescription => 'Reminders you set in the app.';
+
+  @override
   String get onboardingContinue => 'Continue';
 
   @override
@@ -724,7 +758,101 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingTitle => 'Choose your currency';
 
   @override
+  String get reminderDeleteConfirmMessage => 'It won\'t remind you any more.';
+
+  @override
+  String reminderDeleteConfirmTitle(String title) {
+    return 'Delete \"$title\"?';
+  }
+
+  @override
+  String reminderEveryDay(String time) {
+    return 'Every day at $time';
+  }
+
+  @override
+  String get reminderFormDayOfMonthHint => 'Short months use their last day.';
+
+  @override
+  String get reminderFormDayOfMonthLabel => 'Day of the month';
+
+  @override
+  String get reminderFormDaysLabel => 'Days';
+
+  @override
+  String get reminderFormDelete => 'Delete reminder';
+
+  @override
+  String get reminderFormEditTitle => 'Edit reminder';
+
+  @override
+  String get reminderFormNewTitle => 'New reminder';
+
+  @override
+  String get reminderFormRepeatLabel => 'Repeat';
+
+  @override
+  String get reminderFormTimeLabel => 'Time';
+
+  @override
+  String get reminderFormTitleHint => 'e.g. Log today\'s expenses';
+
+  @override
+  String get reminderFormTitleLabel => 'Title';
+
+  @override
+  String reminderMonthly(int day, String time) {
+    return 'Monthly on day $day at $time';
+  }
+
+  @override
+  String get reminderRepeatDaily => 'Daily';
+
+  @override
+  String get reminderRepeatMonthly => 'Monthly';
+
+  @override
+  String get reminderRepeatWeekly => 'Weekly';
+
+  @override
+  String reminderSwitchLabel(String title) {
+    return '$title on';
+  }
+
+  @override
+  String reminderWeekly(String days, String time) {
+    return '$days at $time';
+  }
+
+  @override
+  String get remindersAdd => 'Add reminder';
+
+  @override
+  String get remindersEmptyMessage =>
+      'Add one for a regular nudge, like logging today\'s expenses.';
+
+  @override
+  String get remindersEmptyTitle => 'No reminders yet';
+
+  @override
+  String get remindersPermissionDenied =>
+      'Notifications are off for this app. Allow them in system settings to get reminders.';
+
+  @override
+  String get remindersTitle => 'Reminders';
+
+  @override
   String get settingsAccountLabel => 'Account';
+
+  @override
+  String get settingsBudgetAlerts => 'Budget alerts';
+
+  @override
+  String get settingsBudgetAlertsDescription => 'Alert me at 80% and 100% of a budget.';
+
+  @override
+  String get settingsBudgetAlertsPermissionDenied =>
+      'Notifications are off for this app. Allow them in system settings to get budget alerts.';
 
   @override
   String get settingsCurrency => 'Currency';
@@ -765,6 +893,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsManageLabel => 'Manage';
+
+  @override
+  String get settingsNotificationsLabel => 'Notifications';
 
   @override
   String get settingsProfileLabel => 'Profile';

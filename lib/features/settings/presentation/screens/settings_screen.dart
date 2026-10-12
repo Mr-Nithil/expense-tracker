@@ -12,6 +12,7 @@ import 'package:expense_tracker/core/widgets/confirm_dialog.dart';
 import 'package:expense_tracker/core/widgets/section_header.dart';
 import 'package:expense_tracker/core/widgets/sync_status_indicator.dart';
 import 'package:expense_tracker/features/auth/presentation/providers/logout_controller.dart';
+import 'package:expense_tracker/features/budget/presentation/providers/budget_alerts_controller.dart';
 import 'package:expense_tracker/features/profile/presentation/providers/theme_mode_setter.dart';
 import 'package:expense_tracker/features/settings/presentation/widgets/settings_profile_section.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,20 @@ class SettingsScreen extends ConsumerWidget {
     final result = await ref.read(themeModeSetterProvider.notifier).setThemeMode(mode);
     if (!context.mounted) return;
     if (result case Failure(:final failure)) context.showSnack(failure.toL10n(context));
+  }
+
+  /// Saves the budget alerts choice; turning it on asks for notification permission.
+  Future<void> _setBudgetAlerts(BuildContext context, WidgetRef ref, bool enabled) async {
+    final l10n = context.l10n;
+    final result = await ref
+        .read(budgetAlertsControllerProvider.notifier)
+        .setEnabled(enabled: enabled);
+    if (!context.mounted) return;
+    if (result.saved case Failure(:final failure)) {
+      context.showSnack(failure.toL10n(context));
+    } else if (!result.permitted) {
+      context.showSnack(l10n.settingsBudgetAlertsPermissionDenied);
+    }
   }
 
   @override
@@ -93,12 +108,27 @@ class SettingsScreen extends ConsumerWidget {
             onSelectionChanged: (selection) => _setThemeMode(context, ref, selection.first),
           ),
           const Gap(AppSpacing.lg),
+          SectionHeader(title: l10n.settingsNotificationsLabel),
+          SwitchListTile(
+            secondary: const Icon(Icons.notifications_active_outlined),
+            title: Text(l10n.settingsBudgetAlerts),
+            subtitle: Text(l10n.settingsBudgetAlertsDescription),
+            value: ref.watch(budgetAlertsEnabledProvider).value ?? false,
+            onChanged: (enabled) => _setBudgetAlerts(context, ref, enabled),
+          ),
+          const Gap(AppSpacing.lg),
           SectionHeader(title: l10n.settingsManageLabel),
           ListTile(
             leading: const Icon(Icons.category_outlined),
             title: Text(l10n.categoriesTitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.pushNamed(Routes.categories),
+          ),
+          ListTile(
+            leading: const Icon(Icons.notifications_outlined),
+            title: Text(l10n.remindersTitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.pushNamed(Routes.reminders),
           ),
           const Gap(AppSpacing.lg),
           SectionHeader(title: l10n.settingsSyncLabel),

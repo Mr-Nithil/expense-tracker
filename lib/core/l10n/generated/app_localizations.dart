@@ -284,6 +284,24 @@ abstract class AppLocalizations {
   /// **'Add budget'**
   String get budgetAdd;
 
+  /// Budget alert notification body; both pre-formatted money
+  ///
+  /// In en, this message translates to:
+  /// **'{spent} of {limit} spent this month.'**
+  String budgetAlertBody(String spent, String limit);
+
+  /// Budget alert notification title at 100% or more; name is the category name or 'Overall budget'
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: limit reached'**
+  String budgetAlertExceededTitle(String name);
+
+  /// Budget alert notification title from 80%; name is the category name or 'Overall budget'
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {percent}% used'**
+  String budgetAlertWarningTitle(String name, int percent);
+
   /// Section header above the per-category budgets on the budget screen
   ///
   /// In en, this message translates to:
@@ -1034,6 +1052,18 @@ abstract class AppLocalizations {
   /// **'Use at least {minLength} characters.'**
   String errorPasswordTooShort(int minLength);
 
+  /// Reminder form: monthly repeat without a day
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a day of the month.'**
+  String get errorReminderDayOfMonthRequired;
+
+  /// Reminder form: weekly repeat without any weekday
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least one day.'**
+  String get errorReminderWeekdaysRequired;
+
   /// Shown for StorageFailure
   ///
   /// In en, this message translates to:
@@ -1280,6 +1310,30 @@ abstract class AppLocalizations {
   /// **'Goals'**
   String get goalsTitle;
 
+  /// Android notification channel name (system settings) for budget threshold alerts
+  ///
+  /// In en, this message translates to:
+  /// **'Budget alerts'**
+  String get notificationsChannelBudgetAlerts;
+
+  /// Android notification channel description for budget alerts
+  ///
+  /// In en, this message translates to:
+  /// **'When a budget is close to or over its limit.'**
+  String get notificationsChannelBudgetAlertsDescription;
+
+  /// Android notification channel name (system settings) for the user's reminders
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get notificationsChannelReminders;
+
+  /// Android notification channel description for reminders
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders you set in the app.'**
+  String get notificationsChannelRemindersDescription;
+
   /// Button that saves the chosen currency and finishes onboarding
   ///
   /// In en, this message translates to:
@@ -1310,11 +1364,173 @@ abstract class AppLocalizations {
   /// **'Choose your currency'**
   String get onboardingTitle;
 
+  /// Body of the dialog that confirms deleting a reminder
+  ///
+  /// In en, this message translates to:
+  /// **'It won\'t remind you any more.'**
+  String get reminderDeleteConfirmMessage;
+
+  /// Title of the dialog that confirms deleting a reminder
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\"?'**
+  String reminderDeleteConfirmTitle(String title);
+
+  /// Reminder schedule: daily; time is pre-formatted for the locale, e.g. 8:30 PM
+  ///
+  /// In en, this message translates to:
+  /// **'Every day at {time}'**
+  String reminderEveryDay(String time);
+
+  /// Reminder form: explains what happens to days 29-31 in shorter months
+  ///
+  /// In en, this message translates to:
+  /// **'Short months use their last day.'**
+  String get reminderFormDayOfMonthHint;
+
+  /// Reminder form: label of the day picker for monthly reminders
+  ///
+  /// In en, this message translates to:
+  /// **'Day of the month'**
+  String get reminderFormDayOfMonthLabel;
+
+  /// Reminder form: section header above the weekday choices
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get reminderFormDaysLabel;
+
+  /// Reminder form: button that deletes the reminder being edited
+  ///
+  /// In en, this message translates to:
+  /// **'Delete reminder'**
+  String get reminderFormDelete;
+
+  /// Title of the sheet that edits a reminder
+  ///
+  /// In en, this message translates to:
+  /// **'Edit reminder'**
+  String get reminderFormEditTitle;
+
+  /// Title of the sheet that adds a reminder
+  ///
+  /// In en, this message translates to:
+  /// **'New reminder'**
+  String get reminderFormNewTitle;
+
+  /// Reminder form: section header above daily/weekly/monthly
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get reminderFormRepeatLabel;
+
+  /// Reminder form: section header above the time
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get reminderFormTimeLabel;
+
+  /// Reminder form: hint in the title field
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Log today\'s expenses'**
+  String get reminderFormTitleHint;
+
+  /// Reminder form: label of the title field
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get reminderFormTitleLabel;
+
+  /// Reminder schedule: monthly; time is pre-formatted
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly on day {day} at {time}'**
+  String reminderMonthly(int day, String time);
+
+  /// Reminder repeat option
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get reminderRepeatDaily;
+
+  /// Reminder repeat option
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get reminderRepeatMonthly;
+
+  /// Reminder repeat option
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get reminderRepeatWeekly;
+
+  /// Screen reader label of a reminder's on/off switch
+  ///
+  /// In en, this message translates to:
+  /// **'{title} on'**
+  String reminderSwitchLabel(String title);
+
+  /// Reminder schedule: weekly; days is a pre-formatted list like Mon, Thu; time pre-formatted
+  ///
+  /// In en, this message translates to:
+  /// **'{days} at {time}'**
+  String reminderWeekly(String days, String time);
+
+  /// Button and tooltip that open the sheet to add a reminder
+  ///
+  /// In en, this message translates to:
+  /// **'Add reminder'**
+  String get remindersAdd;
+
+  /// Empty state message of the reminders screen
+  ///
+  /// In en, this message translates to:
+  /// **'Add one for a regular nudge, like logging today\'s expenses.'**
+  String get remindersEmptyMessage;
+
+  /// Empty state title of the reminders screen
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders yet'**
+  String get remindersEmptyTitle;
+
+  /// Snackbar when the user turns a reminder on but the OS notification permission is denied
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off for this app. Allow them in system settings to get reminders.'**
+  String get remindersPermissionDenied;
+
+  /// Title of the reminders screen and its row in Settings
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get remindersTitle;
+
   /// Settings section header for account actions (log out)
   ///
   /// In en, this message translates to:
   /// **'Account'**
   String get settingsAccountLabel;
+
+  /// Settings switch that turns budget threshold notifications on or off on this device
+  ///
+  /// In en, this message translates to:
+  /// **'Budget alerts'**
+  String get settingsBudgetAlerts;
+
+  /// Settings: explains the budget alerts switch
+  ///
+  /// In en, this message translates to:
+  /// **'Alert me at 80% and 100% of a budget.'**
+  String get settingsBudgetAlertsDescription;
+
+  /// Snackbar when budget alerts are turned on but the OS notification permission is denied
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off for this app. Allow them in system settings to get budget alerts.'**
+  String get settingsBudgetAlertsPermissionDenied;
 
   /// Settings row label for the user's currency
   ///
@@ -1369,6 +1585,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage'**
   String get settingsManageLabel;
+
+  /// Settings section header for notification settings
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotificationsLabel;
 
   /// Settings section header for the user's name, email and currency
   ///

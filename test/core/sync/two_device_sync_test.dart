@@ -14,6 +14,9 @@ import 'package:expense_tracker/features/goals/data/goal_repository_impl.dart';
 import 'package:expense_tracker/features/goals/domain/entities/goal.dart';
 import 'package:expense_tracker/features/goals/domain/entities/goal_contribution.dart';
 import 'package:expense_tracker/features/goals/domain/goal_repository.dart';
+import 'package:expense_tracker/features/reminders/data/reminder_repository_impl.dart';
+import 'package:expense_tracker/features/reminders/domain/entities/reminder.dart';
+import 'package:expense_tracker/features/reminders/domain/reminder_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -80,6 +83,12 @@ class _Device {
     final container = ProviderContainer();
     addTearDown(container.dispose);
     final session = container.read(sessionProvider.notifier)..set(const SessionUser(userId: _user));
+    reminders = ReminderRepositoryImpl(
+      dao: db.remindersDao,
+      clock: FixedClock(DateTime(2026, 10, 12, 9)),
+      session: session,
+      syncTrigger: FakeSyncTrigger(),
+    );
     goals = GoalRepositoryImpl(
       dao: db.goalsDao,
       clock: FixedClock(DateTime(2026, 10, 12, 9)),
@@ -99,6 +108,9 @@ class _Device {
 
   /// The real goals repository on this phone (M6.1).
   late final GoalRepository goals;
+
+  /// The real reminders repository on this phone (M8.2).
+  late final ReminderRepository reminders;
 
   /// A local write, as a repository makes it: pending, with this device's `updated_at`.
   Future<void> saveCategory(
@@ -285,6 +297,54 @@ void main() {
         isNotNull,
       );
       expect(server.row('goal_contributions', contribution.id)?['deleted_at'], isNotNull);
+    });
+  });
+
+  group('reminders', () {
+    test('weekly and monthly reminders reach the other phone unchanged', () async {
+      final weekly = (await a.reminders.create(
+        const ReminderDraft(
+          title: 'Log expenses',
+          time: ReminderTime(hour: 20, minute: 30),
+          repeat: ReminderRepeat.weekly,
+          weekdays: {DateTime.monday, DateTime.thursday},
+        ),
+      )).valueOrNull!;
+      final monthly = (await a.reminders.create(
+        const ReminderDraft(
+          title: 'Pay rent',
+          time: ReminderTime(hour: 9, minute: 0),
+          repeat: ReminderRepeat.monthly,
+          dayOfMonth: 31,
+        ),
+      )).valueOrNull!;
+
+      await a.syncOk();
+      await b.syncOk();
+
+      final onB = {for (final r in await b.reminders.watchAll().first) r.id: r};
+      expect(onB[weekly.id]?.weekdays, {DateTime.monday, DateTime.thursday});
+      expect(onB[weekly.id]?.time, const ReminderTime(hour: 20, minute: 30));
+      expect(onB[monthly.id]?.dayOfMonth, 31);
+      expect(server.row('reminders', monthly.id)?['day_of_month'], 31);
+    });
+
+    test('turning a reminder off on one phone reaches the other', () async {
+      final reminder = (await a.reminders.create(
+        const ReminderDraft(
+          title: 'Log expenses',
+          time: ReminderTime(hour: 20, minute: 0),
+          repeat: ReminderRepeat.daily,
+        ),
+      )).valueOrNull!;
+      await a.syncOk();
+      await b.syncOk();
+
+      expect((await b.reminders.setEnabled(reminder.id, enabled: false)).isSuccess, isTrue);
+      await b.syncOk();
+      await a.syncOk();
+
+      expect((await a.reminders.watchById(reminder.id).first)?.enabled, isFalse);
     });
   });
 }

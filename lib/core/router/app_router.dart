@@ -14,6 +14,7 @@ import 'package:expense_tracker/features/dashboard/presentation/screens/dashboar
 import 'package:expense_tracker/features/goals/presentation/screens/goal_detail_screen.dart';
 import 'package:expense_tracker/features/goals/presentation/screens/goals_screen.dart';
 import 'package:expense_tracker/features/profile/presentation/screens/onboarding_screen.dart';
+import 'package:expense_tracker/features/reminders/presentation/screens/reminders_screen.dart';
 import 'package:expense_tracker/features/settings/presentation/screens/settings_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/screens/transaction_detail_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/screens/transactions_screen.dart';
@@ -145,6 +146,12 @@ GoRouter router(Ref ref) {
                     // Relative to settings: the full path is Routes.categoriesPath.
                     path: Routes.categoriesPath.substring(Routes.settingsPath.length + 1),
                     builder: (context, state) => const CategoriesScreen(),
+                  ),
+                  GoRoute(
+                    name: Routes.reminders,
+                    // Relative to settings: the full path is Routes.remindersPath.
+                    path: Routes.remindersPath.substring(Routes.settingsPath.length + 1),
+                    builder: (context, state) => const RemindersScreen(),
                   ),
                 ],
               ),

@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/fake_notification_service.dart';
 import '../../../../helpers/fake_sync_trigger.dart';
 import '../../../../helpers/pump_app.dart';
 import '../../../../helpers/test_database.dart';
@@ -62,8 +63,17 @@ void main() {
   Finder dialog() => find.byType(AlertDialog);
   Finder inDialog(String text) => find.descendant(of: dialog(), matching: find.text(text));
 
+  /// Settings is taller than the test screen: build [finder] and scroll it fully into view.
+  Future<void> reveal(WidgetTester tester, Finder finder) async {
+    await tester.scrollUntilVisible(finder, 200);
+    await tester.ensureVisible(finder);
+    await tester.pumpAndSettle();
+  }
+
   Future<void> tapLogout(WidgetTester tester) async {
-    await tester.tap(find.widgetWithText(FilledButton, l10n.settingsLogout));
+    final logout = find.widgetWithText(FilledButton, l10n.settingsLogout);
+    await reveal(tester, logout);
+    await tester.tap(logout);
     await tester.pumpAndSettle();
   }
 
@@ -82,10 +92,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.settingsAccountLabel), findsOneWidget);
-    expect(find.text(l10n.settingsManageLabel), findsOneWidget);
+    await reveal(tester, find.text(l10n.settingsManageLabel));
     expect(find.text(l10n.categoriesTitle), findsOneWidget);
-    expect(find.widgetWithText(FilledButton, l10n.settingsLogout), findsOneWidget);
+    await reveal(tester, find.widgetWithText(FilledButton, l10n.settingsLogout));
+    expect(find.text(l10n.settingsAccountLabel), findsOneWidget);
   });
 
   testWidgets('with nothing pending, asks a plain confirmation and logs out', (tester) async {
@@ -142,6 +152,7 @@ void main() {
       syncInfo = const SyncStatusInfo(SyncIndicator.pending, pendingCount: 3);
       await pumpSettings(tester);
 
+      await reveal(tester, find.text(l10n.syncStatusPending(3)));
       expect(find.text(l10n.settingsSyncLabel), findsOneWidget);
       expect(find.text(l10n.syncStatusPending(3)), findsOneWidget);
     });
@@ -149,6 +160,7 @@ void main() {
     testWidgets('Sync now syncs', (tester) async {
       await pumpSettings(tester);
 
+      await reveal(tester, find.text(l10n.syncNow));
       await tester.tap(find.text(l10n.syncNow));
       await tester.pumpAndSettle();
 
@@ -176,6 +188,56 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(l10n.errorStorage), findsOneWidget);
+    });
+  });
+
+  group('budget alerts switch', () {
+    late FakeNotificationService notifications;
+
+    Future<void> pumpWithAlerts(WidgetTester tester) async {
+      notifications = FakeNotificationService();
+      when(() => repository.pendingChangesCount()).thenAnswer((_) async => const Result.success(0));
+      await tester.pumpApp(
+        const SettingsScreen(),
+        overrides: [
+          databaseProvider.overrideWithValue(createTestDatabase()),
+          logoutRepositoryProvider.overrideWithValue(repository),
+          syncStatusProvider.overrideWith((ref) => Stream.value(syncInfo)),
+          trigger.providerOverride,
+          profileRepositoryProvider.overrideWithValue(profiles),
+          notifications.providerOverride,
+        ],
+      );
+      await tester.pumpAndSettle();
+    }
+
+    Finder alertsSwitch() => find.widgetWithText(SwitchListTile, l10n.settingsBudgetAlerts);
+
+    Future<void> flip(WidgetTester tester) async {
+      await tester.tap(alertsSwitch());
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('is off until turned on; turning on asks for permission', (tester) async {
+      await pumpWithAlerts(tester);
+      expect(tester.widget<SwitchListTile>(alertsSwitch()).value, isFalse);
+
+      await flip(tester);
+
+      expect(tester.widget<SwitchListTile>(alertsSwitch()).value, isTrue);
+      expect(notifications.permissionRequests, 1);
+      expect(find.text(l10n.settingsBudgetAlertsPermissionDenied), findsNothing);
+    });
+
+    testWidgets('a refused permission is explained; the choice stays saved', (tester) async {
+      await pumpWithAlerts(tester);
+      notifications.permissionGranted = false;
+
+      await flip(tester);
+
+      expect(find.text(l10n.settingsBudgetAlertsPermissionDenied), findsOneWidget);
+      expect(tester.widget<SwitchListTile>(alertsSwitch()).value, isTrue);
     });
   });
 }

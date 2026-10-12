@@ -4352,6 +4352,18 @@ class $RemindersTable extends Reminders with TableInfo<$RemindersTable, Reminder
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _dayOfMonthMeta = const VerificationMeta(
+    'dayOfMonth',
+  );
+  @override
+  late final GeneratedColumn<int> dayOfMonth = GeneratedColumn<int>(
+    'day_of_month',
+    aliasedName,
+    true,
+    check: () => ComparableExpr(dayOfMonth).isBetweenValues(1, 31),
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _enabledMeta = const VerificationMeta(
     'enabled',
   );
@@ -4380,6 +4392,7 @@ class $RemindersTable extends Reminders with TableInfo<$RemindersTable, Reminder
     timeOfDay,
     repeatRule,
     weekdays,
+    dayOfMonth,
     enabled,
   ];
   @override
@@ -4468,6 +4481,15 @@ class $RemindersTable extends Reminders with TableInfo<$RemindersTable, Reminder
         weekdays.isAcceptableOrUnknown(data['weekdays']!, _weekdaysMeta),
       );
     }
+    if (data.containsKey('day_of_month')) {
+      context.handle(
+        _dayOfMonthMeta,
+        dayOfMonth.isAcceptableOrUnknown(
+          data['day_of_month']!,
+          _dayOfMonthMeta,
+        ),
+      );
+    }
     if (data.containsKey('enabled')) {
       context.handle(
         _enabledMeta,
@@ -4529,6 +4551,10 @@ class $RemindersTable extends Reminders with TableInfo<$RemindersTable, Reminder
         DriftSqlType.int,
         data['${effectivePrefix}weekdays'],
       ),
+      dayOfMonth: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}day_of_month'],
+      ),
       enabled: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}enabled'],
@@ -4574,6 +4600,9 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
 
   /// Bitmask of weekdays for `weekly` (bit 0 = Monday ... bit 6 = Sunday). Null otherwise.
   final int? weekdays;
+
+  /// Day of the month (1–31) for `monthly`; null otherwise. Added in schema v2 (M8.2).
+  final int? dayOfMonth;
   final bool enabled;
   const ReminderRow({
     required this.id,
@@ -4587,6 +4616,7 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     required this.timeOfDay,
     required this.repeatRule,
     this.weekdays,
+    this.dayOfMonth,
     required this.enabled,
   });
   @override
@@ -4613,6 +4643,9 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     if (!nullToAbsent || weekdays != null) {
       map['weekdays'] = Variable<int>(weekdays);
     }
+    if (!nullToAbsent || dayOfMonth != null) {
+      map['day_of_month'] = Variable<int>(dayOfMonth);
+    }
     map['enabled'] = Variable<bool>(enabled);
     return map;
   }
@@ -4632,6 +4665,7 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       timeOfDay: Value(timeOfDay),
       repeatRule: Value(repeatRule),
       weekdays: weekdays == null && nullToAbsent ? const Value.absent() : Value(weekdays),
+      dayOfMonth: dayOfMonth == null && nullToAbsent ? const Value.absent() : Value(dayOfMonth),
       enabled: Value(enabled),
     );
   }
@@ -4655,6 +4689,7 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       timeOfDay: serializer.fromJson<String>(json['timeOfDay']),
       repeatRule: serializer.fromJson<String>(json['repeatRule']),
       weekdays: serializer.fromJson<int?>(json['weekdays']),
+      dayOfMonth: serializer.fromJson<int?>(json['dayOfMonth']),
       enabled: serializer.fromJson<bool>(json['enabled']),
     );
   }
@@ -4675,6 +4710,7 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       'timeOfDay': serializer.toJson<String>(timeOfDay),
       'repeatRule': serializer.toJson<String>(repeatRule),
       'weekdays': serializer.toJson<int?>(weekdays),
+      'dayOfMonth': serializer.toJson<int?>(dayOfMonth),
       'enabled': serializer.toJson<bool>(enabled),
     };
   }
@@ -4691,6 +4727,7 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     String? timeOfDay,
     String? repeatRule,
     Value<int?> weekdays = const Value.absent(),
+    Value<int?> dayOfMonth = const Value.absent(),
     bool? enabled,
   }) => ReminderRow(
     id: id ?? this.id,
@@ -4704,6 +4741,7 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     timeOfDay: timeOfDay ?? this.timeOfDay,
     repeatRule: repeatRule ?? this.repeatRule,
     weekdays: weekdays.present ? weekdays.value : this.weekdays,
+    dayOfMonth: dayOfMonth.present ? dayOfMonth.value : this.dayOfMonth,
     enabled: enabled ?? this.enabled,
   );
   ReminderRow copyWithCompanion(RemindersCompanion data) {
@@ -4721,6 +4759,7 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       timeOfDay: data.timeOfDay.present ? data.timeOfDay.value : this.timeOfDay,
       repeatRule: data.repeatRule.present ? data.repeatRule.value : this.repeatRule,
       weekdays: data.weekdays.present ? data.weekdays.value : this.weekdays,
+      dayOfMonth: data.dayOfMonth.present ? data.dayOfMonth.value : this.dayOfMonth,
       enabled: data.enabled.present ? data.enabled.value : this.enabled,
     );
   }
@@ -4739,6 +4778,7 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           ..write('timeOfDay: $timeOfDay, ')
           ..write('repeatRule: $repeatRule, ')
           ..write('weekdays: $weekdays, ')
+          ..write('dayOfMonth: $dayOfMonth, ')
           ..write('enabled: $enabled')
           ..write(')'))
         .toString();
@@ -4757,6 +4797,7 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     timeOfDay,
     repeatRule,
     weekdays,
+    dayOfMonth,
     enabled,
   );
   @override
@@ -4774,6 +4815,7 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           other.timeOfDay == this.timeOfDay &&
           other.repeatRule == this.repeatRule &&
           other.weekdays == this.weekdays &&
+          other.dayOfMonth == this.dayOfMonth &&
           other.enabled == this.enabled);
 }
 
@@ -4789,6 +4831,7 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
   final Value<String> timeOfDay;
   final Value<String> repeatRule;
   final Value<int?> weekdays;
+  final Value<int?> dayOfMonth;
   final Value<bool> enabled;
   final Value<int> rowid;
   const RemindersCompanion({
@@ -4803,6 +4846,7 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     this.timeOfDay = const Value.absent(),
     this.repeatRule = const Value.absent(),
     this.weekdays = const Value.absent(),
+    this.dayOfMonth = const Value.absent(),
     this.enabled = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -4818,6 +4862,7 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     required String timeOfDay,
     required String repeatRule,
     this.weekdays = const Value.absent(),
+    this.dayOfMonth = const Value.absent(),
     this.enabled = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -4839,6 +4884,7 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     Expression<String>? timeOfDay,
     Expression<String>? repeatRule,
     Expression<int>? weekdays,
+    Expression<int>? dayOfMonth,
     Expression<bool>? enabled,
     Expression<int>? rowid,
   }) {
@@ -4854,6 +4900,7 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
       if (timeOfDay != null) 'time_of_day': timeOfDay,
       if (repeatRule != null) 'repeat_rule': repeatRule,
       if (weekdays != null) 'weekdays': weekdays,
+      if (dayOfMonth != null) 'day_of_month': dayOfMonth,
       if (enabled != null) 'enabled': enabled,
       if (rowid != null) 'rowid': rowid,
     });
@@ -4871,6 +4918,7 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     Value<String>? timeOfDay,
     Value<String>? repeatRule,
     Value<int?>? weekdays,
+    Value<int?>? dayOfMonth,
     Value<bool>? enabled,
     Value<int>? rowid,
   }) {
@@ -4886,6 +4934,7 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
       timeOfDay: timeOfDay ?? this.timeOfDay,
       repeatRule: repeatRule ?? this.repeatRule,
       weekdays: weekdays ?? this.weekdays,
+      dayOfMonth: dayOfMonth ?? this.dayOfMonth,
       enabled: enabled ?? this.enabled,
       rowid: rowid ?? this.rowid,
     );
@@ -4929,6 +4978,9 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     if (weekdays.present) {
       map['weekdays'] = Variable<int>(weekdays.value);
     }
+    if (dayOfMonth.present) {
+      map['day_of_month'] = Variable<int>(dayOfMonth.value);
+    }
     if (enabled.present) {
       map['enabled'] = Variable<bool>(enabled.value);
     }
@@ -4952,6 +5004,7 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
           ..write('timeOfDay: $timeOfDay, ')
           ..write('repeatRule: $repeatRule, ')
           ..write('weekdays: $weekdays, ')
+          ..write('dayOfMonth: $dayOfMonth, ')
           ..write('enabled: $enabled, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -5457,6 +5510,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final CategoriesDao categoriesDao = CategoriesDao(this as AppDatabase);
   late final GoalsDao goalsDao = GoalsDao(this as AppDatabase);
   late final ProfilesDao profilesDao = ProfilesDao(this as AppDatabase);
+  late final RemindersDao remindersDao = RemindersDao(this as AppDatabase);
   late final TransactionsDao transactionsDao = TransactionsDao(
     this as AppDatabase,
   );
@@ -8088,6 +8142,7 @@ typedef $$RemindersTableCreateCompanionBuilder =
       required String timeOfDay,
       required String repeatRule,
       Value<int?> weekdays,
+      Value<int?> dayOfMonth,
       Value<bool> enabled,
       Value<int> rowid,
     });
@@ -8104,6 +8159,7 @@ typedef $$RemindersTableUpdateCompanionBuilder =
       Value<String> timeOfDay,
       Value<String> repeatRule,
       Value<int?> weekdays,
+      Value<int?> dayOfMonth,
       Value<bool> enabled,
       Value<int> rowid,
     });
@@ -8168,6 +8224,11 @@ class $$RemindersTableFilterComposer extends Composer<_$AppDatabase, $RemindersT
 
   ColumnFilters<int> get weekdays => $composableBuilder(
     column: $table.weekdays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get dayOfMonth => $composableBuilder(
+    column: $table.dayOfMonth,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8240,6 +8301,11 @@ class $$RemindersTableOrderingComposer extends Composer<_$AppDatabase, $Reminder
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get dayOfMonth => $composableBuilder(
+    column: $table.dayOfMonth,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get enabled => $composableBuilder(
     column: $table.enabled,
     builder: (column) => ColumnOrderings(column),
@@ -8293,6 +8359,11 @@ class $$RemindersTableAnnotationComposer extends Composer<_$AppDatabase, $Remind
   GeneratedColumn<int> get weekdays =>
       $composableBuilder(column: $table.weekdays, builder: (column) => column);
 
+  GeneratedColumn<int> get dayOfMonth => $composableBuilder(
+    column: $table.dayOfMonth,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<bool> get enabled =>
       $composableBuilder(column: $table.enabled, builder: (column) => column);
 }
@@ -8337,6 +8408,7 @@ class $$RemindersTableTableManager
                 Value<String> timeOfDay = const Value.absent(),
                 Value<String> repeatRule = const Value.absent(),
                 Value<int?> weekdays = const Value.absent(),
+                Value<int?> dayOfMonth = const Value.absent(),
                 Value<bool> enabled = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RemindersCompanion(
@@ -8351,6 +8423,7 @@ class $$RemindersTableTableManager
                 timeOfDay: timeOfDay,
                 repeatRule: repeatRule,
                 weekdays: weekdays,
+                dayOfMonth: dayOfMonth,
                 enabled: enabled,
                 rowid: rowid,
               ),
@@ -8367,6 +8440,7 @@ class $$RemindersTableTableManager
                 required String timeOfDay,
                 required String repeatRule,
                 Value<int?> weekdays = const Value.absent(),
+                Value<int?> dayOfMonth = const Value.absent(),
                 Value<bool> enabled = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RemindersCompanion.insert(
@@ -8381,6 +8455,7 @@ class $$RemindersTableTableManager
                 timeOfDay: timeOfDay,
                 repeatRule: repeatRule,
                 weekdays: weekdays,
+                dayOfMonth: dayOfMonth,
                 enabled: enabled,
                 rowid: rowid,
               ),

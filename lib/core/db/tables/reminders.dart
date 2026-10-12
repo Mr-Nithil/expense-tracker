@@ -18,6 +18,9 @@ class Reminders extends Table with SyncColumns {
   /// Bitmask of weekdays for `weekly` (bit 0 = Monday ... bit 6 = Sunday). Null otherwise.
   IntColumn get weekdays => integer().nullable()();
 
+  /// Day of the month (1–31) for `monthly`; null otherwise. Added in schema v2 (M8.2).
+  IntColumn get dayOfMonth => integer().nullable().check(dayOfMonth.isBetweenValues(1, 31))();
+
   BoolColumn get enabled => boolean().withDefault(const Constant(true))();
 
   @override
