@@ -769,6 +769,45 @@ class AppLocalizationsSi extends AppLocalizations {
   String get languageNativeName => 'සිංහල';
 
   @override
+  String get lockBiometricLockedOut => 'උත්සාහයන් වැඩියි. ඔබේ PIN අංකය භාවිත කරන්න.';
+
+  @override
+  String get lockBiometricReason => 'ඔබේ මූල්‍ය තොරතුරු බැලීමට යෙදුමේ අගුළු හරින්න';
+
+  @override
+  String get lockBiometricUnavailable =>
+      'ඇඟිලි සලකුණ හෝ මුහුණ මගින් අගුළු හැරීම ලබා ගත නොහැක. ඔබේ PIN අංකය භාවිත කරන්න.';
+
+  @override
+  String get lockForgotPin => 'PIN අංකය අමතකද?';
+
+  @override
+  String get lockRecoveryDone => 'PIN අංකය ඉවත් කළා. යෙදුම අගුළු දමා තබා ගැනීමට අලුත් එකක් තෝරන්න.';
+
+  @override
+  String lockRecoveryMessage(String email) {
+    return '$email ගිණුමේ මුරපදය ඇතුළත් කරන්න. එවිට PIN අංකය ඉවත් වන අතර ඔබට අලුත් එකක් තෝරා ගත හැක.';
+  }
+
+  @override
+  String get lockRecoverySkip => 'යෙදුම් අගුල අක්‍රිය කරන්න';
+
+  @override
+  String get lockRecoverySubmit => 'PIN අංකය ඉවත් කරන්න';
+
+  @override
+  String get lockRecoveryTitle => 'ඔබේ PIN අංකය අමතකද?';
+
+  @override
+  String get lockTitle => 'ඔබේ PIN අංකය ඇතුළත් කරන්න';
+
+  @override
+  String get lockUseBiometrics => 'ඇඟිලි සලකුණ හෝ මුහුණ මගින් අගුළු හරින්න';
+
+  @override
+  String get lockWrongPin => 'වැරදි PIN අංකයකි. නැවත උත්සාහ කරන්න.';
+
+  @override
   String get notificationsChannelBudgetAlerts => 'අයවැය අනතුරු ඇඟවීම්';
 
   @override
@@ -800,6 +839,39 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get onboardingTitle => 'ඔබේ මුදල් ඒකකය තෝරන්න';
+
+  @override
+  String get pinConfirmTitle => 'PIN අංකය නැවත ඇතුළත් කරන්න';
+
+  @override
+  String get pinCurrentTitle => 'ඔබේ වත්මන් PIN අංකය ඇතුළත් කරන්න';
+
+  @override
+  String get pinDeleteDigit => 'අවසන් ඉලක්කම මකන්න';
+
+  @override
+  String get pinMismatch => 'PIN අංක නොගැළපේ. නැවත PIN අංකයක් තෝරන්න.';
+
+  @override
+  String pinProgress(int entered, int total) {
+    final intl.NumberFormat enteredNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String enteredString = enteredNumberFormat.format(entered);
+    final intl.NumberFormat totalNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return 'ඉලක්කම් $totalStringන් $enteredStringක් ඇතුළත් කළා';
+  }
+
+  @override
+  String pinSetHint(int length) {
+    final intl.NumberFormat lengthNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String lengthString = lengthNumberFormat.format(length);
+
+    return 'ඉලක්කම් $lengthStringක් භාවිත කරන්න.';
+  }
+
+  @override
+  String get pinSetTitle => 'PIN අංකයක් තෝරන්න';
 
   @override
   String get reminderDeleteConfirmMessage => 'එය තවදුරටත් ඔබට සිහිකැඳවන්නේ නැත.';
@@ -890,6 +962,62 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get settingsAccountLabel => 'ගිණුම';
+
+  @override
+  String get settingsAppLock => 'යෙදුම් අගුල';
+
+  @override
+  String get settingsAppLockDescription => 'යෙදුම විවෘත කිරීමට PIN අංකයක් ඉල්ලන්න';
+
+  @override
+  String get settingsAppLockOff => 'යෙදුම් අගුල අක්‍රියයි';
+
+  @override
+  String get settingsAppLockOn => 'යෙදුම් අගුල සක්‍රියයි';
+
+  @override
+  String get settingsAutoLock => 'ස්වයංක්‍රීය අගුල';
+
+  @override
+  String settingsAutoLockAfterMinutes(int minutes) {
+    final intl.NumberFormat minutesNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String minutesString = minutesNumberFormat.format(minutes);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'මිනිත්තු $minutesStringකට පසු',
+      one: 'මිනිත්තු 1කට පසු',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String settingsAutoLockAfterSeconds(int seconds) {
+    final intl.NumberFormat secondsNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String secondsString = secondsNumberFormat.format(seconds);
+
+    return 'තත්පර $secondsStringකට පසු';
+  }
+
+  @override
+  String get settingsAutoLockImmediately => 'වහාම';
+
+  @override
+  String get settingsBiometrics => 'ඇඟිලි සලකුණ හෝ මුහුණ මගින් අගුළු හරින්න';
+
+  @override
+  String get settingsBiometricsUnavailable =>
+      'මෙහි භාවිත කිරීමට මෙම දුරකථනයේ ඇඟිලි සලකුණක් හෝ මුහුණක් සකසන්න.';
+
+  @override
+  String get settingsChangePin => 'PIN අංකය වෙනස් කරන්න';
+
+  @override
+  String get settingsPinChanged => 'PIN අංකය වෙනස් කළා';
+
+  @override
+  String get settingsSecurityLabel => 'ආරක්ෂාව';
 
   @override
   String get settingsBudgetAlerts => 'අයවැය අනතුරු ඇඟවීම්';

@@ -5,7 +5,8 @@ import 'package:expense_tracker/core/router/routes.dart';
 /// Router redirect rules, evaluated top to bottom (ARCHITECTURE §9).
 ///
 /// Returns the path to redirect to, or `null` to stay on [location].
-/// The app lock rule (M7.5) is added here later.
+/// The app lock is not a redirect: `AppLockGate` (security feature) covers the whole app above the
+/// router, so locking keeps the navigation state (M7.5, ARCHITECTURE §9).
 String? appRedirect({
   required AuthStatus status,
   required OnboardingStatus onboarding,

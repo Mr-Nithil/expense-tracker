@@ -14,6 +14,7 @@ import 'package:expense_tracker/core/widgets/sync_status_indicator.dart';
 import 'package:expense_tracker/features/auth/presentation/providers/logout_controller.dart';
 import 'package:expense_tracker/features/budget/presentation/providers/budget_alerts_controller.dart';
 import 'package:expense_tracker/features/profile/presentation/providers/theme_mode_setter.dart';
+import 'package:expense_tracker/features/security/presentation/shared/security_settings_section.dart';
 import 'package:expense_tracker/features/settings/presentation/widgets/settings_language_tile.dart';
 import 'package:expense_tracker/features/settings/presentation/widgets/settings_profile_section.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
-/// Settings tab: profile (name, email, read-only currency), theme mode, language, data management
+/// Settings tab: profile (name, email, read-only currency), theme mode, language, security (app lock), data management
 /// (categories), sync status and logout.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -110,6 +111,8 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const Gap(AppSpacing.lg),
           const SettingsLanguageTile(),
+          const Gap(AppSpacing.lg),
+          const SecuritySettingsSection(),
           const Gap(AppSpacing.lg),
           SectionHeader(title: l10n.settingsNotificationsLabel),
           SwitchListTile(

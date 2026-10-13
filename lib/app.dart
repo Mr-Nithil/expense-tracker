@@ -10,6 +10,7 @@ import 'package:expense_tracker/features/auth/presentation/providers/auth_state_
 import 'package:expense_tracker/features/auth/presentation/widgets/auth_link_error_listener.dart';
 import 'package:expense_tracker/features/budget/presentation/providers/budget_alert_watcher.dart';
 import 'package:expense_tracker/features/reminders/presentation/providers/reminder_scheduler.dart';
+import 'package:expense_tracker/features/security/presentation/shared/app_lock_gate.dart';
 import 'package:expense_tracker/notification_tap_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,7 +43,7 @@ class App extends ConsumerWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: ref.watch(routerProvider),
       // Inside the app's localizations and scaffold messenger, above every route.
-      builder: (context, child) => AuthLinkErrorListener(child: child!),
+      builder: (context, child) => AuthLinkErrorListener(child: AppLockGate(child: child!)),
     );
   }
 }

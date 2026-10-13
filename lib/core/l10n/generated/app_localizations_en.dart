@@ -768,6 +768,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageNativeName => 'English';
 
   @override
+  String get lockBiometricLockedOut => 'Too many attempts. Use your PIN.';
+
+  @override
+  String get lockBiometricReason => 'Unlock the app to see your finances';
+
+  @override
+  String get lockBiometricUnavailable =>
+      'Fingerprint or face unlock isn\'t available. Use your PIN.';
+
+  @override
+  String get lockForgotPin => 'Forgot PIN?';
+
+  @override
+  String get lockRecoveryDone => 'PIN removed. Choose a new one to keep the app locked.';
+
+  @override
+  String lockRecoveryMessage(String email) {
+    return 'Enter the password of $email. The PIN is then removed and you can choose a new one.';
+  }
+
+  @override
+  String get lockRecoverySkip => 'Turn app lock off';
+
+  @override
+  String get lockRecoverySubmit => 'Remove PIN';
+
+  @override
+  String get lockRecoveryTitle => 'Forgot your PIN?';
+
+  @override
+  String get lockTitle => 'Enter your PIN';
+
+  @override
+  String get lockUseBiometrics => 'Unlock with fingerprint or face';
+
+  @override
+  String get lockWrongPin => 'Wrong PIN. Try again.';
+
+  @override
   String get notificationsChannelBudgetAlerts => 'Budget alerts';
 
   @override
@@ -799,6 +838,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingTitle => 'Choose your currency';
+
+  @override
+  String get pinConfirmTitle => 'Enter the PIN again';
+
+  @override
+  String get pinCurrentTitle => 'Enter your current PIN';
+
+  @override
+  String get pinDeleteDigit => 'Delete last digit';
+
+  @override
+  String get pinMismatch => 'The PINs don\'t match. Choose a PIN again.';
+
+  @override
+  String pinProgress(int entered, int total) {
+    final intl.NumberFormat enteredNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String enteredString = enteredNumberFormat.format(entered);
+    final intl.NumberFormat totalNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '$enteredString of $totalString digits entered';
+  }
+
+  @override
+  String pinSetHint(int length) {
+    final intl.NumberFormat lengthNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String lengthString = lengthNumberFormat.format(length);
+
+    return 'Use $lengthString digits.';
+  }
+
+  @override
+  String get pinSetTitle => 'Choose a PIN';
 
   @override
   String get reminderDeleteConfirmMessage => 'It won\'t remind you any more.';
@@ -889,6 +961,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAccountLabel => 'Account';
+
+  @override
+  String get settingsAppLock => 'App lock';
+
+  @override
+  String get settingsAppLockDescription => 'Ask for a PIN to open the app';
+
+  @override
+  String get settingsAppLockOff => 'App lock is off';
+
+  @override
+  String get settingsAppLockOn => 'App lock is on';
+
+  @override
+  String get settingsAutoLock => 'Auto-lock';
+
+  @override
+  String settingsAutoLockAfterMinutes(int minutes) {
+    final intl.NumberFormat minutesNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String minutesString = minutesNumberFormat.format(minutes);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'After $minutesString minutes',
+      one: 'After 1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String settingsAutoLockAfterSeconds(int seconds) {
+    final intl.NumberFormat secondsNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String secondsString = secondsNumberFormat.format(seconds);
+
+    return 'After $secondsString seconds';
+  }
+
+  @override
+  String get settingsAutoLockImmediately => 'Immediately';
+
+  @override
+  String get settingsBiometrics => 'Unlock with fingerprint or face';
+
+  @override
+  String get settingsBiometricsUnavailable =>
+      'Set up a fingerprint or face on this phone to use it here.';
+
+  @override
+  String get settingsChangePin => 'Change PIN';
+
+  @override
+  String get settingsPinChanged => 'PIN changed';
+
+  @override
+  String get settingsSecurityLabel => 'Security';
 
   @override
   String get settingsBudgetAlerts => 'Budget alerts';

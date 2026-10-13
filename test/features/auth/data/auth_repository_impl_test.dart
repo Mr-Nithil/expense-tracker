@@ -40,6 +40,40 @@ void main() {
 
   AppFailure failureOf<T>(Result<T> result) => result.failureOrNull!;
 
+  group('confirmPassword', () {
+    test('signs in again with the current account email', () async {
+      when(() => auth.currentUser).thenReturn(user());
+      when(
+        () => auth.signInWithPassword(email: email, password: password),
+      ).thenAnswer((_) async => AuthResponse(session: session(user())));
+
+      expect(await repository.confirmPassword(password), isA<Success<void>>());
+      verify(() => auth.signInWithPassword(email: email, password: password)).called(1);
+    });
+
+    test('a wrong password is invalidCredentials', () async {
+      when(() => auth.currentUser).thenReturn(user());
+      when(
+        () => auth.signInWithPassword(email: email, password: 'wrong'),
+      ).thenThrow(const AuthApiException('Invalid login credentials', code: 'invalid_credentials'));
+
+      final failure = failureOf(await repository.confirmPassword('wrong'));
+      expect((failure as AuthFailure).reason, AuthFailureReason.invalidCredentials);
+    });
+
+    test('fails without a session, without calling Supabase', () async {
+      when(() => auth.currentUser).thenReturn(null);
+
+      expect(failureOf(await repository.confirmPassword(password)), isA<AuthFailure>());
+      verifyNever(
+        () => auth.signInWithPassword(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+        ),
+      );
+    });
+  });
+
   group('signIn', () {
     test('returns the mapped user and trims the email', () async {
       when(

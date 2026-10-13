@@ -37,6 +37,13 @@ abstract final class AppSizes {
 
   /// Ring around the selected option in pickers (icons, colors).
   static const double selectionBorder = 2;
+
+  /// One key of the PIN pad (app lock).
+  static const double pinKey = 72;
+
+  /// One dot of the PIN progress (app lock).
+  static const double pinDot = 14;
+
   static const double sheetHandleWidth = 32;
   static const double sheetHandleHeight = 4;
 

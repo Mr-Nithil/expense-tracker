@@ -95,5 +95,15 @@ class FakeAuthRepository implements AuthRepository {
     return Result.ok;
   }
 
+  /// Passwords passed to [confirmPassword], and what it answers.
+  final confirmedPasswords = <String>[];
+  Result<void> confirmPasswordResult = Result.ok;
+
+  @override
+  Future<Result<void>> confirmPassword(String password) async {
+    confirmedPasswords.add(password);
+    return confirmPasswordResult;
+  }
+
   Override get providerOverride => authRepositoryProvider.overrideWithValue(this);
 }

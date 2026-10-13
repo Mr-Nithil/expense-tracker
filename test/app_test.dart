@@ -5,7 +5,6 @@ import 'package:expense_tracker/core/db/database_provider.dart';
 import 'package:expense_tracker/core/db/tables/sync_columns.dart';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
-import 'package:expense_tracker/core/services/secure_storage_service.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:expense_tracker/features/calendar/presentation/shared/calendar_day_sheet.dart';
@@ -14,15 +13,14 @@ import 'package:expense_tracker/features/categories/presentation/providers/defau
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 
 import 'helpers/fake_auth_repository.dart';
+import 'helpers/fake_biometric_service.dart';
 import 'helpers/fake_connectivity_service.dart';
 import 'helpers/fake_notification_service.dart';
+import 'helpers/fake_secure_storage.dart';
 import 'helpers/fake_sync_gateway.dart';
 import 'helpers/test_database.dart';
-
-class _MockSecureStorage extends Mock implements SecureStorageService {}
 
 void main() {
   final l10n = AppLocalizationsEn();
@@ -48,8 +46,7 @@ void main() {
         ),
       );
     }
-    final secureStorage = _MockSecureStorage();
-    when(secureStorage.deleteAll).thenAnswer((_) async {});
+    final secureStorage = FakeSecureStorage();
     final container = createTestContainer(
       db: db,
       overrides: [
@@ -59,7 +56,8 @@ void main() {
         // No network in tests: sync fails like it would offline.
         FakeSyncGateway().providerOverride,
         FakeConnectivityService().providerOverride,
-        secureStorageServiceProvider.overrideWithValue(secureStorage),
+        secureStorage.providerOverride,
+        fastSecurityRepositoryOverride(secureStorage),
         // No plugin in tests.
         FakeNotificationService().providerOverride,
       ],
@@ -554,5 +552,56 @@ void main() {
     );
     expect(profile?.themeMode, 'dark');
     expect(profile?.syncStatus, SyncStatus.pending);
+  });
+
+  testWidgets('app lock: turned on in settings, it asks for the PIN after 30 s away', (
+    tester,
+  ) async {
+    final container = await pumpApp(tester);
+    final clock = container.read(clockProvider) as FixedClock;
+    Future<void> typeIn(Finder area, String digits) async {
+      for (final d in digits.split('')) {
+        await tester.tap(find.descendant(of: area, matching: find.text(d)).last);
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
+    }
+
+    /// Leaves the app for [away] and comes back, through the real lifecycle steps.
+    Future<void> background(Duration away) async {
+      final binding = tester.binding;
+      for (final state in [AppLifecycleState.inactive, AppLifecycleState.hidden]) {
+        binding.handleAppLifecycleStateChanged(state);
+      }
+      clock.advance(away);
+      for (final state in [AppLifecycleState.inactive, AppLifecycleState.resumed]) {
+        binding.handleAppLifecycleStateChanged(state);
+      }
+      await tester.pumpAndSettle();
+    }
+
+    await tester.tap(
+      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
+    );
+    await tester.pumpAndSettle();
+    final lockSwitch = find.widgetWithText(SwitchListTile, l10n.settingsAppLock);
+    await tester.scrollUntilVisible(lockSwitch, 200);
+    await tester.tap(lockSwitch);
+    await tester.pumpAndSettle();
+    await typeIn(find.byType(BottomSheet), '1357');
+    await typeIn(find.byType(BottomSheet), '1357');
+    expect(find.text(l10n.settingsAppLockOn), findsOneWidget);
+
+    // Away for less than the default 30 s: still open.
+    await background(const Duration(seconds: 10));
+    expect(find.text(l10n.lockTitle), findsNothing);
+
+    // Away for 30 s: locked, and the PIN brings back the same screen.
+    await background(const Duration(seconds: 30));
+    expect(find.text(l10n.lockTitle), findsOneWidget);
+
+    await typeIn(find.byType(Scaffold).last, '1357');
+    expect(find.text(l10n.lockTitle), findsNothing);
+    expect(find.widgetWithText(AppBar, l10n.settingsTitle), findsOneWidget);
   });
 }

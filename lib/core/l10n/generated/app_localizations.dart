@@ -1311,6 +1311,78 @@ abstract class AppLocalizations {
   /// **'English'**
   String get languageNativeName;
 
+  /// Lock screen: the system blocked fingerprint/face after too many tries
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Use your PIN.'**
+  String get lockBiometricLockedOut;
+
+  /// Reason shown by the system fingerprint/face prompt on the lock screen
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock the app to see your finances'**
+  String get lockBiometricReason;
+
+  /// Lock screen: biometrics can't be used right now
+  ///
+  /// In en, this message translates to:
+  /// **'Fingerprint or face unlock isn\'t available. Use your PIN.'**
+  String get lockBiometricUnavailable;
+
+  /// Lock screen link that starts PIN recovery
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot PIN?'**
+  String get lockForgotPin;
+
+  /// After PIN recovery, above the new-PIN step
+  ///
+  /// In en, this message translates to:
+  /// **'PIN removed. Choose a new one to keep the app locked.'**
+  String get lockRecoveryDone;
+
+  /// PIN recovery: explains the password check; email is the account email
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the password of {email}. The PIN is then removed and you can choose a new one.'**
+  String lockRecoveryMessage(String email);
+
+  /// PIN recovery: finish without choosing a new PIN (the lock is turned off)
+  ///
+  /// In en, this message translates to:
+  /// **'Turn app lock off'**
+  String get lockRecoverySkip;
+
+  /// PIN recovery confirm button
+  ///
+  /// In en, this message translates to:
+  /// **'Remove PIN'**
+  String get lockRecoverySubmit;
+
+  /// PIN recovery sheet title
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your PIN?'**
+  String get lockRecoveryTitle;
+
+  /// Lock screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your PIN'**
+  String get lockTitle;
+
+  /// Lock screen button (icon) that shows the fingerprint/face prompt
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with fingerprint or face'**
+  String get lockUseBiometrics;
+
+  /// Lock screen error after a wrong PIN
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong PIN. Try again.'**
+  String get lockWrongPin;
+
   /// Android notification channel name (system settings) for budget threshold alerts
   ///
   /// In en, this message translates to:
@@ -1364,6 +1436,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose your currency'**
   String get onboardingTitle;
+
+  /// Second step when choosing a PIN
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the PIN again'**
+  String get pinConfirmTitle;
+
+  /// Asked before changing or turning off the PIN
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current PIN'**
+  String get pinCurrentTitle;
+
+  /// PIN pad backspace button (screen reader / tooltip)
+  ///
+  /// In en, this message translates to:
+  /// **'Delete last digit'**
+  String get pinDeleteDigit;
+
+  /// Choosing a PIN: the second entry differs
+  ///
+  /// In en, this message translates to:
+  /// **'The PINs don\'t match. Choose a PIN again.'**
+  String get pinMismatch;
+
+  /// Screen reader text of the PIN dots
+  ///
+  /// In en, this message translates to:
+  /// **'{entered} of {total} digits entered'**
+  String pinProgress(int entered, int total);
+
+  /// Choosing a PIN: required number of digits
+  ///
+  /// In en, this message translates to:
+  /// **'Use {length} digits.'**
+  String pinSetHint(int length);
+
+  /// First step when choosing a PIN
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a PIN'**
+  String get pinSetTitle;
 
   /// Body of the dialog that confirms deleting a reminder
   ///
@@ -1514,6 +1628,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account'**
   String get settingsAccountLabel;
+
+  /// Settings switch that turns the PIN lock on or off
+  ///
+  /// In en, this message translates to:
+  /// **'App lock'**
+  String get settingsAppLock;
+
+  /// Settings: description under the app lock switch
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for a PIN to open the app'**
+  String get settingsAppLockDescription;
+
+  /// Snackbar after turning the app lock off
+  ///
+  /// In en, this message translates to:
+  /// **'App lock is off'**
+  String get settingsAppLockOff;
+
+  /// Snackbar after turning the app lock on
+  ///
+  /// In en, this message translates to:
+  /// **'App lock is on'**
+  String get settingsAppLockOn;
+
+  /// Settings: how long the app may be in the background before it locks; also the picker title
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-lock'**
+  String get settingsAutoLock;
+
+  /// Auto-lock option
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{After 1 minute} other{After {minutes} minutes}}'**
+  String settingsAutoLockAfterMinutes(int minutes);
+
+  /// Auto-lock option
+  ///
+  /// In en, this message translates to:
+  /// **'After {seconds} seconds'**
+  String settingsAutoLockAfterSeconds(int seconds);
+
+  /// Auto-lock option: as soon as the app leaves the screen
+  ///
+  /// In en, this message translates to:
+  /// **'Immediately'**
+  String get settingsAutoLockImmediately;
+
+  /// Settings switch for biometric unlock
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with fingerprint or face'**
+  String get settingsBiometrics;
+
+  /// Settings: why the biometric switch is off/disabled
+  ///
+  /// In en, this message translates to:
+  /// **'Set up a fingerprint or face on this phone to use it here.'**
+  String get settingsBiometricsUnavailable;
+
+  /// Settings row that changes the PIN
+  ///
+  /// In en, this message translates to:
+  /// **'Change PIN'**
+  String get settingsChangePin;
+
+  /// Snackbar after changing the PIN
+  ///
+  /// In en, this message translates to:
+  /// **'PIN changed'**
+  String get settingsPinChanged;
+
+  /// Settings section header for the app lock
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get settingsSecurityLabel;
 
   /// Settings switch that turns budget threshold notifications on or off on this device
   ///

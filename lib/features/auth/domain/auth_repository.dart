@@ -38,4 +38,8 @@ abstract interface class AuthRepository {
 
   /// Sets a new password for the signed-in user (after opening a reset link). Ends recovery.
   Future<Result<void>> updatePassword({required String newPassword});
+
+  /// Checks [password] against the signed-in account by signing in again with its email (needs a
+  /// connection). Keeps the session and all local data. For PIN recovery (M7.7).
+  Future<Result<void>> confirmPassword(String password);
 }

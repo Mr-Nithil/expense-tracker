@@ -74,6 +74,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Result<void>> confirmPassword(String password) async {
+    final email = currentUser?.email;
+    if (email == null) return const Result.failure(AuthFailure('confirmPassword: no session'));
+    return switch (await signIn(email: email, password: password)) {
+      Success() => Result.ok,
+      Failure(:final failure) => Result.failure(failure),
+    };
+  }
+
+  @override
   Future<Result<SignUpOutcome>> signUp({
     required String email,
     required String password,
