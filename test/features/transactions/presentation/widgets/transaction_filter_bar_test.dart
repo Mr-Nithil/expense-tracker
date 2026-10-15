@@ -82,9 +82,9 @@ void main() {
   ) async {
     await pumpBar(tester, brightness: brightness);
 
-    expect(find.text('October 2026'), findsOneWidget);
-    expect(find.text(l10n.commonAll), findsOneWidget);
-    expect(find.text(l10n.transactionsFilterAllCategories), findsOneWidget);
+    expect(findText('October 2026'), findsOneWidget);
+    expect(findText(l10n.commonAll), findsOneWidget);
+    expect(findText(l10n.transactionsFilterAllCategories), findsOneWidget);
   });
 
   testWidgets('the arrows change the month', (tester) async {
@@ -93,18 +93,18 @@ void main() {
     await tester.tap(find.byTooltip(l10n.commonPreviousMonth));
     await tester.pumpAndSettle();
 
-    expect(find.text('September 2026'), findsOneWidget);
+    expect(findText('September 2026'), findsOneWidget);
     expect(filter().month, DateTime(2026, 9));
   });
 
   testWidgets('the segments set the type', (tester) async {
     await pumpBar(tester);
 
-    await tester.tap(find.text(l10n.commonIncome));
+    await tester.tap(findText(l10n.commonIncome));
     await tester.pumpAndSettle();
     expect(filter().type, TransactionType.income);
 
-    await tester.tap(find.text(l10n.commonAll));
+    await tester.tap(findText(l10n.commonAll));
     await tester.pumpAndSettle();
     expect(filter().type, isNull);
   });
@@ -112,11 +112,11 @@ void main() {
   testWidgets('picking a category sets it, and the clear button removes it', (tester) async {
     await pumpBar(tester);
 
-    await tester.tap(find.text(l10n.transactionsFilterAllCategories));
+    await tester.tap(findText(l10n.transactionsFilterAllCategories));
     await tester.pumpAndSettle();
-    expect(find.text(l10n.transactionsFilterCategoryTitle), findsOneWidget);
-    expect(find.text('Salary'), findsOneWidget);
-    await tester.tap(find.text('Food'));
+    expect(findText(l10n.transactionsFilterCategoryTitle), findsOneWidget);
+    expect(findText('Salary'), findsOneWidget);
+    await tester.tap(findText('Food'));
     await tester.pumpAndSettle();
 
     expect(filter().categoryId, 'Food');
@@ -125,7 +125,7 @@ void main() {
     await tester.tap(find.byTooltip(l10n.transactionsFilterClearCategory));
     await tester.pumpAndSettle();
     expect(filter().categoryId, isNull);
-    expect(find.text(l10n.transactionsFilterAllCategories), findsOneWidget);
+    expect(findText(l10n.transactionsFilterAllCategories), findsOneWidget);
   });
 
   testWidgets('tapping the selected category reopens the picker', (tester) async {
@@ -136,19 +136,19 @@ void main() {
     await tester.tap(find.byType(CategoryChip));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.transactionsFilterCategoryTitle), findsOneWidget);
+    expect(findText(l10n.transactionsFilterCategoryTitle), findsOneWidget);
   });
 
   testWidgets('with a type chosen, only its categories are offered', (tester) async {
     await pumpBar(tester);
-    await tester.tap(find.text(l10n.commonIncome));
+    await tester.tap(findText(l10n.commonIncome));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text(l10n.transactionsFilterAllCategories));
+    await tester.tap(findText(l10n.transactionsFilterAllCategories));
     await tester.pumpAndSettle();
 
-    expect(find.text('Salary'), findsOneWidget);
-    expect(find.text('Food'), findsNothing);
+    expect(findText('Salary'), findsOneWidget);
+    expect(findText('Food'), findsNothing);
   });
 
   group('loading and errors', () {
@@ -157,11 +157,11 @@ void main() {
     ) async {
       await pumpBar(tester, expense: pending);
 
-      await tester.tap(find.text(l10n.transactionsFilterAllCategories));
+      await tester.tap(findText(l10n.transactionsFilterAllCategories));
       await tester.pump();
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      expect(find.text(l10n.categoriesEmptyTitle), findsNothing);
+      expect(findText(l10n.categoriesEmptyTitle), findsNothing);
     });
 
     testWidgets('a category load error offers a retry that reloads', (tester) async {
@@ -174,12 +174,12 @@ void main() {
         },
       );
 
-      await tester.tap(find.text(l10n.transactionsFilterAllCategories));
+      await tester.tap(findText(l10n.transactionsFilterAllCategories));
       await tester.pumpAndSettle();
-      expect(find.text(l10n.errorStorage), findsOneWidget);
+      expect(findText(l10n.errorStorage), findsOneWidget);
       final before = loads;
 
-      await tester.tap(find.text(l10n.commonRetry));
+      await tester.tap(findText(l10n.commonRetry));
       await tester.pumpAndSettle();
       expect(loads, greaterThan(before));
     });
@@ -192,7 +192,7 @@ void main() {
       controller().setCategory('Food');
       await tester.pump();
 
-      expect(find.text(l10n.categoryUnknown), findsNothing);
+      expect(findText(l10n.categoryUnknown), findsNothing);
       expect(find.byTooltip(l10n.transactionsFilterClearCategory), findsOneWidget);
     });
   });

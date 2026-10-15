@@ -88,18 +88,18 @@ void main() {
         ),
       ],
     );
-    await tester.tap(find.text('open'));
+    await tester.tap(findText('open'));
     await tester.pumpAndSettle();
   }
 
   testWidgets('is titled with the date and shows the day\'s totals', (tester) async {
     await open(tester);
 
-    expect(find.text('Monday, October 5, 2026'), findsOneWidget);
-    expect(find.text(r'$50.00'), findsOneWidget);
-    expect(find.text(r'$15.50'), findsOneWidget);
-    expect(find.text(r'$34.50'), findsOneWidget);
-    expect(find.text(l10n.calendarDayNet), findsOneWidget);
+    expect(findText('Monday, October 5, 2026'), findsOneWidget);
+    expect(findText(r'$50.00'), findsOneWidget);
+    expect(findText(r'$15.50'), findsOneWidget);
+    expect(findText(r'$34.50'), findsOneWidget);
+    expect(findText(l10n.calendarDayNet), findsOneWidget);
   });
 
   testWidgets('lists only that day\'s transactions', (tester) async {
@@ -115,9 +115,9 @@ void main() {
   testWidgets('an empty day shows zero totals and says so', (tester) async {
     await open(tester, on: DateTime(2026, 10, 6));
 
-    expect(find.text(r'$0.00'), findsNWidgets(3));
+    expect(findText(r'$0.00'), findsNWidgets(3));
     expect(
-      find.text(l10n.calendarNoTransactionsOn('Tuesday, October 6, 2026')),
+      findText(l10n.calendarNoTransactionsOn('Tuesday, October 6, 2026')),
       findsOneWidget,
     );
   });
@@ -125,7 +125,7 @@ void main() {
   testWidgets('"Add transaction" opens the form on that day, over the pop-up', (tester) async {
     await open(tester);
 
-    await tester.tap(find.text(l10n.transactionsAdd));
+    await tester.tap(findText(l10n.transactionsAdd));
     await tester.pumpAndSettle();
 
     final form = tester.widget<TransactionFormSheet>(find.byType(TransactionFormSheet));
@@ -140,7 +140,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(CalendarDaySheet), findsNothing);
-    expect(find.text('detail a'), findsOneWidget);
+    expect(findText('detail a'), findsOneWidget);
   });
 
   testWidgets('each total is read as its label and amount', (tester) async {

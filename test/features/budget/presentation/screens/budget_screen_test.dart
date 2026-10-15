@@ -108,24 +108,24 @@ void main() {
   ) async {
     await pumpScreen(tester, full, brightness: brightness);
 
-    expect(find.text('October 2026'), findsOneWidget);
+    expect(findText('October 2026'), findsOneWidget);
     expect(find.byType(BudgetOverallCard), findsOneWidget);
-    expect(find.text(l10n.budgetOverallTitle), findsOneWidget);
-    expect(find.text(l10n.budgetSpentOfLimit(r'$125.00', r'$500.00')), findsOneWidget);
-    expect(find.text(l10n.budgetCategoriesHeader), findsOneWidget);
+    expect(findText(l10n.budgetOverallTitle), findsOneWidget);
+    expect(findText(l10n.budgetSpentOfLimit(r'$125.00', r'$500.00')), findsOneWidget);
+    expect(findText(l10n.budgetCategoriesHeader), findsOneWidget);
     expect(find.byType(BudgetProgressTile), findsOneWidget);
-    expect(find.text('Food'), findsOneWidget);
+    expect(findText('Food'), findsOneWidget);
   });
 
   testWidgets('renders in Sinhala without overflow', (tester) async {
     final si = AppLocalizationsSi();
     await pumpScreen(tester, full, locale: const Locale('si'));
 
-    expect(find.text(si.budgetTitle), findsOneWidget);
-    expect(find.text(AppDateUtils.formatMonthYear(october, 'si')), findsOneWidget);
-    expect(find.text(si.budgetOverallTitle), findsOneWidget);
-    expect(find.text(si.budgetCategoriesHeader), findsOneWidget);
-    expect(find.text(si.budgetPercentUsed(25)), findsNWidgets(2));
+    expect(findText(si.budgetTitle), findsOneWidget);
+    expect(findText(AppDateUtils.formatMonthYear(october, 'si')), findsOneWidget);
+    expect(findText(si.budgetOverallTitle), findsOneWidget);
+    expect(findText(si.budgetCategoriesHeader), findsOneWidget);
+    expect(findText(si.budgetPercentUsed(25)), findsNWidgets(2));
   });
 
   testWidgets('the app bar shows the sync state', (tester) async {
@@ -139,7 +139,7 @@ void main() {
     await pumpScreen(tester, BudgetOverview(overall: progress(50000, 0)));
 
     expect(find.byType(BudgetOverallCard), findsOneWidget);
-    expect(find.text(l10n.budgetCategoriesHeader), findsNothing);
+    expect(findText(l10n.budgetCategoriesHeader), findsNothing);
   });
 
   testWidgets('only category budgets: the card says no overall budget is set', (tester) async {
@@ -148,15 +148,15 @@ void main() {
       BudgetOverview(categories: [progress(20000, 5000, categoryId: 'food')]),
     );
 
-    expect(find.text(l10n.budgetOverallEmptyTitle), findsOneWidget);
+    expect(findText(l10n.budgetOverallEmptyTitle), findsOneWidget);
     expect(find.byType(BudgetProgressTile), findsOneWidget);
   });
 
   testWidgets('a month without budgets shows the empty state', (tester) async {
     await pumpScreen(tester, const BudgetOverview());
 
-    expect(find.text(l10n.budgetEmptyTitle('October 2026')), findsOneWidget);
-    expect(find.text(l10n.budgetEmptyMessage), findsOneWidget);
+    expect(findText(l10n.budgetEmptyTitle('October 2026')), findsOneWidget);
+    expect(findText(l10n.budgetEmptyMessage), findsOneWidget);
     expect(find.byType(BudgetOverallCard), findsNothing);
   });
 
@@ -173,8 +173,8 @@ void main() {
     await tester.tap(find.byTooltip(l10n.commonPreviousMonth));
     await tester.pumpAndSettle();
 
-    expect(find.text('September 2026'), findsOneWidget);
-    expect(find.text(l10n.budgetSpentOfLimit(r'$290.00', r'$300.00')), findsOneWidget);
+    expect(findText('September 2026'), findsOneWidget);
+    expect(findText(l10n.budgetSpentOfLimit(r'$290.00', r'$300.00')), findsOneWidget);
     expect(find.byType(BudgetProgressTile), findsNothing);
   });
 
@@ -200,9 +200,9 @@ void main() {
       }),
     );
     await tester.pumpAndSettle();
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
     expect(find.byType(BudgetOverallCard), findsOneWidget);
@@ -230,9 +230,9 @@ void main() {
       ],
     );
     await tester.pumpAndSettle();
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
     expect(find.byType(BudgetOverallCard), findsOneWidget);
@@ -259,7 +259,7 @@ void main() {
     testWidgets('an empty month can be pulled too', (tester) async {
       await pumpScreen(tester, const BudgetOverview(), extra: [trigger.providerOverride]);
 
-      await pull(tester, find.text(l10n.budgetEmptyTitle('October 2026')));
+      await pull(tester, findText(l10n.budgetEmptyTitle('October 2026')));
 
       expect(trigger.immediate, 1);
     });
@@ -270,7 +270,7 @@ void main() {
 
       await pull(tester, find.byType(BudgetOverallCard));
 
-      expect(find.text(l10n.errorNetwork), findsOneWidget);
+      expect(findText(l10n.errorNetwork), findsOneWidget);
     });
   });
 
@@ -293,28 +293,28 @@ void main() {
       await tester.tap(find.byTooltip(l10n.budgetAdd));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.budgetFormNewTitle), findsOneWidget);
+      expect(findText(l10n.budgetFormNewTitle), findsOneWidget);
       expect(formSheet(tester).overview, full);
-      expect(find.text(l10n.budgetFormNoCategoriesLeft), findsOneWidget);
+      expect(findText(l10n.budgetFormNoCategoriesLeft), findsOneWidget);
     });
 
     testWidgets('the empty state offers to add one', (tester) async {
       await pumpWith(tester, const BudgetOverview());
 
-      await tester.tap(find.widgetWithText(FilledButton, l10n.budgetAdd));
+      await tester.tap(findWidgetWithText(FilledButton, l10n.budgetAdd));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.budgetFormNewTitle), findsOneWidget);
+      expect(findText(l10n.budgetFormNewTitle), findsOneWidget);
       expect(formSheet(tester).month, october);
     });
 
     testWidgets('tapping the overall card edits it', (tester) async {
       await pumpWith(tester, full);
 
-      await tester.tap(find.text(l10n.budgetOverallTitle));
+      await tester.tap(findText(l10n.budgetOverallTitle));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.budgetFormEditTitle), findsOneWidget);
+      expect(findText(l10n.budgetFormEditTitle), findsOneWidget);
       expect(formSheet(tester).budget, full.overall!.budget);
     });
 
@@ -324,11 +324,11 @@ void main() {
         BudgetOverview(categories: [progress(20000, 5000, categoryId: 'food')]),
       );
 
-      await tester.tap(find.text(l10n.budgetOverallEmptyTitle));
+      await tester.tap(findText(l10n.budgetOverallEmptyTitle));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.budgetFormNewTitle), findsOneWidget);
-      expect(find.text(l10n.budgetFormOverallHint), findsOneWidget);
+      expect(findText(l10n.budgetFormNewTitle), findsOneWidget);
+      expect(findText(l10n.budgetFormOverallHint), findsOneWidget);
     });
 
     testWidgets('tapping a category budget edits it', (tester) async {
@@ -349,7 +349,7 @@ void main() {
       await tester.tap(find.byTooltip(l10n.budgetCopyPrevious));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.budgetCopied(2)), findsOneWidget);
+      expect(findText(l10n.budgetCopied(2)), findsOneWidget);
     });
 
     testWidgets('copying with nothing new says so', (tester) async {
@@ -361,7 +361,7 @@ void main() {
       await tester.tap(find.byTooltip(l10n.budgetCopyPrevious));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.budgetCopied(0)), findsOneWidget);
+      expect(findText(l10n.budgetCopied(0)), findsOneWidget);
     });
 
     testWidgets('a failed copy says why', (tester) async {
@@ -373,7 +373,7 @@ void main() {
       await tester.tap(find.byTooltip(l10n.budgetCopyPrevious));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.errorStorage), findsOneWidget);
+      expect(findText(l10n.errorStorage), findsOneWidget);
     });
   });
 

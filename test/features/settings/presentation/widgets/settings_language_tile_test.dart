@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../helpers/fake_sync_trigger.dart';
+import '../../../../helpers/finders.dart';
 import '../../../../helpers/test_database.dart';
 
 void main() {
@@ -66,7 +67,7 @@ void main() {
   }
 
   Finder inDialog(String text) =>
-      find.descendant(of: find.byType(SimpleDialog), matching: find.text(text));
+      find.descendant(of: find.byType(SimpleDialog), matching: findText(text));
 
   Future<void> choose(WidgetTester tester, String option) async {
     await tester.tap(find.byType(ListTile));
@@ -78,8 +79,8 @@ void main() {
   testWidgets('without a choice, follows the device and lists every language', (tester) async {
     await pump(tester);
 
-    expect(find.text(en.settingsLanguageLabel), findsOneWidget);
-    expect(find.text(en.settingsLanguageDevice), findsOneWidget);
+    expect(findText(en.settingsLanguageLabel), findsOneWidget);
+    expect(findText(en.settingsLanguageDevice), findsOneWidget);
 
     await tester.tap(find.byType(ListTile));
     await tester.pumpAndSettle();
@@ -104,19 +105,19 @@ void main() {
     expect(saved.locale, 'si');
     expect(saved.syncStatus, SyncStatus.pending);
     expect(trigger.requests, 1);
-    expect(find.text(si.settingsLanguageLabel), findsOneWidget);
-    expect(find.text(si.languageNativeName), findsOneWidget);
+    expect(findText(si.settingsLanguageLabel), findsOneWidget);
+    expect(findText(si.languageNativeName), findsOneWidget);
   });
 
   testWidgets('choosing the device language clears the choice', (tester) async {
     await db.profilesDao.updateProfile(userId, const ProfilesCompanion(locale: Value('si')));
     await pump(tester);
-    expect(find.text(si.settingsLanguageLabel), findsOneWidget);
+    expect(findText(si.settingsLanguageLabel), findsOneWidget);
 
     await choose(tester, si.settingsLanguageDevice);
 
     expect((await row())?.locale, isNull);
-    expect(find.text(en.settingsLanguageLabel), findsOneWidget);
+    expect(findText(en.settingsLanguageLabel), findsOneWidget);
   });
 
   testWidgets('dismissing or choosing the current language writes nothing', (tester) async {
@@ -141,6 +142,6 @@ void main() {
 
     await choose(tester, si.languageNativeName);
 
-    expect(find.text(en.errorAuth), findsOneWidget);
+    expect(findText(en.errorAuth), findsOneWidget);
   });
 }

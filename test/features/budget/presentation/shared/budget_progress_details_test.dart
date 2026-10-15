@@ -41,8 +41,8 @@ void main() {
     await pump(tester, 7999);
 
     expect(level(tester), ProgressLevel.normal);
-    expect(find.text(l10n.budgetStatusWarning), findsNothing);
-    expect(find.text(l10n.budgetStatusExceeded), findsNothing);
+    expect(findText(l10n.budgetStatusWarning), findsNothing);
+    expect(findText(l10n.budgetStatusExceeded), findsNothing);
     expect(find.byType(Icon), findsNothing);
   });
 
@@ -50,8 +50,8 @@ void main() {
     await pump(tester, 8000, brightness: brightness);
 
     expect(level(tester), ProgressLevel.warning);
-    expect(find.text(l10n.budgetRemaining(r'$20.00')), findsOneWidget);
-    final label = tester.widget<Text>(find.text(l10n.budgetStatusWarning));
+    expect(findText(l10n.budgetRemaining(r'$20.00')), findsOneWidget);
+    final label = tester.widget<Text>(findText(l10n.budgetStatusWarning));
     expect(label.style?.color, colors(tester).warning);
     expect(
       tester.widget<Icon>(find.byIcon(Icons.warning_amber_rounded)).color,
@@ -66,8 +66,8 @@ void main() {
     await pump(tester, 10000, brightness: brightness);
 
     expect(level(tester), ProgressLevel.exceeded);
-    expect(find.text(l10n.budgetRemaining(r'$0.00')), findsOneWidget);
-    final label = tester.widget<Text>(find.text(l10n.budgetStatusExceeded));
+    expect(findText(l10n.budgetRemaining(r'$0.00')), findsOneWidget);
+    final label = tester.widget<Text>(findText(l10n.budgetStatusExceeded));
     expect(label.style?.color, colors(tester).expense);
     expect(find.byIcon(Icons.error_outline), findsOneWidget);
   });
@@ -76,8 +76,8 @@ void main() {
     await pump(tester, 12500);
 
     expect(level(tester), ProgressLevel.exceeded);
-    expect(find.text(l10n.budgetOver(r'$25.00')), findsOneWidget);
-    expect(find.text(l10n.budgetStatusExceeded), findsOneWidget);
+    expect(findText(l10n.budgetOver(r'$25.00')), findsOneWidget);
+    expect(findText(l10n.budgetStatusExceeded), findsOneWidget);
   });
 
   testWidgets('the status icon is not read out; the label is', (tester) async {
@@ -114,6 +114,6 @@ void main() {
     );
 
     expect(tester.takeException(), isNull);
-    expect(find.text(l10n.budgetStatusExceeded), findsOneWidget);
+    expect(findText(l10n.budgetStatusExceeded), findsOneWidget);
   });
 }

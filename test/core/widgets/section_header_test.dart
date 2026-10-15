@@ -10,13 +10,13 @@ void main() {
       SectionHeader(title: 'Recent', actionLabel: 'See all', onAction: () => taps++),
       brightness: brightness,
     );
-    expect(find.text('Recent'), findsOneWidget);
-    await tester.tap(find.text('See all'));
+    expect(findText('Recent'), findsOneWidget);
+    await tester.tap(findText('See all'));
     expect(taps, 1);
   });
 
   testWidgets('hides the action without a callback', (tester) async {
     await tester.pumpApp(const SectionHeader(title: 'Recent', actionLabel: 'See all'));
-    expect(find.text('See all'), findsNothing);
+    expect(findText('See all'), findsNothing);
   });
 }

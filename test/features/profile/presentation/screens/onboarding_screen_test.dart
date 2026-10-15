@@ -50,14 +50,14 @@ void main() {
   }
 
   CurrencyTile tile(WidgetTester tester, String code) => tester.widget(
-    find.ancestor(of: find.text(code), matching: find.byType(CurrencyTile)),
+    find.ancestor(of: findText(code), matching: find.byType(CurrencyTile)),
   );
-  Finder continueButton() => find.widgetWithText(FilledButton, l10n.onboardingContinue);
+  Finder continueButton() => findWidgetWithText(FilledButton, l10n.onboardingContinue);
 
   testWidgetsBothThemes('renders the currency list', (tester, brightness) async {
     await pumpOnboarding(tester, brightness: brightness);
 
-    expect(find.text(l10n.onboardingSubtitle), findsOneWidget);
+    expect(findText(l10n.onboardingSubtitle), findsOneWidget);
     expect(find.byType(CurrencyTile), findsWidgets);
     expect(continueButton(), findsOneWidget);
   });
@@ -77,7 +77,7 @@ void main() {
     );
     await pumpOnboarding(tester);
 
-    await tester.tap(find.text('AED'));
+    await tester.tap(findText('AED'));
     await tester.pump();
     expect(tile(tester, 'AED').selected, isTrue);
     expect(tile(tester, 'EUR').selected, isFalse);
@@ -113,7 +113,7 @@ void main() {
     await tester.tap(continueButton());
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
   });
 
   group('accessibility (M9.5)', () {

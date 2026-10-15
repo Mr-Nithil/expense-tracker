@@ -51,6 +51,6 @@ void main() {
     await tester.tap(find.byType(SyncStatusIndicator));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.errorNetwork), findsOneWidget);
+    expect(findText(l10n.errorNetwork), findsOneWidget);
   });
 }

@@ -71,11 +71,11 @@ void main() {
         clockProvider.overrideWithValue(FixedClock(now)),
       ],
     );
-    await tester.tap(find.text('open'));
+    await tester.tap(findText('open'));
     await tester.pumpAndSettle();
   }
 
-  Finder titleField() => find.widgetWithText(TextFormField, l10n.reminderFormTitleLabel);
+  Finder titleField() => findWidgetWithText(TextFormField, l10n.reminderFormTitleLabel);
 
   Future<void> tapVisible(WidgetTester tester, Finder finder) async {
     await tester.ensureVisible(finder);
@@ -83,14 +83,14 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> save(WidgetTester tester) => tapVisible(tester, find.text(l10n.commonSave));
+  Future<void> save(WidgetTester tester) => tapVisible(tester, findText(l10n.commonSave));
 
   testWidgetsBothThemes('a new reminder is daily at 8:00 PM', (tester, brightness) async {
     await open(tester, b: brightness);
 
-    expect(find.text(l10n.reminderFormNewTitle), findsOneWidget);
-    expect(find.text('8:00 PM'), findsOneWidget);
-    expect(find.text(l10n.reminderFormDaysLabel), findsNothing);
+    expect(findText(l10n.reminderFormNewTitle), findsOneWidget);
+    expect(findText('8:00 PM'), findsOneWidget);
+    expect(findText(l10n.reminderFormDaysLabel), findsNothing);
   });
 
   testWidgets('creates a daily reminder and pops true', (tester) async {
@@ -110,9 +110,9 @@ void main() {
     await open(tester);
     await tester.enterText(titleField(), 'Gym budget check');
 
-    await tapVisible(tester, find.text(l10n.reminderRepeatWeekly));
-    expect(tester.widget<FilterChip>(find.widgetWithText(FilterChip, 'Sun')).selected, isTrue);
-    await tapVisible(tester, find.widgetWithText(FilterChip, 'Wed'));
+    await tapVisible(tester, findText(l10n.reminderRepeatWeekly));
+    expect(tester.widget<FilterChip>(findWidgetWithText(FilterChip, 'Sun')).selected, isTrue);
+    await tapVisible(tester, findWidgetWithText(FilterChip, 'Wed'));
     await save(tester);
 
     final draft = verify(() => repository.create(captureAny())).captured.single as ReminderDraft;
@@ -124,11 +124,11 @@ void main() {
     await open(tester);
     await tester.enterText(titleField(), 'Rent');
 
-    await tapVisible(tester, find.text(l10n.reminderRepeatMonthly));
-    expect(find.text(l10n.reminderFormDayOfMonthHint), findsOneWidget);
+    await tapVisible(tester, findText(l10n.reminderRepeatMonthly));
+    expect(findText(l10n.reminderFormDayOfMonthHint), findsOneWidget);
     await tapVisible(tester, find.byType(DropdownButtonFormField<int>));
     // The menu builds the days around the current one (today, the 11th).
-    await tester.tap(find.text('12').last);
+    await tester.tap(findText('12').last);
     await tester.pumpAndSettle();
     await save(tester);
 
@@ -142,7 +142,7 @@ void main() {
 
     await save(tester);
 
-    expect(find.text(l10n.errorFieldRequired), findsOneWidget);
+    expect(findText(l10n.errorFieldRequired), findsOneWidget);
     verifyNever(() => repository.create(any()));
   });
 
@@ -157,24 +157,24 @@ void main() {
     );
     await open(tester);
     await tester.enterText(titleField(), 'x');
-    await tapVisible(tester, find.text(l10n.reminderRepeatWeekly));
+    await tapVisible(tester, findText(l10n.reminderRepeatWeekly));
 
     await save(tester);
 
-    expect(find.text(l10n.errorReminderWeekdaysRequired), findsOneWidget);
+    expect(findText(l10n.errorReminderWeekdaysRequired), findsOneWidget);
     expect(find.byType(ReminderFormSheet), findsOneWidget);
   });
 
   testWidgets('edits keep the reminder; delete asks first and pops false', (tester) async {
     await open(tester, reminder: existing);
 
-    expect(find.text(l10n.reminderFormEditTitle), findsOneWidget);
-    expect(find.text('Pay rent'), findsOneWidget);
-    expect(find.text('9:00 AM'), findsOneWidget);
+    expect(findText(l10n.reminderFormEditTitle), findsOneWidget);
+    expect(findText('Pay rent'), findsOneWidget);
+    expect(findText('9:00 AM'), findsOneWidget);
 
-    await tapVisible(tester, find.text(l10n.reminderFormDelete));
-    expect(find.text(l10n.reminderDeleteConfirmTitle('Pay rent')), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, l10n.commonDelete));
+    await tapVisible(tester, findText(l10n.reminderFormDelete));
+    expect(findText(l10n.reminderDeleteConfirmTitle('Pay rent')), findsOneWidget);
+    await tester.tap(findWidgetWithText(FilledButton, l10n.commonDelete));
     await tester.pumpAndSettle();
 
     verify(() => repository.delete('r')).called(1);

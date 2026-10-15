@@ -104,17 +104,17 @@ void main() {
   testWidgetsBothThemes('shows amount, type, category, date and note', (tester, brightness) async {
     await pumpDetail(tester, transaction: lunch(), brightness: brightness);
 
-    expect(find.text(l10n.transactionDetailTitle), findsOneWidget);
-    expect(find.text(r'-$12.50'), findsOneWidget);
-    expect(find.text(l10n.commonExpense), findsOneWidget);
-    expect(find.text('Food'), findsOneWidget);
-    expect(find.text('Sunday, October 11, 2026'), findsOneWidget);
-    expect(find.text('Team lunch'), findsOneWidget);
+    expect(findText(l10n.transactionDetailTitle), findsOneWidget);
+    expect(findText(r'-$12.50'), findsOneWidget);
+    expect(findText(l10n.commonExpense), findsOneWidget);
+    expect(findText('Food'), findsOneWidget);
+    expect(findText('Sunday, October 11, 2026'), findsOneWidget);
+    expect(findText('Team lunch'), findsOneWidget);
   });
 
   testWidgets('no note means no note row', (tester) async {
     await pumpDetail(tester, transaction: lunch(note: null));
-    expect(find.text(l10n.transactionDetailNoteLabel), findsNothing);
+    expect(findText(l10n.transactionDetailNoteLabel), findsNothing);
   });
 
   testWidgets('an archived category is shown as archived', (tester) async {
@@ -124,11 +124,11 @@ void main() {
 
   testWidgets('a missing or deleted transaction is not found, with no actions', (tester) async {
     await pumpDetail(tester);
-    expect(find.text(l10n.transactionNotFoundTitle), findsOneWidget);
+    expect(findText(l10n.transactionNotFoundTitle), findsOneWidget);
     expect(find.byTooltip(l10n.commonDelete), findsNothing);
 
     await pumpDetail(tester, transaction: lunch(deleted: true));
-    expect(find.text(l10n.transactionNotFoundTitle), findsOneWidget);
+    expect(findText(l10n.transactionNotFoundTitle), findsOneWidget);
   });
 
   testWidgets('Edit opens the edit sheet', (tester) async {
@@ -137,7 +137,7 @@ void main() {
     await tester.tap(find.byTooltip(l10n.commonEdit));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.transactionFormEditTitle), findsOneWidget);
+    expect(findText(l10n.transactionFormEditTitle), findsOneWidget);
     expect(
       tester.widget<TransactionFormSheet>(find.byType(TransactionFormSheet)).transaction?.id,
       't1',
@@ -151,10 +151,10 @@ void main() {
     await tester.pumpAndSettle();
 
     verify(() => repository.delete('t1')).called(1);
-    expect(find.text('list'), findsOneWidget);
-    expect(find.text(l10n.transactionDeleted), findsOneWidget);
+    expect(findText('list'), findsOneWidget);
+    expect(findText(l10n.transactionDeleted), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonUndo));
+    await tester.tap(findText(l10n.commonUndo));
     await tester.pumpAndSettle();
     verify(() => repository.restore('t1')).called(1);
   });
@@ -168,8 +168,8 @@ void main() {
     await tester.tap(find.byTooltip(l10n.commonDelete));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.transactionDetailTitle), findsOneWidget);
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.transactionDetailTitle), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
   });
 
   testWidgets('a load error offers a retry that reloads the transaction', (tester) async {
@@ -181,12 +181,12 @@ void main() {
         return loads == 1 ? Stream.error(const StorageFailure('db')) : Stream.value(lunch());
       },
     );
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
-    expect(find.text(r'-$12.50'), findsOneWidget);
+    expect(findText(r'-$12.50'), findsOneWidget);
   });
 
   testWidgets('an income shows a positive amount and its type', (tester) async {
@@ -195,8 +195,8 @@ void main() {
       transaction: lunch().copyWith(type: TransactionType.income, amount: const Money(85000)),
     );
 
-    expect(find.text(r'+$850.00'), findsOneWidget);
-    expect(find.text(l10n.commonIncome), findsOneWidget);
+    expect(findText(r'+$850.00'), findsOneWidget);
+    expect(findText(l10n.commonIncome), findsOneWidget);
   });
 
   testWidgets('a failed profile (currency) load offers a retry that shows the details', (
@@ -213,12 +213,12 @@ void main() {
             : Stream.value(const Profile(id: 'u1', currencyCode: 'USD'));
       },
     );
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
-    expect(find.text(r'-$12.50'), findsOneWidget);
+    expect(findText(r'-$12.50'), findsOneWidget);
   });
 
   group('accessibility (M9.5)', () {

@@ -23,10 +23,10 @@ void main() {
   testWidgetsBothThemes('shows the app name and a loading indicator', (tester, brightness) async {
     await pumpSplash(tester, InitialSyncStatus.idle, brightness: brightness);
 
-    expect(find.text(l10n.appTitle), findsOneWidget);
+    expect(findText(l10n.appTitle), findsOneWidget);
     expect(find.byIcon(Icons.account_balance_wallet_outlined), findsOneWidget);
     expect(find.bySemanticsLabel(l10n.commonLoading), findsOneWidget);
-    expect(find.text(l10n.authSplashSyncing), findsNothing);
+    expect(findText(l10n.authSplashSyncing), findsNothing);
   });
 
   testWidgetsBothThemes('says it is getting the data during the first pull', (
@@ -35,13 +35,13 @@ void main() {
   ) async {
     await pumpSplash(tester, InitialSyncStatus.running, brightness: brightness);
 
-    expect(find.text(l10n.authSplashSyncing), findsOneWidget);
+    expect(findText(l10n.authSplashSyncing), findsOneWidget);
   });
 
   testWidgets('no message once the first pull is done', (tester) async {
     await pumpSplash(tester, InitialSyncStatus.done);
 
-    expect(find.text(l10n.authSplashSyncing), findsNothing);
+    expect(findText(l10n.authSplashSyncing), findsNothing);
   });
 
   group('accessibility (M9.5)', () {

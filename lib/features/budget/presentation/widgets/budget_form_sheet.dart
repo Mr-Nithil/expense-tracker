@@ -9,6 +9,7 @@ import 'package:expense_tracker/core/widgets/app_bottom_sheet.dart';
 import 'package:expense_tracker/core/widgets/app_button.dart';
 import 'package:expense_tracker/core/widgets/async_value_view.dart';
 import 'package:expense_tracker/core/widgets/confirm_dialog.dart';
+import 'package:expense_tracker/core/widgets/segmented_pill.dart';
 import 'package:expense_tracker/features/budget/domain/entities/budget.dart';
 import 'package:expense_tracker/features/budget/domain/entities/budget_overview.dart';
 import 'package:expense_tracker/features/budget/domain/services/budget_validator.dart';
@@ -161,16 +162,16 @@ class _BudgetFormSheetState extends ConsumerState<BudgetFormSheet> {
           Text(AppDateUtils.formatMonthYear(widget.month, context.localeTag), style: muted),
           const Gap(AppSpacing.md),
           if (editing == null && widget.overview.overall == null) ...[
-            SegmentedButton<bool>(
-              segments: [
-                ButtonSegment(value: true, label: Text(l10n.budgetFormOverall)),
-                ButtonSegment(value: false, label: Text(l10n.budgetFormCategory)),
+            SegmentedPill<bool>(
+              options: [
+                SegmentedPillOption(value: true, label: l10n.budgetFormOverall),
+                SegmentedPillOption(value: false, label: l10n.budgetFormCategory),
               ],
-              selected: {_isOverall},
-              onSelectionChanged: isSaving
+              selected: _isOverall,
+              onChanged: isSaving
                   ? null
-                  : (selection) => setState(() {
-                      _isOverall = selection.first;
+                  : (overall) => setState(() {
+                      _isOverall = overall;
                       _categoryError = null;
                     }),
             ),

@@ -56,11 +56,11 @@ void main() {
       expense: [category('Food', CategoryType.expense), category('Bills', CategoryType.expense)],
     );
 
-    expect(find.text(l10n.categoriesTitle), findsOneWidget);
-    expect(find.text(l10n.commonExpense), findsOneWidget);
-    expect(find.text(l10n.commonIncome), findsOneWidget);
+    expect(findText(l10n.categoriesTitle), findsOneWidget);
+    expect(findText(l10n.commonExpense), findsOneWidget);
+    expect(findText(l10n.commonIncome), findsOneWidget);
     expect(find.byType(CategoryTile), findsNWidgets(2));
-    expect(find.text('Food'), findsOneWidget);
+    expect(findText('Food'), findsOneWidget);
   });
 
   testWidgets('switching tabs shows the income categories', (tester) async {
@@ -70,17 +70,17 @@ void main() {
       income: [category('Salary', CategoryType.income)],
     );
 
-    await tester.tap(find.text(l10n.commonIncome));
+    await tester.tap(findText(l10n.commonIncome));
     await tester.pumpAndSettle();
 
-    expect(find.text('Salary'), findsOneWidget);
-    expect(find.text('Food'), findsNothing);
+    expect(findText('Salary'), findsOneWidget);
+    expect(findText('Food'), findsNothing);
   });
 
   testWidgets('an empty type shows the empty state', (tester) async {
     await pumpScreen(tester);
 
-    expect(find.text(l10n.categoriesEmptyTitle), findsOneWidget);
+    expect(findText(l10n.categoriesEmptyTitle), findsOneWidget);
   });
 
   testWidgets('an error shows a retry that reloads', (tester) async {
@@ -97,8 +97,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.errorStorage), findsOneWidget);
-    await tester.tap(find.text(l10n.commonRetry));
+    expect(findText(l10n.errorStorage), findsOneWidget);
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
     expect(loads, greaterThan(1));
@@ -107,12 +107,12 @@ void main() {
   testWidgets('the add button opens a new-category sheet for the current tab', (tester) async {
     await pumpScreen(tester);
 
-    await tester.tap(find.text(l10n.commonIncome));
+    await tester.tap(findText(l10n.commonIncome));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip(l10n.categoriesAdd));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.categoryFormNewTitle), findsOneWidget);
+    expect(findText(l10n.categoryFormNewTitle), findsOneWidget);
     final sheet = tester.widget<CategoryFormSheet>(find.byType(CategoryFormSheet));
     expect(sheet.initialType, CategoryType.income);
     expect(sheet.category, isNull);
@@ -121,10 +121,10 @@ void main() {
   testWidgets('tapping a category opens it for editing', (tester) async {
     await pumpScreen(tester, expense: [category('Food', CategoryType.expense)]);
 
-    await tester.tap(find.text('Food'));
+    await tester.tap(findText('Food'));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.categoryFormEditTitle), findsOneWidget);
+    expect(findText(l10n.categoryFormEditTitle), findsOneWidget);
     expect(tester.widget<CategoryFormSheet>(find.byType(CategoryFormSheet)).category?.name, 'Food');
   });
 

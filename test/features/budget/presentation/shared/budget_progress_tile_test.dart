@@ -55,10 +55,10 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Food'), findsOneWidget);
+    expect(findText('Food'), findsOneWidget);
     expect(find.byType(CategoryIcon), findsOneWidget);
-    expect(find.text(l10n.budgetSpentOfLimit(r'$50.00', r'$200.00')), findsOneWidget);
-    expect(find.text(l10n.budgetRemaining(r'$150.00')), findsOneWidget);
+    expect(findText(l10n.budgetSpentOfLimit(r'$50.00', r'$200.00')), findsOneWidget);
+    expect(findText(l10n.budgetRemaining(r'$150.00')), findsOneWidget);
   });
 
   testWidgets('fires onTap', (tester) async {
@@ -69,7 +69,7 @@ void main() {
     );
     await tester.pump();
 
-    await tester.tap(find.text('Food'));
+    await tester.tap(findText('Food'));
 
     expect(taps, 1);
   });
@@ -77,13 +77,13 @@ void main() {
   testWidgets('marks an archived category', (tester) async {
     await pumpTile(tester, Stream.value(food.copyWith(isArchived: true)));
 
-    expect(find.text(l10n.categoryChipArchived('Food')), findsOneWidget);
+    expect(findText(l10n.categoryChipArchived('Food')), findsOneWidget);
   });
 
   testWidgets('a category not on this device shows as unknown', (tester) async {
     await pumpTile(tester, Stream.value(null));
 
-    expect(find.text(l10n.categoryUnknown), findsOneWidget);
+    expect(findText(l10n.categoryUnknown), findsOneWidget);
   });
 
   testWidgets('shows no name while the category loads', (tester) async {
@@ -91,7 +91,7 @@ void main() {
     addTearDown(controller.close);
     await pumpTile(tester, controller.stream);
 
-    expect(find.text(l10n.categoryUnknown), findsNothing);
-    expect(find.text(l10n.budgetRemaining(r'$150.00')), findsOneWidget);
+    expect(findText(l10n.categoryUnknown), findsNothing);
+    expect(findText(l10n.budgetRemaining(r'$150.00')), findsOneWidget);
   });
 }

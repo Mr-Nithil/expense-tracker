@@ -40,12 +40,12 @@ void main() {
       brightness: brightness,
     );
 
-    expect(find.text(l10n.settingsProfileLabel), findsOneWidget);
-    expect(find.text('Sam'), findsOneWidget);
-    expect(find.text('sam@example.com'), findsOneWidget);
-    expect(find.text(l10n.settingsCurrency), findsOneWidget);
-    expect(find.text(l10n.settingsCurrencyValue('EUR', '€')), findsOneWidget);
-    expect(find.text(l10n.settingsCurrencyLocked), findsOneWidget);
+    expect(findText(l10n.settingsProfileLabel), findsOneWidget);
+    expect(findText('Sam'), findsOneWidget);
+    expect(findText('sam@example.com'), findsOneWidget);
+    expect(findText(l10n.settingsCurrency), findsOneWidget);
+    expect(findText(l10n.settingsCurrencyValue('EUR', '€')), findsOneWidget);
+    expect(findText(l10n.settingsCurrencyLocked), findsOneWidget);
   });
 
   testWidgets('the currency cannot be tapped (no way to change it)', (tester) async {
@@ -55,7 +55,7 @@ void main() {
     );
 
     final tile = tester.widget<ListTile>(
-      find.ancestor(of: find.text(l10n.settingsCurrency), matching: find.byType(ListTile)),
+      find.ancestor(of: findText(l10n.settingsCurrency), matching: find.byType(ListTile)),
     );
     expect(tile.onTap, isNull);
     expect(tile.enabled, isTrue);
@@ -69,7 +69,7 @@ void main() {
     );
 
     final tile = tester.widget<ListTile>(
-      find.ancestor(of: find.text('sam@example.com'), matching: find.byType(ListTile)),
+      find.ancestor(of: findText('sam@example.com'), matching: find.byType(ListTile)),
     );
     expect(tile.subtitle, isNull);
   });
@@ -82,8 +82,8 @@ void main() {
       ),
     );
 
-    expect(find.text('Samantha'), findsOneWidget);
-    expect(find.text('Sam'), findsNothing);
+    expect(findText('Samantha'), findsOneWidget);
+    expect(findText('Sam'), findsNothing);
   });
 
   testWidgets('shows nothing until the profile has loaded', (tester) async {
@@ -98,7 +98,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text(l10n.settingsProfileLabel), findsNothing);
+    expect(findText(l10n.settingsProfileLabel), findsNothing);
     expect(find.byType(ListTile), findsNothing);
   });
 }

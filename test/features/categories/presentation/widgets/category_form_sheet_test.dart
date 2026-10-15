@@ -60,16 +60,16 @@ void main() {
       brightness: brightness,
       overrides: [categoryRepositoryProvider.overrideWithValue(repository)],
     );
-    await tester.tap(find.text('open'));
+    await tester.tap(findText('open'));
     await tester.pumpAndSettle();
   }
 
-  Finder nameField() => find.widgetWithText(TextFormField, l10n.categoryFormNameLabel);
+  Finder nameField() => findWidgetWithText(TextFormField, l10n.categoryFormNameLabel);
   Finder sheet() => find.byType(CategoryFormSheet);
 
   Future<void> save(WidgetTester tester) async {
-    await tester.ensureVisible(find.text(l10n.commonSave));
-    await tester.tap(find.text(l10n.commonSave));
+    await tester.ensureVisible(findText(l10n.commonSave));
+    await tester.tap(findText(l10n.commonSave));
     await tester.pumpAndSettle();
   }
 
@@ -83,10 +83,10 @@ void main() {
   testWidgetsBothThemes('renders the new-category form', (tester, brightness) async {
     await openSheet(tester, brightness: brightness);
 
-    expect(find.text(l10n.categoryFormNewTitle), findsOneWidget);
+    expect(findText(l10n.categoryFormNewTitle), findsOneWidget);
     expect(nameField(), findsOneWidget);
-    expect(find.text(l10n.categoryFormIconLabel), findsOneWidget);
-    expect(find.text(l10n.categoryFormColorLabel), findsOneWidget);
+    expect(findText(l10n.categoryFormIconLabel), findsOneWidget);
+    expect(findText(l10n.categoryFormColorLabel), findsOneWidget);
   });
 
   testWidgets('saves a new category with the chosen type, icon and color, then closes', (
@@ -98,7 +98,7 @@ void main() {
     final colors = CategoryPalette.colors;
 
     await tester.enterText(nameField(), 'Coffee');
-    await tester.tap(find.text(l10n.commonIncome));
+    await tester.tap(findText(l10n.commonIncome));
     await tapOption(tester, l10n.categoryFormIconOption(3, icons.length));
     await tapOption(tester, l10n.categoryFormColorOption(2, colors.length));
     await save(tester);
@@ -116,7 +116,7 @@ void main() {
 
     await save(tester);
 
-    expect(find.text(l10n.errorFieldRequired), findsOneWidget);
+    expect(findText(l10n.errorFieldRequired), findsOneWidget);
     verifyNever(() => repository.create(any()));
   });
 
@@ -131,20 +131,20 @@ void main() {
     await tester.enterText(nameField(), 'Food');
     await save(tester);
 
-    expect(find.text(l10n.errorCategoryNameTaken), findsOneWidget);
+    expect(findText(l10n.errorCategoryNameTaken), findsOneWidget);
     expect(sheet(), findsOneWidget);
 
     await tester.enterText(nameField(), 'Food 2');
     await tester.pump();
-    expect(find.text(l10n.errorCategoryNameTaken), findsNothing);
+    expect(findText(l10n.errorCategoryNameTaken), findsNothing);
   });
 
   testWidgets('editing pre-fills the form and updates the category', (tester) async {
     when(() => repository.update(any())).thenAnswer((_) async => Result.success(food));
     await openSheet(tester, category: food);
 
-    expect(find.text(l10n.categoryFormEditTitle), findsOneWidget);
-    expect(find.widgetWithText(TextFormField, 'Food'), findsOneWidget);
+    expect(findText(l10n.categoryFormEditTitle), findsOneWidget);
+    expect(findWidgetWithText(TextFormField, 'Food'), findsOneWidget);
     // The category's icon is preselected and announced as a selected, tappable button.
     final firstIcon = l10n.categoryFormIconOption(1, CategoryIcon.keys.length);
     expect(
@@ -172,10 +172,10 @@ void main() {
     );
     await openSheet(tester, category: food);
 
-    await tester.tap(find.text(l10n.commonIncome));
+    await tester.tap(findText(l10n.commonIncome));
     await save(tester);
 
-    expect(find.text(l10n.errorCategoryTypeLocked), findsOneWidget);
+    expect(findText(l10n.errorCategoryTypeLocked), findsOneWidget);
     expect(sheet(), findsOneWidget);
   });
 
@@ -188,12 +188,12 @@ void main() {
     await tester.enterText(nameField(), 'Coffee');
     await save(tester);
 
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
     expect(sheet(), findsOneWidget);
   });
 
   group('archive', () {
-    Finder archiveButton() => find.widgetWithText(TextButton, l10n.categoryFormArchive);
+    Finder archiveButton() => findWidgetWithText(TextButton, l10n.categoryFormArchive);
 
     Future<void> tapArchive(WidgetTester tester) async {
       await tester.ensureVisible(archiveButton());
@@ -202,7 +202,7 @@ void main() {
     }
 
     Finder inDialog(String text) =>
-        find.descendant(of: find.byType(AlertDialog), matching: find.text(text));
+        find.descendant(of: find.byType(AlertDialog), matching: findText(text));
 
     testWidgets('is not offered when adding', (tester) async {
       await openSheet(tester);

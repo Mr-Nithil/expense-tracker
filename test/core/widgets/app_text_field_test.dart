@@ -11,7 +11,7 @@ void main() {
       AppTextField(label: 'Email', hint: 'you@example.com', onChanged: (v) => changed = v),
       brightness: brightness,
     );
-    expect(find.text('Email'), findsOneWidget);
+    expect(findText('Email'), findsOneWidget);
     await tester.enterText(find.byType(TextFormField), 'a@b.c');
     expect(changed, 'a@b.c');
   });
@@ -26,18 +26,67 @@ void main() {
     );
     expect(formKey.currentState!.validate(), isFalse);
     await tester.pump();
-    expect(find.text('Required'), findsOneWidget);
+    expect(findText('Required'), findsOneWidget);
   });
 
   testWidgets('shows an explicit error text', (tester) async {
     await tester.pumpApp(const AppTextField(label: 'Amount', errorText: 'Too small'));
-    expect(find.text('Too small'), findsOneWidget);
+    expect(findText('Too small'), findsOneWidget);
   });
 
   testWidgets('shows a prefix text', (tester) async {
     await tester.pumpApp(const AppTextField(label: 'Amount', prefixText: r'$ '));
     await tester.enterText(find.byType(TextFormField), '12');
     await tester.pump();
-    expect(find.text(r'$ '), findsOneWidget);
+    expect(findText(r'$ '), findsOneWidget);
+  });
+
+  testWidgets('the label sits above the field and is announced once, by the field', (
+    tester,
+  ) async {
+    await tester.pumpApp(const AppTextField(label: 'Email'));
+
+    final label = find.byWidgetPredicate(
+      (w) => w is Text && w.data == null && w.textSpan?.toPlainText() == 'Email',
+    );
+    expect(label, findsOneWidget);
+    expect(
+      tester.getBottomLeft(label).dy,
+      lessThanOrEqualTo(tester.getTopLeft(find.byType(InputDecorator)).dy),
+    );
+    expect(find.bySemanticsLabel('Email'), findsOneWidget);
+  });
+
+  testWidgets('validator and explicit errors show the error row with its icon', (tester) async {
+    final formKey = GlobalKey<FormState>();
+    await tester.pumpApp(
+      Column(
+        children: [
+          Form(
+            key: formKey,
+            child: AppTextField(label: 'Name', validator: (v) => v!.isEmpty ? 'Required' : null),
+          ),
+          const AppTextField(label: 'Amount', errorText: 'Too small'),
+        ],
+      ),
+    );
+    formKey.currentState!.validate();
+    await tester.pump();
+
+    expect(find.byIcon(Icons.error_rounded), findsNWidgets(2));
+    expect(find.text('Required'), findsOneWidget);
+    expect(find.text('Too small'), findsOneWidget);
+  });
+
+  testWidgets('the border turns primary when focused', (tester) async {
+    await tester.pumpApp(const AppTextField(label: 'Email'));
+    final context = tester.element(find.byType(TextFormField));
+    final decoration = tester.widget<InputDecorator>(find.byType(InputDecorator)).decoration;
+
+    expect(
+      (decoration.focusedBorder! as OutlineInputBorder).borderSide.color,
+      Theme.of(context).colorScheme.primary,
+    );
+    expect((decoration.enabledBorder! as OutlineInputBorder).borderSide.width, 2);
   });
 }

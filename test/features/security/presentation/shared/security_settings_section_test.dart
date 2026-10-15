@@ -1,6 +1,7 @@
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
 import 'package:expense_tracker/core/services/biometric_service.dart';
 import 'package:expense_tracker/core/session/session.dart';
+import 'package:expense_tracker/core/widgets/app_switch.dart';
 import 'package:expense_tracker/features/security/domain/entities/lock_settings.dart';
 import 'package:expense_tracker/features/security/presentation/providers/lock_settings_controller.dart';
 import 'package:expense_tracker/features/security/presentation/shared/security_settings_section.dart';
@@ -43,11 +44,11 @@ void main() {
   }
 
   LockSettings? settings() => container.read(lockSettingsControllerProvider).value;
-  Finder switchOf(String title) => find.widgetWithText(SwitchListTile, title);
+  Finder switchOf(String title) => findWidgetWithText(AppSwitchTile, title);
 
   Future<void> type(WidgetTester tester, String digits) async {
     for (final d in digits.split('')) {
-      await tester.tap(find.descendant(of: find.byType(BottomSheet), matching: find.text(d)));
+      await tester.tap(find.descendant(of: find.byType(BottomSheet), matching: findText(d)));
       await tester.pump();
     }
     await tester.pumpAndSettle();
@@ -66,10 +67,10 @@ void main() {
   testWidgets('off: only the app lock switch', (tester) async {
     await pump(tester);
 
-    expect(find.text(l10n.settingsSecurityLabel), findsOneWidget);
-    expect(tester.widget<SwitchListTile>(switchOf(l10n.settingsAppLock)).value, isFalse);
-    expect(find.text(l10n.settingsChangePin), findsNothing);
-    expect(find.text(l10n.settingsAutoLock), findsNothing);
+    expect(findText(l10n.settingsSecurityLabel), findsOneWidget);
+    expect(tester.widget<AppSwitchTile>(switchOf(l10n.settingsAppLock)).value, isFalse);
+    expect(findText(l10n.settingsChangePin), findsNothing);
+    expect(findText(l10n.settingsAutoLock), findsNothing);
   });
 
   testWidgets('turning it on chooses and confirms a PIN', (tester) async {
@@ -77,12 +78,12 @@ void main() {
 
     await turnOn(tester, '2468');
 
-    expect(find.text(l10n.settingsAppLockOn), findsOneWidget);
+    expect(findText(l10n.settingsAppLockOn), findsOneWidget);
     expect(settings()?.pinEnabled, isTrue);
     expect(settings()?.pinLength, 4);
     expect(await tester.runAsync(() => verify('2468')), isTrue);
-    expect(find.text(l10n.settingsChangePin), findsOneWidget);
-    expect(find.text(l10n.settingsAutoLockAfterSeconds(30)), findsOneWidget);
+    expect(findText(l10n.settingsChangePin), findsOneWidget);
+    expect(findText(l10n.settingsAutoLockAfterSeconds(30)), findsOneWidget);
   });
 
   testWidgets('a different confirmation starts over', (tester) async {
@@ -93,8 +94,8 @@ void main() {
 
     await type(tester, '4321');
 
-    expect(find.text(l10n.pinMismatch), findsOneWidget);
-    expect(find.text(l10n.pinSetTitle), findsOneWidget);
+    expect(findText(l10n.pinMismatch), findsOneWidget);
+    expect(findText(l10n.pinSetTitle), findsOneWidget);
     expect(settings()?.pinEnabled, isFalse);
   });
 
@@ -104,13 +105,13 @@ void main() {
 
     await tester.tap(switchOf(l10n.settingsAppLock));
     await tester.pumpAndSettle();
-    expect(find.text(l10n.pinCurrentTitle), findsOneWidget);
+    expect(findText(l10n.pinCurrentTitle), findsOneWidget);
     await type(tester, '9999');
-    expect(find.text(l10n.lockWrongPin), findsOneWidget);
+    expect(findText(l10n.lockWrongPin), findsOneWidget);
     expect(settings()?.pinEnabled, isTrue);
 
     await type(tester, '1234');
-    expect(find.text(l10n.settingsAppLockOff), findsOneWidget);
+    expect(findText(l10n.settingsAppLockOff), findsOneWidget);
     expect(settings()?.pinEnabled, isFalse);
   });
 
@@ -118,13 +119,13 @@ void main() {
     await pump(tester);
     await turnOn(tester, '1234');
 
-    await tester.tap(find.text(l10n.settingsChangePin));
+    await tester.tap(findText(l10n.settingsChangePin));
     await tester.pumpAndSettle();
     await type(tester, '1234');
     await type(tester, '5678');
     await type(tester, '5678');
 
-    expect(find.text(l10n.settingsPinChanged), findsOneWidget);
+    expect(findText(l10n.settingsPinChanged), findsOneWidget);
     expect(await tester.runAsync(() => verify('5678')), isTrue);
     expect(await tester.runAsync(() => verify('1234')), isFalse);
   });
@@ -155,8 +156,8 @@ void main() {
       await pump(tester);
       await turnOn(tester, '1234');
 
-      expect(tester.widget<SwitchListTile>(switchOf(l10n.settingsBiometrics)).onChanged, isNull);
-      expect(find.text(l10n.settingsBiometricsUnavailable), findsOneWidget);
+      expect(tester.widget<AppSwitchTile>(switchOf(l10n.settingsBiometrics)).onChanged, isNull);
+      expect(findText(l10n.settingsBiometricsUnavailable), findsOneWidget);
     });
   });
 
@@ -164,7 +165,7 @@ void main() {
     await pump(tester);
     await turnOn(tester, '1234');
 
-    await tester.tap(find.text(l10n.settingsAutoLock));
+    await tester.tap(findText(l10n.settingsAutoLock));
     await tester.pumpAndSettle();
     for (final label in [
       l10n.settingsAutoLockImmediately,
@@ -172,15 +173,15 @@ void main() {
       l10n.settingsAutoLockAfterMinutes(5),
     ]) {
       expect(
-        find.descendant(of: find.byType(SimpleDialog), matching: find.text(label)),
+        find.descendant(of: find.byType(SimpleDialog), matching: findText(label)),
         findsOneWidget,
       );
     }
-    await tester.tap(find.text(l10n.settingsAutoLockAfterMinutes(5)));
+    await tester.tap(findText(l10n.settingsAutoLockAfterMinutes(5)));
     await tester.pumpAndSettle();
 
     expect(settings()?.timeout, LockTimeout.minutes5);
-    expect(find.text(l10n.settingsAutoLockAfterMinutes(5)), findsOneWidget);
+    expect(findText(l10n.settingsAutoLockAfterMinutes(5)), findsOneWidget);
   });
 
   group('accessibility (M9.5)', () {
@@ -188,7 +189,7 @@ void main() {
       await pump(tester, brightness: brightness);
       await turnOn(tester, '1234');
       await expectAccessible(tester);
-      await tester.tap(find.text(l10n.settingsChangePin));
+      await tester.tap(findText(l10n.settingsChangePin));
       await tester.pumpAndSettle();
       await expectAccessible(tester);
     });

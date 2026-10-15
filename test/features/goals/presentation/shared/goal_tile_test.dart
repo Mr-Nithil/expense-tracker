@@ -42,10 +42,10 @@ void main() {
   ) async {
     await pump(tester, progress(deadline: DateTime(2027, 6)), b: brightness);
 
-    expect(find.text('Laptop'), findsOneWidget);
+    expect(findText('Laptop'), findsOneWidget);
     expect(find.byType(CategoryIcon), findsOneWidget);
     expect(
-      find.text(
+      findText(
         l10n.goalsListSubtitle(
           l10n.goalsSavedOfTarget(r'$500.00', r'$1,500.00'),
           l10n.goalsDeadline('Jun 1, 2027'),
@@ -53,7 +53,7 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.text(l10n.goalsPercent(33)), findsOneWidget);
+    expect(findText(l10n.goalsPercent(33)), findsOneWidget);
     expect(ring(tester).value, closeTo(1 / 3, 1e-9));
     expect(ring(tester).level, ProgressLevel.normal);
   });
@@ -61,7 +61,7 @@ void main() {
   testWidgets('without a deadline shows only the amounts', (tester) async {
     await pump(tester, progress());
 
-    expect(find.text(l10n.goalsSavedOfTarget(r'$500.00', r'$1,500.00')), findsOneWidget);
+    expect(findText(l10n.goalsSavedOfTarget(r'$500.00', r'$1,500.00')), findsOneWidget);
   });
 
   testWidgets('a reached goal says Completed (over the deadline) with a full success ring', (
@@ -70,7 +70,7 @@ void main() {
     await pump(tester, progress(saved: 160000, deadline: DateTime(2027, 6)));
 
     expect(
-      find.text(
+      findText(
         l10n.goalsListSubtitle(
           l10n.goalsSavedOfTarget(r'$1,600.00', r'$1,500.00'),
           l10n.goalsCompleted,
@@ -78,7 +78,7 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.text(l10n.goalsPercent(106)), findsOneWidget);
+    expect(findText(l10n.goalsPercent(106)), findsOneWidget);
     expect(ring(tester).value, 1.0);
     expect(ring(tester).level, ProgressLevel.complete);
   });

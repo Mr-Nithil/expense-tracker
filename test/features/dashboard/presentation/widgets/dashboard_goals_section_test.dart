@@ -74,9 +74,9 @@ void main() {
   ) async {
     await pump(tester, () => Stream.value(goals), brightness: brightness);
 
-    expect(find.text(l10n.goalsTitle), findsOneWidget);
-    expect(find.text(l10n.dashboardGoalsTotal(r'$2,200.00', r'$12,600.00')), findsOneWidget);
-    expect(find.text(l10n.dashboardGoalsReached(1)), findsOneWidget);
+    expect(findText(l10n.goalsTitle), findsOneWidget);
+    expect(findText(l10n.dashboardGoalsTotal(r'$2,200.00', r'$12,600.00')), findsOneWidget);
+    expect(findText(l10n.dashboardGoalsReached(1)), findsOneWidget);
     final shown = [
       for (final tile in tester.widgetList<GoalTile>(find.byType(GoalTile))) tile.progress.goal.id,
     ];
@@ -92,29 +92,29 @@ void main() {
   testWidgets('See all opens the Goals tab', (tester) async {
     await pump(tester, () => Stream.value(goals));
 
-    await tester.tap(find.text(l10n.commonSeeAll));
+    await tester.tap(findText(l10n.commonSeeAll));
     await tester.pumpAndSettle();
 
-    expect(find.text('goals tab'), findsOneWidget);
+    expect(findText('goals tab'), findsOneWidget);
   });
 
   testWidgets('a goal opens its page', (tester) async {
     await pump(tester, () => Stream.value(goals));
 
-    await tester.tap(find.text('Trip'));
+    await tester.tap(findText('Trip'));
     await tester.pumpAndSettle();
 
-    expect(find.text('goal Trip'), findsOneWidget);
+    expect(findText('goal Trip'), findsOneWidget);
   });
 
   testWidgets('without goals it offers to set one', (tester) async {
     await pump(tester, () => Stream.value(const []));
 
-    expect(find.text(l10n.dashboardGoalsEmpty), findsOneWidget);
-    await tester.tap(find.text(l10n.dashboardGoalsSet));
+    expect(findText(l10n.dashboardGoalsEmpty), findsOneWidget);
+    await tester.tap(findText(l10n.dashboardGoalsSet));
     await tester.pumpAndSettle();
 
-    expect(find.text('goals tab'), findsOneWidget);
+    expect(findText('goals tab'), findsOneWidget);
   });
 
   testWidgets('an error offers a retry that reloads', (tester) async {
@@ -123,9 +123,9 @@ void main() {
       loads++;
       return loads == 1 ? Stream.error(const StorageFailure('db')) : Stream.value(goals);
     });
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
     expect(find.byType(GoalTile), findsNWidgets(3));

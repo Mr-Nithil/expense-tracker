@@ -589,6 +589,24 @@
   "onboardingTitle": "Choose your currency",
   "@onboardingTitle": { "description": "Title of the onboarding (currency selection) screen" },
 
+  "passwordStrengthGood": "Good",
+  "@passwordStrengthGood": { "description": "Password strength meter level 3 of 5" },
+  "passwordStrengthGreat": "Great",
+  "@passwordStrengthGreat": { "description": "Password strength meter level 4 of 5" },
+  "passwordStrengthLabel": "Password strength: {level}",
+  "@passwordStrengthLabel": {
+    "description": "Screen-reader summary of the password strength meter; level is one of the meter labels",
+    "placeholders": { "level": { "type": "String" } }
+  },
+  "passwordStrengthMore": "{count, plural, =1{1 more} other{{count} more}}",
+  "@passwordStrengthMore": {
+    "description": "Password strength meter: characters still missing to reach the minimum length",
+    "placeholders": { "count": { "type": "int", "format": "decimalPattern" } }
+  },
+  "passwordStrengthOkay": "Okay",
+  "@passwordStrengthOkay": { "description": "Password strength meter level 2 of 5 (long enough, simple)" },
+  "passwordStrengthStrong": "Strong",
+  "@passwordStrengthStrong": { "description": "Password strength meter level 5 of 5" },
   "pinConfirmTitle": "Enter the PIN again",
   "@pinConfirmTitle": { "description": "Second step when choosing a PIN" },
   "pinCurrentTitle": "Enter your current PIN",

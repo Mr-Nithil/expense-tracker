@@ -26,6 +26,7 @@ import '../../../../helpers/accessibility.dart';
 import '../../../../helpers/fake_auth_repository.dart';
 import '../../../../helpers/fake_biometric_service.dart';
 import '../../../../helpers/fake_secure_storage.dart';
+import '../../../../helpers/finders.dart';
 import '../../../../helpers/test_database.dart';
 
 void main() {
@@ -87,7 +88,7 @@ void main() {
 
   Future<void> type(WidgetTester tester, String digits) async {
     for (final d in digits.split('')) {
-      await tester.tap(find.descendant(of: find.byType(LockScreen), matching: find.text(d)).last);
+      await tester.tap(find.descendant(of: find.byType(LockScreen), matching: findText(d)).last);
       await tester.pump();
     }
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
@@ -108,7 +109,7 @@ void main() {
     await pump(tester);
 
     expect(find.byType(LockScreen), findsOneWidget);
-    expect(find.text(l10n.lockTitle), findsOneWidget);
+    expect(findText(l10n.lockTitle), findsOneWidget);
     // The app underneath is hidden from screen readers.
     expect(
       find.bySemanticsLabel(RegExp('.*')),
@@ -116,7 +117,7 @@ void main() {
     );
 
     await type(tester, '1357');
-    expect(find.text(l10n.lockWrongPin), findsOneWidget);
+    expect(findText(l10n.lockWrongPin), findsOneWidget);
     expect(status(), AppLockStatus.locked);
 
     await type(tester, pin);
@@ -153,7 +154,7 @@ void main() {
     biometrics.outcome = BiometricOutcome.lockedOut;
     await pump(tester);
 
-    expect(find.text(l10n.lockBiometricLockedOut), findsOneWidget);
+    expect(findText(l10n.lockBiometricLockedOut), findsOneWidget);
     await tester.tap(find.byTooltip(l10n.lockUseBiometrics));
     await tester.pumpAndSettle();
     expect(biometrics.reasons, hasLength(2));
@@ -172,7 +173,7 @@ void main() {
     expect(find.byType(LockScreen), findsOneWidget);
 
     await type(tester, pin);
-    expect(find.text('half-typed note'), findsOneWidget);
+    expect(findText('half-typed note'), findsOneWidget);
   });
 
   testWidgets('Android back while locked leaves the app instead of popping pages', (tester) async {
@@ -206,6 +207,7 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: MaterialApp.router(
+          theme: AppTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) => AppLockGate(child: child!),
@@ -227,23 +229,23 @@ void main() {
 
     expect(calls, contains('SystemNavigator.pop'));
     await type(tester, pin);
-    expect(find.text('second page'), findsOneWidget);
+    expect(findText('second page'), findsOneWidget);
   });
 
   group('Forgot PIN', () {
     Future<void> openRecovery(WidgetTester tester) async {
       await seed();
       await pump(tester);
-      await tester.tap(find.text(l10n.lockForgotPin));
+      await tester.tap(findText(l10n.lockForgotPin));
       await tester.pumpAndSettle();
     }
 
     testWidgets('the account password lets the user choose a new PIN', (tester) async {
       await openRecovery(tester);
-      expect(find.text(l10n.lockRecoveryMessage(testUser.email)), findsOneWidget);
+      expect(findText(l10n.lockRecoveryMessage(testUser.email)), findsOneWidget);
 
       await tester.enterText(find.byType(TextField).last, 'secret-password');
-      await tester.tap(find.text(l10n.lockRecoverySubmit));
+      await tester.tap(findText(l10n.lockRecoverySubmit));
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await tester.pumpAndSettle();
       expect(auth.confirmedPasswords, ['secret-password']);
@@ -251,7 +253,7 @@ void main() {
 
       Future<void> typeInSheet(String digits) async {
         for (final d in digits.split('')) {
-          await tester.tap(find.descendant(of: find.byType(BottomSheet), matching: find.text(d)));
+          await tester.tap(find.descendant(of: find.byType(BottomSheet), matching: findText(d)));
           await tester.pump();
         }
         await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
@@ -271,13 +273,13 @@ void main() {
     testWidgets('can also just turn the lock off', (tester) async {
       await openRecovery(tester);
       await tester.enterText(find.byType(TextField).last, 'secret-password');
-      await tester.tap(find.text(l10n.lockRecoverySubmit));
+      await tester.tap(findText(l10n.lockRecoverySubmit));
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await tester.pumpAndSettle();
 
-      await tester.ensureVisible(find.text(l10n.lockRecoverySkip));
+      await tester.ensureVisible(findText(l10n.lockRecoverySkip));
       await tester.pumpAndSettle();
-      await tester.tap(find.text(l10n.lockRecoverySkip));
+      await tester.tap(findText(l10n.lockRecoverySkip));
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await tester.pumpAndSettle();
 
@@ -292,11 +294,11 @@ void main() {
       await openRecovery(tester);
 
       await tester.enterText(find.byType(TextField).last, 'wrong');
-      await tester.tap(find.text(l10n.lockRecoverySubmit));
+      await tester.tap(findText(l10n.lockRecoverySubmit));
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.errorAuthInvalidCredentials), findsOneWidget);
+      expect(findText(l10n.errorAuthInvalidCredentials), findsOneWidget);
       expect(status(), AppLockStatus.locked);
     });
   });

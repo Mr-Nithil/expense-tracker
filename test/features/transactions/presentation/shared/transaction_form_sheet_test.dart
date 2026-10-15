@@ -100,15 +100,15 @@ void main() {
         categoryByIdProvider('Old').overrideWith((ref) => Stream.value(oldCategory)),
       ],
     );
-    await tester.tap(find.text('open'));
+    await tester.tap(findText('open'));
     await tester.pumpAndSettle();
   }
 
-  Finder amountField() => find.widgetWithText(TextFormField, l10n.transactionFormAmountLabel);
-  Finder noteField() => find.widgetWithText(TextFormField, l10n.transactionFormNoteLabel);
+  Finder amountField() => findWidgetWithText(TextFormField, l10n.transactionFormAmountLabel);
+  Finder noteField() => findWidgetWithText(TextFormField, l10n.transactionFormNoteLabel);
   Finder sheet() => find.byType(TransactionFormSheet);
   CategoryChip chip(WidgetTester tester, String name) => tester.widget(
-    find.ancestor(of: find.text(name), matching: find.byType(CategoryChip)),
+    find.ancestor(of: findText(name), matching: find.byType(CategoryChip)),
   );
 
   Future<void> tapVisible(WidgetTester tester, Finder finder) async {
@@ -117,24 +117,24 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> save(WidgetTester tester) => tapVisible(tester, find.text(l10n.commonSave));
+  Future<void> save(WidgetTester tester) => tapVisible(tester, findText(l10n.commonSave));
 
   testWidgetsBothThemes('renders a new expense dated today', (tester, brightness) async {
     await openSheet(tester, brightness: brightness);
 
-    expect(find.text(l10n.transactionFormNewTitle), findsOneWidget);
+    expect(findText(l10n.transactionFormNewTitle), findsOneWidget);
     expect(amountField(), findsOneWidget);
-    expect(find.text('Food'), findsOneWidget);
-    expect(find.text('Oct 11, 2026'), findsOneWidget);
+    expect(findText('Food'), findsOneWidget);
+    expect(findText('Oct 11, 2026'), findsOneWidget);
   });
 
   testWidgets('a new transaction can start on a given date', (tester) async {
     when(() => repository.create(any())).thenAnswer((_) async => Result.success(lunch));
     await openSheet(tester, initialDate: DateTime(2026, 10, 3, 18));
 
-    expect(find.text('Oct 3, 2026'), findsOneWidget);
+    expect(findText('Oct 3, 2026'), findsOneWidget);
     await tester.enterText(amountField(), '5');
-    await tapVisible(tester, find.text('Food'));
+    await tapVisible(tester, findText('Food'));
     await save(tester);
 
     final draft = verify(() => repository.create(captureAny())).captured.single as TransactionDraft;
@@ -144,8 +144,8 @@ void main() {
   testWidgets('editing keeps the transaction\'s date, ignoring initialDate', (tester) async {
     await openSheet(tester, transaction: lunch, initialDate: DateTime(2026, 10, 9));
 
-    expect(find.text('Oct 3, 2026'), findsOneWidget);
-    expect(find.text('Oct 9, 2026'), findsNothing);
+    expect(findText('Oct 3, 2026'), findsOneWidget);
+    expect(findText('Oct 9, 2026'), findsNothing);
   });
 
   testWidgets('saves a new expense and closes', (tester) async {
@@ -153,7 +153,7 @@ void main() {
     await openSheet(tester);
 
     await tester.enterText(amountField(), '12.50');
-    await tapVisible(tester, find.text('Food'));
+    await tapVisible(tester, findText('Food'));
     await tester.enterText(noteField(), 'Team lunch');
     await save(tester);
 
@@ -171,8 +171,8 @@ void main() {
 
     await save(tester);
 
-    expect(find.text(l10n.errorFieldRequired), findsOneWidget);
-    expect(find.text(l10n.errorTransactionCategoryRequired), findsOneWidget);
+    expect(findText(l10n.errorFieldRequired), findsOneWidget);
+    expect(findText(l10n.errorTransactionCategoryRequired), findsOneWidget);
     verifyNever(() => repository.create(any()));
   });
 
@@ -180,14 +180,13 @@ void main() {
     tester,
   ) async {
     await openSheet(tester);
-    await tapVisible(tester, find.text('Food'));
+    await tapVisible(tester, findText('Food'));
     expect(chip(tester, 'Food').selected, isTrue);
 
-    await tester.tap(find.text(l10n.commonIncome));
-    await tester.pumpAndSettle();
+    await tapVisible(tester, findText(l10n.commonIncome));
 
-    expect(find.text('Salary'), findsOneWidget);
-    expect(find.text('Food'), findsNothing);
+    expect(findText('Salary'), findsOneWidget);
+    expect(findText('Food'), findsNothing);
     expect(chip(tester, 'Salary').selected, isFalse);
   });
 
@@ -195,10 +194,10 @@ void main() {
     when(() => repository.update(any())).thenAnswer((_) async => Result.success(lunch));
     await openSheet(tester, transaction: lunch);
 
-    expect(find.text(l10n.transactionFormEditTitle), findsOneWidget);
-    expect(find.text('12.00'), findsOneWidget);
+    expect(findText(l10n.transactionFormEditTitle), findsOneWidget);
+    expect(findText('12.00'), findsOneWidget);
     expect(chip(tester, 'Food').selected, isTrue);
-    expect(find.text('Oct 3, 2026'), findsOneWidget);
+    expect(findText('Oct 3, 2026'), findsOneWidget);
 
     await tester.enterText(amountField(), '15');
     await save(tester);
@@ -228,23 +227,23 @@ void main() {
     await openSheet(tester);
 
     await tester.enterText(amountField(), '5');
-    await tapVisible(tester, find.text('Food'));
+    await tapVisible(tester, findText('Food'));
     await save(tester);
 
-    expect(find.text(l10n.errorTransactionCategoryArchived), findsOneWidget);
+    expect(findText(l10n.errorTransactionCategoryArchived), findsOneWidget);
     expect(sheet(), findsOneWidget);
   });
 
   testWidgets('the date button opens a picker and updates the date', (tester) async {
     await openSheet(tester);
 
-    await tapVisible(tester, find.text('Oct 11, 2026'));
+    await tapVisible(tester, findText('Oct 11, 2026'));
     expect(find.byType(DatePickerDialog), findsOneWidget);
-    await tester.tap(find.text('5'));
-    await tester.tap(find.text('OK'));
+    await tester.tap(findText('5'));
+    await tester.tap(findText('OK'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Oct 5, 2026'), findsOneWidget);
+    expect(findText('Oct 5, 2026'), findsOneWidget);
   });
 
   testWidgets('a failed profile (currency) load offers a retry that shows the form', (
@@ -270,11 +269,11 @@ void main() {
         categoriesProvider(CategoryType.expense).overrideWith((ref) => Stream.value([food])),
       ],
     );
-    await tester.tap(find.text('open'));
+    await tester.tap(findText('open'));
     await tester.pumpAndSettle();
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
     expect(amountField(), findsOneWidget);
@@ -307,10 +306,10 @@ void main() {
         await openSheet(tester);
 
         await tester.enterText(amountField(), '5');
-        await tapVisible(tester, find.text('Food'));
+        await tapVisible(tester, findText('Food'));
         await save(tester);
 
-        expect(find.text(message), findsOneWidget);
+        expect(findText(message), findsOneWidget);
         expect(sheet(), findsOneWidget);
       });
     }

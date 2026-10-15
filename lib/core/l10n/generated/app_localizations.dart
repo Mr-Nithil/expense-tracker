@@ -1437,6 +1437,42 @@ abstract class AppLocalizations {
   /// **'Choose your currency'**
   String get onboardingTitle;
 
+  /// Password strength meter level 3 of 5
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get passwordStrengthGood;
+
+  /// Password strength meter level 4 of 5
+  ///
+  /// In en, this message translates to:
+  /// **'Great'**
+  String get passwordStrengthGreat;
+
+  /// Screen-reader summary of the password strength meter; level is one of the meter labels
+  ///
+  /// In en, this message translates to:
+  /// **'Password strength: {level}'**
+  String passwordStrengthLabel(String level);
+
+  /// Password strength meter: characters still missing to reach the minimum length
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more} other{{count} more}}'**
+  String passwordStrengthMore(int count);
+
+  /// Password strength meter level 2 of 5 (long enough, simple)
+  ///
+  /// In en, this message translates to:
+  /// **'Okay'**
+  String get passwordStrengthOkay;
+
+  /// Password strength meter level 5 of 5
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get passwordStrengthStrong;
+
   /// Second step when choosing a PIN
   ///
   /// In en, this message translates to:

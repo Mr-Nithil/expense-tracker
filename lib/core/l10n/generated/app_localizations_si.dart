@@ -841,6 +841,37 @@ class AppLocalizationsSi extends AppLocalizations {
   String get onboardingTitle => 'ඔබේ මුදල් ඒකකය තෝරන්න';
 
   @override
+  String get passwordStrengthGood => 'හොඳයි';
+
+  @override
+  String get passwordStrengthGreat => 'ඉතා හොඳයි';
+
+  @override
+  String passwordStrengthLabel(String level) {
+    return 'මුරපදයේ ශක්තිය: $level';
+  }
+
+  @override
+  String passwordStrengthMore(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'තව $countStringක්',
+      one: 'තව 1ක්',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passwordStrengthOkay => 'සාමාන්‍යයි';
+
+  @override
+  String get passwordStrengthStrong => 'ශක්තිමත්';
+
+  @override
   String get pinConfirmTitle => 'PIN අංකය නැවත ඇතුළත් කරන්න';
 
   @override

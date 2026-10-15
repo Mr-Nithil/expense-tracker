@@ -46,7 +46,9 @@ class CategoryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final name = label ?? l10n.categoryUnknown;
-    final muted = context.colorScheme.onSurfaceVariant;
+    // Material 3 chips don't switch the label color by state: bg text on the ink selection.
+    final muted = selected ? context.colorScheme.surface : context.colorScheme.onSurfaceVariant;
+    final ink = selected ? context.colorScheme.surface : context.colorScheme.onSurface;
     final onTap = this.onTap;
 
     final chip = RawChip(
@@ -62,7 +64,7 @@ class CategoryChip extends StatelessWidget {
             child: Text(
               name,
               overflow: TextOverflow.ellipsis,
-              style: isArchived ? TextStyle(color: muted) : null,
+              style: TextStyle(color: isArchived ? muted : ink),
             ),
           ),
           if (isArchived) ...[

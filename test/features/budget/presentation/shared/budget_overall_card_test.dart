@@ -30,10 +30,10 @@ void main() {
       brightness: brightness,
     );
 
-    expect(find.text(l10n.budgetOverallTitle), findsOneWidget);
-    expect(find.text(l10n.budgetSpentOfLimit(r'$125.00', r'$500.00')), findsOneWidget);
-    expect(find.text(l10n.budgetPercentUsed(25)), findsOneWidget);
-    expect(find.text(l10n.budgetRemaining(r'$375.00')), findsOneWidget);
+    expect(findText(l10n.budgetOverallTitle), findsOneWidget);
+    expect(findText(l10n.budgetSpentOfLimit(r'$125.00', r'$500.00')), findsOneWidget);
+    expect(findText(l10n.budgetPercentUsed(25)), findsOneWidget);
+    expect(findText(l10n.budgetRemaining(r'$375.00')), findsOneWidget);
     expect(tester.widget<ProgressBar>(find.byType(ProgressBar)).value, 0.25);
   });
 
@@ -42,16 +42,16 @@ void main() {
       BudgetOverallCard(overall: overall(limit: 10000, spent: 12000), currencyCode: 'USD'),
     );
 
-    expect(find.text(l10n.budgetPercentUsed(120)), findsOneWidget);
-    expect(find.text(l10n.budgetOver(r'$20.00')), findsOneWidget);
+    expect(findText(l10n.budgetPercentUsed(120)), findsOneWidget);
+    expect(findText(l10n.budgetOver(r'$20.00')), findsOneWidget);
     expect(tester.widget<ProgressBar>(find.byType(ProgressBar)).value, 1.0);
   });
 
   testWidgets('without an overall budget it says none is set', (tester) async {
     await tester.pumpApp(const BudgetOverallCard(overall: null, currencyCode: 'USD'));
 
-    expect(find.text(l10n.budgetOverallEmptyTitle), findsOneWidget);
-    expect(find.text(l10n.budgetOverallEmptyMessage), findsOneWidget);
+    expect(findText(l10n.budgetOverallEmptyTitle), findsOneWidget);
+    expect(findText(l10n.budgetOverallEmptyMessage), findsOneWidget);
     expect(find.byType(ProgressBar), findsNothing);
   });
 
@@ -61,7 +61,7 @@ void main() {
       BudgetOverallCard(overall: null, currencyCode: 'USD', onTap: () => taps++),
     );
 
-    await tester.tap(find.text(l10n.budgetOverallEmptyTitle));
+    await tester.tap(findText(l10n.budgetOverallEmptyTitle));
 
     expect(taps, 1);
   });

@@ -7,6 +7,7 @@ import 'package:expense_tracker/core/widgets/app_bottom_sheet.dart';
 import 'package:expense_tracker/core/widgets/error_view.dart';
 import 'package:expense_tracker/core/widgets/loading_view.dart';
 import 'package:expense_tracker/core/widgets/month_selector.dart';
+import 'package:expense_tracker/core/widgets/segmented_pill.dart';
 import 'package:expense_tracker/features/categories/domain/entities/category.dart';
 import 'package:expense_tracker/features/categories/presentation/providers/categories_providers.dart';
 import 'package:expense_tracker/features/categories/presentation/shared/category_chip_of.dart';
@@ -41,14 +42,14 @@ class TransactionFilterBar extends ConsumerWidget {
             lastMonth: bounds.last,
             onChanged: controller.setMonth,
           ),
-          SegmentedButton<TransactionType?>(
-            segments: [
-              ButtonSegment(value: null, label: Text(l10n.commonAll)),
-              ButtonSegment(value: TransactionType.expense, label: Text(l10n.commonExpense)),
-              ButtonSegment(value: TransactionType.income, label: Text(l10n.commonIncome)),
+          SegmentedPill<TransactionType?>(
+            options: [
+              SegmentedPillOption(value: null, label: l10n.commonAll),
+              SegmentedPillOption(value: TransactionType.expense, label: l10n.commonExpense),
+              SegmentedPillOption(value: TransactionType.income, label: l10n.commonIncome),
             ],
-            selected: {filter.type},
-            onSelectionChanged: (selection) => controller.setType(selection.first),
+            selected: filter.type,
+            onChanged: controller.setType,
           ),
           const Gap(AppSpacing.sm),
           Row(

@@ -3,6 +3,21 @@ abstract final class AppSizes {
   /// Minimum tap target (Material guideline).
   static const double minTapTarget = 48;
   static const double buttonHeight = 48;
+
+  /// Chunky primary and danger buttons (Sprout design).
+  static const double chunkyButtonHeight = 54;
+
+  /// Chunky outline buttons.
+  static const double outlineButtonHeight = 52;
+
+  /// The solid bottom shadow of chunky buttons, cards and outline controls.
+  static const double chunkyDepth = 4;
+
+  /// The deeper shadow under the FAB and the balance card.
+  static const double chunkyDepthHero = 5;
+
+  /// Border of chunky cards and outline controls.
+  static const double chunkyBorder = 2;
   static const double iconSm = 16;
   static const double iconMd = 24;
   static const double iconLg = 48;
@@ -44,8 +59,8 @@ abstract final class AppSizes {
   /// One dot of the PIN progress (app lock).
   static const double pinDot = 14;
 
-  static const double sheetHandleWidth = 32;
-  static const double sheetHandleHeight = 4;
+  static const double sheetHandleWidth = 40;
+  static const double sheetHandleHeight = 5;
 
   /// Max content width for empty/error states so text stays readable on tablets.
   static const double maxMessageWidth = 360;

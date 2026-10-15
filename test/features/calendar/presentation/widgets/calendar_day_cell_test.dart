@@ -47,22 +47,22 @@ void main() {
   ) async {
     await pump(tester, dayTotals: totals(0, 123456), brightness: brightness);
 
-    expect(find.text('5'), findsOneWidget);
-    final amount = tester.widget<Text>(find.text(r'-$1.23K'));
+    expect(findText('5'), findsOneWidget);
+    final amount = tester.widget<Text>(findText(r'-$1.23K'));
     expect(amount.style?.color, colors(tester).expense);
   });
 
   testWidgets('an earning day shows a signed positive net in the income color', (tester) async {
     await pump(tester, dayTotals: totals(5000, 500));
 
-    final amount = tester.widget<Text>(find.text(r'+$45'));
+    final amount = tester.widget<Text>(findText(r'+$45'));
     expect(amount.style?.color, colors(tester).income);
   });
 
   testWidgets('a day without transactions shows only its number', (tester) async {
     await pump(tester);
 
-    expect(find.text('5'), findsOneWidget);
+    expect(findText('5'), findsOneWidget);
     expect(find.byType(FittedBox), findsNothing);
   });
 

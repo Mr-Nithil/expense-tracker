@@ -38,8 +38,8 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Finder field(String label) => find.widgetWithText(TextFormField, label);
-  Finder saveButton() => find.widgetWithText(FilledButton, l10n.authResetPasswordSubmit);
+  Finder field(String label) => findWidgetWithText(TextFormField, label);
+  Finder saveButton() => findWidgetWithText(FilledButton, l10n.authResetPasswordSubmit);
 
   void verifyNoUpdate() =>
       verifyNever(() => repository.updatePassword(newPassword: any(named: 'newPassword')));
@@ -54,7 +54,7 @@ void main() {
   testWidgetsBothThemes('renders the form for the signed-in email', (tester, brightness) async {
     await pumpScreen(tester, brightness: brightness);
 
-    expect(find.text(l10n.authResetPasswordSubtitle(testUser.email)), findsOneWidget);
+    expect(findText(l10n.authResetPasswordSubtitle(testUser.email)), findsOneWidget);
     expect(field(l10n.authNewPasswordLabel), findsOneWidget);
     expect(field(l10n.authConfirmPasswordLabel), findsOneWidget);
     expect(saveButton(), findsOneWidget);
@@ -64,10 +64,10 @@ void main() {
     await pumpScreen(tester);
 
     await fillAndSave(tester, pass: 'short');
-    expect(find.text(l10n.errorPasswordTooShort(8)), findsOneWidget);
+    expect(findText(l10n.errorPasswordTooShort(8)), findsOneWidget);
 
     await fillAndSave(tester, confirm: '$password-typo');
-    expect(find.text(l10n.errorPasswordMismatch), findsOneWidget);
+    expect(findText(l10n.errorPasswordMismatch), findsOneWidget);
 
     verifyNoUpdate();
   });
@@ -93,14 +93,14 @@ void main() {
 
     await fillAndSave(tester);
 
-    expect(find.text(l10n.errorAuthSamePassword), findsOneWidget);
+    expect(findText(l10n.errorAuthSamePassword), findsOneWidget);
   });
 
   testWidgets('cancel signs out', (tester) async {
     when(() => repository.signOut()).thenAnswer((_) async => Result.ok);
     await pumpScreen(tester);
 
-    await tester.tap(find.text(l10n.authResetPasswordCancel));
+    await tester.tap(findText(l10n.authResetPasswordCancel));
     await tester.pumpAndSettle();
 
     verify(() => repository.signOut()).called(1);

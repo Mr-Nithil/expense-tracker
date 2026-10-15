@@ -11,6 +11,7 @@ import 'package:expense_tracker/core/widgets/app_button.dart';
 import 'package:expense_tracker/core/widgets/app_text_field.dart';
 import 'package:expense_tracker/core/widgets/async_value_view.dart';
 import 'package:expense_tracker/core/widgets/section_header.dart';
+import 'package:expense_tracker/core/widgets/segmented_pill.dart';
 import 'package:expense_tracker/features/profile/presentation/providers/profile_providers.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
 import 'package:expense_tracker/features/transactions/domain/services/transaction_validator.dart';
@@ -173,16 +174,16 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SegmentedButton<TransactionType>(
-            segments: [
-              ButtonSegment(value: TransactionType.expense, label: Text(l10n.commonExpense)),
-              ButtonSegment(value: TransactionType.income, label: Text(l10n.commonIncome)),
+          SegmentedPill<TransactionType>(
+            options: [
+              SegmentedPillOption(value: TransactionType.expense, label: l10n.commonExpense),
+              SegmentedPillOption(value: TransactionType.income, label: l10n.commonIncome),
             ],
-            selected: {_type},
-            onSelectionChanged: isSaving
+            selected: _type,
+            onChanged: isSaving
                 ? null
-                : (selection) => setState(() {
-                    _type = selection.first;
+                : (type) => setState(() {
+                    _type = type;
                     // The chosen category belongs to the other type.
                     _categoryId = null;
                     _categoryError = null;

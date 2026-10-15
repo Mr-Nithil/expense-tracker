@@ -26,7 +26,7 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.text('Open'));
+      await tester.tap(findText('Open'));
       await tester.pumpAndSettle();
       return result;
     }
@@ -42,10 +42,10 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.text('Open'));
+      await tester.tap(findText('Open'));
       await tester.pumpAndSettle();
-      expect(find.text('Sure?'), findsOneWidget);
-      await tester.tap(find.text(l10n.commonConfirm));
+      expect(findText('Sure?'), findsOneWidget);
+      await tester.tap(findText(l10n.commonConfirm));
       await tester.pumpAndSettle();
       expect(result, isTrue);
     });
@@ -61,9 +61,9 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.text('Open'));
+      await tester.tap(findText('Open'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text(l10n.commonCancel));
+      await tester.tap(findText(l10n.commonCancel));
       await tester.pumpAndSettle();
       expect(result, isFalse);
     });
@@ -71,9 +71,9 @@ void main() {
     testWidgets('destructive variant uses the danger button', (tester) async {
       await open(tester, isDestructive: true);
       final danger = tester.widget<FilledButton>(
-        find.ancestor(of: find.text(l10n.commonConfirm), matching: find.byType(FilledButton)),
+        find.ancestor(of: findText(l10n.commonConfirm), matching: find.byType(FilledButton)),
       );
-      final context = tester.element(find.text('Delete?'));
+      final context = tester.element(findText('Delete?'));
       expect(danger.style?.backgroundColor?.resolve({}), Theme.of(context).colorScheme.error);
       expect(find.byType(AppButton), findsNWidgets(2));
     });
@@ -94,10 +94,20 @@ void main() {
         ),
         brightness: brightness,
       );
-      await tester.tap(find.text('Open'));
+      await tester.tap(findText('Open'));
       await tester.pumpAndSettle();
-      expect(find.text('Add item'), findsOneWidget);
-      expect(find.text('Sheet body'), findsOneWidget);
+      expect(findText('Add item'), findsOneWidget);
+      expect(findText('Sheet body'), findsOneWidget);
+
+      // Sprout sheet: 28 px top corners and the 40x5 handle.
+      final sheet = tester.widget<BottomSheet>(find.byType(BottomSheet));
+      final theme = Theme.of(tester.element(find.text('Sheet body'))).bottomSheetTheme;
+      expect(
+        (theme.shape! as RoundedRectangleBorder).borderRadius,
+        const BorderRadius.vertical(top: Radius.circular(28)),
+      );
+      expect(theme.dragHandleSize, const Size(40, 5));
+      expect(sheet.showDragHandle ?? theme.showDragHandle, isTrue);
     });
   });
 }

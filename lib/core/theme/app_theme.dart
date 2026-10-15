@@ -48,6 +48,9 @@ abstract final class AppTheme {
     surfaceTint: ColorTokens.transparent,
   );
 
+  /// Sheet scrim opacity (README §SheetScaffold).
+  static const _scrimAlpha = 0.45;
+
   /// The bundled design font (M12.1).
   static const fontFamily = 'Nunito';
 
@@ -99,7 +102,7 @@ abstract final class AppTheme {
         scrolledUnderElevation: 1,
       ),
       cardTheme: CardThemeData(
-        color: scheme.surfaceContainer,
+        color: scheme.surfaceContainerLowest,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: rounded,
@@ -125,16 +128,50 @@ abstract final class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(minimumSize: buttonSize, shape: rounded),
       ),
-      bottomSheetTheme: const BottomSheetThemeData(
+      // Sprout chips (filters, categories, weekdays): pill, 2 px line border on surface;
+      // selected = ink background (the chip widgets switch their label to bg text themselves).
+      chipTheme: ChipThemeData(
+        color: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? scheme.onSurface
+              : scheme.surfaceContainerLowest,
+        ),
+        side: BorderSide(color: appColors.line, width: AppSizes.chunkyBorder),
+        shape: const StadiumBorder(),
+        showCheckmark: false,
+        labelStyle: _textTheme.titleSmall?.copyWith(
+          fontFamily: fontFamily,
+          color: scheme.onSurface,
+        ),
+        iconTheme: IconThemeData(color: scheme.onSurfaceVariant, size: AppSizes.iconSm),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s6),
+      ),
+      // Sprout sheet: bg, radius 28 on top, 40x5 handle, scrim at 45 %.
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: scheme.surface,
+        modalBackgroundColor: scheme.surface,
+        modalBarrierColor: scheme.scrim.withValues(alpha: _scrimAlpha),
         showDragHandle: true,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+        dragHandleColor: appColors.line,
+        dragHandleSize: const Size(AppSizes.sheetHandleWidth, AppSizes.sheetHandleHeight),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.sheet)),
         ),
       ),
       dialogTheme: DialogThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.xl)),
       ),
-      snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
+      // Sprout toast: ink background, bg text, the action in `mascot`, radius 18.
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: scheme.inverseSurface,
+        contentTextStyle: _textTheme.bodyMedium?.copyWith(
+          color: scheme.onInverseSurface,
+          fontFamily: fontFamily,
+        ),
+        actionTextColor: appColors.mascot,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.field)),
+      ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: scheme.surfaceContainer,
         indicatorColor: appColors.soft,

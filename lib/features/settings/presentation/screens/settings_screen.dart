@@ -8,8 +8,10 @@ import 'package:expense_tracker/core/theme/app_spacing.dart';
 import 'package:expense_tracker/core/theme/theme_mode_controller.dart';
 import 'package:expense_tracker/core/widgets/app_button.dart';
 import 'package:expense_tracker/core/widgets/app_scaffold.dart';
+import 'package:expense_tracker/core/widgets/app_switch.dart';
 import 'package:expense_tracker/core/widgets/confirm_dialog.dart';
 import 'package:expense_tracker/core/widgets/section_header.dart';
+import 'package:expense_tracker/core/widgets/segmented_pill.dart';
 import 'package:expense_tracker/core/widgets/sync_status_indicator.dart';
 import 'package:expense_tracker/features/auth/presentation/providers/logout_controller.dart';
 import 'package:expense_tracker/features/budget/presentation/providers/budget_alerts_controller.dart';
@@ -88,26 +90,26 @@ class SettingsScreen extends ConsumerWidget {
           const SettingsProfileSection(),
           const Gap(AppSpacing.lg),
           SectionHeader(title: l10n.settingsThemeLabel),
-          SegmentedButton<ThemeMode>(
-            segments: [
-              ButtonSegment(
+          SegmentedPill<ThemeMode>(
+            options: [
+              SegmentedPillOption(
                 value: ThemeMode.system,
-                icon: const Icon(Icons.brightness_auto_outlined),
-                label: Text(l10n.settingsThemeSystem),
+                icon: Icons.brightness_auto_rounded,
+                label: l10n.settingsThemeSystem,
               ),
-              ButtonSegment(
+              SegmentedPillOption(
                 value: ThemeMode.light,
-                icon: const Icon(Icons.light_mode_outlined),
-                label: Text(l10n.settingsThemeLight),
+                icon: Icons.light_mode_rounded,
+                label: l10n.settingsThemeLight,
               ),
-              ButtonSegment(
+              SegmentedPillOption(
                 value: ThemeMode.dark,
-                icon: const Icon(Icons.dark_mode_outlined),
-                label: Text(l10n.settingsThemeDark),
+                icon: Icons.dark_mode_rounded,
+                label: l10n.settingsThemeDark,
               ),
             ],
-            selected: {themeMode},
-            onSelectionChanged: (selection) => _setThemeMode(context, ref, selection.first),
+            selected: themeMode,
+            onChanged: (mode) => _setThemeMode(context, ref, mode),
           ),
           const Gap(AppSpacing.lg),
           const SettingsLanguageTile(),
@@ -115,7 +117,7 @@ class SettingsScreen extends ConsumerWidget {
           const SecuritySettingsSection(),
           const Gap(AppSpacing.lg),
           SectionHeader(title: l10n.settingsNotificationsLabel),
-          SwitchListTile(
+          AppSwitchTile(
             secondary: const Icon(Icons.notifications_active_outlined),
             title: Text(l10n.settingsBudgetAlerts),
             subtitle: Text(l10n.settingsBudgetAlertsDescription),

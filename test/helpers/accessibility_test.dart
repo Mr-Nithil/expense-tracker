@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'accessibility.dart';
+import 'finders.dart';
 
 /// The accessibility helpers really catch problems (so green screen tests mean something).
 void main() {
@@ -54,7 +55,7 @@ void main() {
     await pump(tester, row());
 
     expect(tester.takeException(), isFlutterError);
-    final context = tester.element(find.text('Hi'));
+    final context = tester.element(findText('Hi'));
     expect(MediaQuery.textScalerOf(context).scale(10), 20);
   });
 
@@ -66,10 +67,10 @@ void main() {
         ),
       ),
     );
-    expect(find.text('Row 99'), findsNothing);
+    expect(findText('Row 99'), findsNothing);
 
     await scrollThrough(tester);
 
-    expect(find.text('Row 99'), findsOneWidget);
+    expect(findText('Row 99'), findsOneWidget);
   });
 }

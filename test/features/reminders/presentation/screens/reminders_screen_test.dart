@@ -2,6 +2,7 @@ import 'package:expense_tracker/core/db/database_provider.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
 import 'package:expense_tracker/core/session/session.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
+import 'package:expense_tracker/core/widgets/app_switch.dart';
 import 'package:expense_tracker/features/reminders/data/reminder_repository_provider.dart';
 import 'package:expense_tracker/features/reminders/domain/entities/reminder.dart';
 import 'package:expense_tracker/features/reminders/presentation/screens/reminders_screen.dart';
@@ -66,8 +67,8 @@ void main() {
   testWidgets('without reminders it offers to add one', (tester) async {
     await pump(tester);
 
-    expect(find.text(l10n.remindersEmptyTitle), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, l10n.remindersAdd));
+    expect(findText(l10n.remindersEmptyTitle), findsOneWidget);
+    await tester.tap(findWidgetWithText(FilledButton, l10n.remindersAdd));
     await tester.pumpAndSettle();
 
     expect(find.byType(ReminderFormSheet), findsOneWidget);
@@ -77,34 +78,34 @@ void main() {
     await pump(tester, titles: ['Log expenses', 'Check budget']);
 
     expect(find.byType(ReminderTile), findsNWidgets(2));
-    await tester.tap(find.text('Log expenses'));
+    await tester.tap(findText('Log expenses'));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.reminderFormEditTitle), findsOneWidget);
+    expect(findText(l10n.reminderFormEditTitle), findsOneWidget);
   });
 
   testWidgets('switching a reminder off does not ask for permission', (tester) async {
     await pump(tester, titles: ['Log expenses']);
 
-    await tester.tap(find.byType(Switch));
+    await tester.tap(find.byType(AppSwitch));
     await settle(tester);
 
-    expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+    expect(tester.widget<AppSwitch>(find.byType(AppSwitch)).value, isFalse);
     expect(notifications.permissionRequests, 0);
   });
 
   testWidgets('switching one on asks for permission; a refusal is explained', (tester) async {
     await pump(tester, titles: ['Log expenses']);
-    await tester.tap(find.byType(Switch));
+    await tester.tap(find.byType(AppSwitch));
     await settle(tester);
     notifications.permissionGranted = false;
 
-    await tester.tap(find.byType(Switch));
+    await tester.tap(find.byType(AppSwitch));
     await settle(tester);
 
     expect(notifications.permissionRequests, 1);
-    expect(find.text(l10n.remindersPermissionDenied), findsOneWidget);
-    expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+    expect(findText(l10n.remindersPermissionDenied), findsOneWidget);
+    expect(tester.widget<AppSwitch>(find.byType(AppSwitch)).value, isTrue);
   });
 
   testWidgets('saving a new reminder asks for permission', (tester) async {
@@ -113,10 +114,10 @@ void main() {
     await tester.tap(find.byTooltip(l10n.remindersAdd));
     await tester.pumpAndSettle();
     await tester.enterText(
-      find.widgetWithText(TextFormField, l10n.reminderFormTitleLabel),
+      findWidgetWithText(TextFormField, l10n.reminderFormTitleLabel),
       'Log expenses',
     );
-    await tester.tap(find.text(l10n.commonSave));
+    await tester.tap(findText(l10n.commonSave));
     await settle(tester);
 
     expect(find.byType(ReminderTile), findsOneWidget);

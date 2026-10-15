@@ -44,7 +44,7 @@ void main() {
   testWidgets('pending shows the count', (tester) async {
     await pumpIndicator(tester, SyncIndicator.pending, pending: 3);
 
-    expect(find.text('3'), findsOneWidget);
+    expect(findText('3'), findsOneWidget);
     expect(find.byTooltip(l10n.syncStatusPending(3)), findsOneWidget);
   });
 

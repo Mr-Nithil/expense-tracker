@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/extensions/build_context_x.dart';
+import 'package:expense_tracker/core/widgets/app_switch.dart';
 import 'package:expense_tracker/features/reminders/domain/entities/reminder.dart';
 import 'package:expense_tracker/features/reminders/presentation/reminder_description.dart';
 import 'package:flutter/material.dart';
@@ -23,9 +24,10 @@ class ReminderTile extends StatelessWidget {
       leading: const Icon(Icons.notifications_outlined),
       title: Text(reminder.title),
       subtitle: Text(ReminderDescription.of(context, reminder)),
-      trailing: Semantics(
-        label: context.l10n.reminderSwitchLabel(reminder.title),
-        child: Switch(value: reminder.enabled, onChanged: onToggle),
+      trailing: AppSwitch(
+        value: reminder.enabled,
+        onChanged: onToggle,
+        semanticsLabel: context.l10n.reminderSwitchLabel(reminder.title),
       ),
     );
   }

@@ -6,9 +6,11 @@ import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/core/utils/validators.dart';
 import 'package:expense_tracker/core/widgets/app_bottom_sheet.dart';
 import 'package:expense_tracker/core/widgets/app_button.dart';
+import 'package:expense_tracker/core/widgets/app_filter_chip.dart';
 import 'package:expense_tracker/core/widgets/app_text_field.dart';
 import 'package:expense_tracker/core/widgets/confirm_dialog.dart';
 import 'package:expense_tracker/core/widgets/section_header.dart';
+import 'package:expense_tracker/core/widgets/segmented_pill.dart';
 import 'package:expense_tracker/features/reminders/domain/entities/reminder.dart';
 import 'package:expense_tracker/features/reminders/domain/services/reminder_validator.dart';
 import 'package:expense_tracker/features/reminders/presentation/providers/reminder_form_controller.dart';
@@ -184,20 +186,17 @@ class _ReminderFormSheetState extends ConsumerState<ReminderFormSheet> {
           ),
           const Gap(AppSpacing.md),
           SectionHeader(title: l10n.reminderFormRepeatLabel),
-          SegmentedButton<ReminderRepeat>(
-            segments: [
-              ButtonSegment(value: ReminderRepeat.daily, label: Text(l10n.reminderRepeatDaily)),
-              ButtonSegment(value: ReminderRepeat.weekly, label: Text(l10n.reminderRepeatWeekly)),
-              ButtonSegment(
-                value: ReminderRepeat.monthly,
-                label: Text(l10n.reminderRepeatMonthly),
-              ),
+          SegmentedPill<ReminderRepeat>(
+            options: [
+              SegmentedPillOption(value: ReminderRepeat.daily, label: l10n.reminderRepeatDaily),
+              SegmentedPillOption(value: ReminderRepeat.weekly, label: l10n.reminderRepeatWeekly),
+              SegmentedPillOption(value: ReminderRepeat.monthly, label: l10n.reminderRepeatMonthly),
             ],
-            selected: {_repeat},
-            onSelectionChanged: isSaving
+            selected: _repeat,
+            onChanged: isSaving
                 ? null
-                : (selection) => setState(() {
-                    _repeat = selection.first;
+                : (repeat) => setState(() {
+                    _repeat = repeat;
                     _daysError = _dayError = null;
                   }),
           ),
@@ -209,8 +208,8 @@ class _ReminderFormSheetState extends ConsumerState<ReminderFormSheet> {
               runSpacing: AppSpacing.xs,
               children: [
                 for (final day in ReminderDescription.weekdaysInLocaleOrder(context))
-                  FilterChip(
-                    label: Text(ReminderDescription.weekdayName(context, day)),
+                  AppFilterChip(
+                    label: ReminderDescription.weekdayName(context, day),
                     selected: _weekdays.contains(day),
                     onSelected: isSaving
                         ? null

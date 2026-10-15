@@ -1,6 +1,8 @@
 import 'package:expense_tracker/core/l10n/generated/app_localizations.dart';
 import 'package:expense_tracker/core/theme/app_colors.dart';
 import 'package:expense_tracker/core/theme/app_durations.dart';
+import 'package:expense_tracker/core/theme/app_sizes.dart';
+import 'package:expense_tracker/core/theme/app_spacing.dart';
 import 'package:expense_tracker/core/utils/date_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -27,16 +29,31 @@ extension BuildContextX on BuildContext {
   /// `toString()` for numbers shown to the user.
   String formatNumber(int value) => NumberFormat.decimalPattern(localeTag).format(value);
 
-  /// Shows [message] in a snackbar, replacing any snackbar that is currently visible.
+  /// Shows [message] as a toast (Sprout style, 3 s), replacing any toast that is visible.
   ///
-  /// With [actionLabel] and [onAction], the snackbar gets one action button (e.g. "Resend").
-  void showSnack(String message, {String? actionLabel, VoidCallback? onAction}) {
+  /// With [actionLabel] and [onAction], the toast gets one action button (e.g. "Resend"). [icon] is
+  /// the leading filled icon (decorative; a check by default).
+  void showSnack(
+    String message, {
+    String? actionLabel,
+    VoidCallback? onAction,
+    IconData icon = Icons.check_circle_rounded,
+  }) {
+    final colors = Theme.of(this).snackBarTheme;
     ScaffoldMessenger.of(this)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(message),
-          duration: AppDurations.snackBar,
+          content: Row(
+            children: [
+              ExcludeSemantics(
+                child: Icon(icon, color: colors.contentTextStyle?.color, size: AppSizes.iconMd),
+              ),
+              const SizedBox(width: AppSpacing.s10),
+              Expanded(child: Text(message)),
+            ],
+          ),
+          duration: AppDurations.toast,
           action: actionLabel != null && onAction != null
               ? SnackBarAction(label: actionLabel, onPressed: onAction)
               : null,
@@ -46,5 +63,5 @@ extension BuildContextX on BuildContext {
 
   /// Shows [message] with an "Undo" action that calls [onUndo] (e.g. after a delete).
   void showUndoSnack(String message, {required VoidCallback onUndo}) =>
-      showSnack(message, actionLabel: l10n.commonUndo, onAction: onUndo);
+      showSnack(message, actionLabel: l10n.commonUndo, onAction: onUndo, icon: Icons.undo_rounded);
 }

@@ -47,8 +47,8 @@ void main() {
         ],
       );
 
-  Finder field(String label) => find.widgetWithText(TextFormField, label);
-  Finder submitButton() => find.widgetWithText(FilledButton, l10n.authSignUpSubmit);
+  Finder field(String label) => findWidgetWithText(TextFormField, label);
+  Finder submitButton() => findWidgetWithText(FilledButton, l10n.authSignUpSubmit);
 
   void stubSignUp(Future<Result<SignUpOutcome>> Function() answer) => when(
     () => repository.signUp(
@@ -88,7 +88,7 @@ void main() {
     testWidgets('renders all fields (${brightness.name})', (tester) async {
       await pumpSignUp(tester, brightness: brightness);
 
-      expect(find.widgetWithText(AppBar, l10n.authSignUpTitle), findsOneWidget);
+      expect(findWidgetWithText(AppBar, l10n.authSignUpTitle), findsOneWidget);
       for (final label in [
         l10n.authDisplayNameLabel,
         l10n.authEmailLabel,
@@ -105,7 +105,7 @@ void main() {
 
     await submit(tester);
 
-    expect(find.text(l10n.errorFieldRequired), findsNWidgets(3));
+    expect(findText(l10n.errorFieldRequired), findsNWidgets(3));
     verifyNoSignUp();
   });
 
@@ -115,7 +115,7 @@ void main() {
     await fill(tester, pass: 'short', confirm: 'short');
     await submit(tester);
 
-    expect(find.text(l10n.errorPasswordTooShort(8)), findsOneWidget);
+    expect(findText(l10n.errorPasswordTooShort(8)), findsOneWidget);
     verifyNoSignUp();
   });
 
@@ -125,7 +125,7 @@ void main() {
     await fill(tester, confirm: '$password-typo');
     await submit(tester);
 
-    expect(find.text(l10n.errorPasswordMismatch), findsOneWidget);
+    expect(findText(l10n.errorPasswordMismatch), findsOneWidget);
     verifyNoSignUp();
   });
 
@@ -161,7 +161,7 @@ void main() {
     await submit(tester);
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.errorAuthEmailExists), findsOneWidget);
+    expect(findText(l10n.errorAuthEmailExists), findsOneWidget);
   });
 
   testWidgets('when email confirmation is required, returns to login with a message', (
@@ -174,8 +174,8 @@ void main() {
     await submit(tester);
     await tester.pumpAndSettle();
 
-    expect(find.text('login'), findsOneWidget);
-    expect(find.text(l10n.authSignUpConfirmEmailSent), findsOneWidget);
+    expect(findText('login'), findsOneWidget);
+    expect(findText(l10n.authSignUpConfirmEmailSent), findsOneWidget);
   });
 
   testWidgets('the keyboard done action on confirm-password submits', (tester) async {

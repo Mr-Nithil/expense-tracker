@@ -68,11 +68,11 @@ void main() {
   testWidgetsBothThemes('shows the month with each day\'s net', (tester, brightness) async {
     await pumpScreen(tester, brightness: brightness);
 
-    expect(find.text(l10n.calendarTitle), findsOneWidget);
-    expect(find.text('October 2026'), findsOneWidget);
+    expect(findText(l10n.calendarTitle), findsOneWidget);
+    expect(findText('October 2026'), findsOneWidget);
     expect(find.byType(CalendarDayCell), findsNWidgets(31));
-    expect(find.text(r'-$13'), findsOneWidget);
-    expect(find.text(r'+$5K'), findsOneWidget);
+    expect(findText(r'-$13'), findsOneWidget);
+    expect(findText(r'+$5K'), findsOneWidget);
     expect(cellOf(tester, DateTime(2026, 10, 5)).totals, octoberTotals[DateTime(2026, 10, 5)]);
     expect(cellOf(tester, DateTime(2026, 10, 6)).totals, isNull);
   });
@@ -96,7 +96,7 @@ void main() {
   testWidgets('tapping a day selects it and shows its panel', (tester) async {
     await pumpScreen(tester);
 
-    await tester.tap(find.text('5'));
+    await tester.tap(findText('5'));
     await tester.pumpAndSettle();
 
     expect(cellOf(tester, DateTime(2026, 10, 5)).isSelected, isTrue);
@@ -119,18 +119,18 @@ void main() {
     await tester.tap(find.byTooltip(l10n.commonPreviousMonth));
     await tester.pumpAndSettle();
 
-    expect(find.text('September 2026'), findsOneWidget);
+    expect(findText('September 2026'), findsOneWidget);
     expect(find.byType(CalendarDayCell), findsNWidgets(30));
-    expect(find.text(r'-$42'), findsOneWidget);
+    expect(findText(r'-$42'), findsOneWidget);
   });
 
   testWidgets('swiping changes the month', (tester) async {
     await pumpScreen(tester);
 
-    await tester.fling(find.text('15'), const Offset(400, 0), 1000);
+    await tester.fling(findText('15'), const Offset(400, 0), 1000);
     await tester.pumpAndSettle();
 
-    expect(find.text('September 2026'), findsOneWidget);
+    expect(findText('September 2026'), findsOneWidget);
   });
 
   testWidgets('the app bar shows the sync state', (tester) async {
@@ -149,19 +149,19 @@ void main() {
       }),
     );
     await tester.pumpAndSettle();
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
-    expect(find.text(r'-$13'), findsOneWidget);
+    expect(findText(r'-$13'), findsOneWidget);
   });
 
   testWidgets('pulling the calendar syncs now', (tester) async {
     final trigger = FakeSyncTrigger();
     await pumpScreen(tester, extra: [trigger.providerOverride]);
 
-    await tester.fling(find.text('15'), const Offset(0, 500), 1000);
+    await tester.fling(findText('15'), const Offset(0, 500), 1000);
     await tester.pumpAndSettle();
 
     expect(trigger.immediate, 1);

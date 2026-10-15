@@ -63,17 +63,17 @@ void main() {
   testWidgetsBothThemes('lists every goal', (tester, brightness) async {
     await pumpScreen(tester, two, brightness: brightness);
 
-    expect(find.text(l10n.goalsTitle), findsOneWidget);
+    expect(findText(l10n.goalsTitle), findsOneWidget);
     expect(find.byType(GoalTile), findsNWidgets(2));
-    expect(find.text('Laptop'), findsOneWidget);
-    expect(find.text('Bike'), findsOneWidget);
+    expect(findText('Laptop'), findsOneWidget);
+    expect(findText('Bike'), findsOneWidget);
   });
 
   testWidgets('without goals shows the empty state', (tester) async {
     await pumpScreen(tester, const []);
 
-    expect(find.text(l10n.goalsEmptyTitle), findsOneWidget);
-    expect(find.text(l10n.goalsEmptyMessage), findsOneWidget);
+    expect(findText(l10n.goalsEmptyTitle), findsOneWidget);
+    expect(findText(l10n.goalsEmptyMessage), findsOneWidget);
   });
 
   testWidgets('the + button opens the new-goal sheet', (tester) async {
@@ -82,17 +82,17 @@ void main() {
     await tester.tap(find.byTooltip(l10n.goalsAdd));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.goalFormNewTitle), findsOneWidget);
+    expect(findText(l10n.goalFormNewTitle), findsOneWidget);
     expect(tester.widget<GoalFormSheet>(find.byType(GoalFormSheet)).goal, isNull);
   });
 
   testWidgets('the empty state offers to add a goal', (tester) async {
     await pumpScreen(tester, const []);
 
-    await tester.tap(find.widgetWithText(FilledButton, l10n.goalsAdd));
+    await tester.tap(findWidgetWithText(FilledButton, l10n.goalsAdd));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.goalFormNewTitle), findsOneWidget);
+    expect(findText(l10n.goalFormNewTitle), findsOneWidget);
   });
 
   testWidgets('the app bar shows the sync state', (tester) async {
@@ -111,9 +111,9 @@ void main() {
       }),
     );
     await tester.pumpAndSettle();
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
     expect(find.byType(GoalTile), findsNWidgets(2));
@@ -123,7 +123,7 @@ void main() {
     final trigger = FakeSyncTrigger();
     await pumpScreen(tester, two, extra: [trigger.providerOverride]);
 
-    await tester.fling(find.text('Laptop'), const Offset(0, 500), 1000);
+    await tester.fling(findText('Laptop'), const Offset(0, 500), 1000);
     await tester.pumpAndSettle();
 
     expect(trigger.immediate, 1);

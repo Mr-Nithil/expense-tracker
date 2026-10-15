@@ -69,9 +69,9 @@ void main() {
     final handle = tester.ensureSemantics();
     await pump(tester, () => Stream.value(totals), brightness: brightness);
 
-    expect(find.text(l10n.dashboardHeatmapTitle), findsOneWidget);
-    expect(find.text(l10n.dashboardHeatmapLess), findsOneWidget);
-    expect(find.text(l10n.dashboardHeatmapMore), findsOneWidget);
+    expect(findText(l10n.dashboardHeatmapTitle), findsOneWidget);
+    expect(findText(l10n.dashboardHeatmapLess), findsOneWidget);
+    expect(findText(l10n.dashboardHeatmapMore), findsOneWidget);
     // Max day is $100: $10 → level 1, $50 → 2, $100 → 4; income-only and empty days → 0.
     expect(colorOfDay(tester, 'Thursday, October 1, 2026'), keyColor(tester, 1));
     expect(colorOfDay(tester, 'Friday, October 9, 2026'), keyColor(tester, 2));
@@ -101,7 +101,7 @@ void main() {
     await pump(tester, () => Stream.value(totals));
 
     // October 1, 2026 is a Thursday: the 5th column when weeks start on Sunday.
-    final headers = find.text('T');
+    final headers = findText('T');
     expect(headers, findsNWidgets(2));
     final thursdayX = tester.getCenter(headers.last).dx;
     final firstDay = find.bySemanticsLabel(RegExp('^Thursday, October 1, 2026:'));
@@ -116,13 +116,13 @@ void main() {
 
     final sheet = tester.widget<CalendarDaySheet>(find.byType(CalendarDaySheet));
     expect(sheet.day, DateTime(2026, 10, 9));
-    expect(find.text('Friday, October 9, 2026'), findsOneWidget);
+    expect(findText('Friday, October 9, 2026'), findsOneWidget);
   });
 
   testWidgets('is compact: seven fixed-size days wide, without "See all"', (tester) async {
     await pump(tester, () => Stream.value(totals));
 
-    expect(find.text(l10n.commonSeeAll), findsNothing);
+    expect(findText(l10n.commonSeeAll), findsNothing);
     final firstDay = find.bySemanticsLabel(RegExp('^Thursday, October 1, 2026:'));
     expect(tester.getSize(firstDay).width, AppSizes.heatmapCell);
   });
@@ -144,12 +144,12 @@ void main() {
       loads++;
       return loads == 1 ? Stream.error(const StorageFailure('db')) : Stream.value(totals);
     });
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.dashboardHeatmapLess), findsOneWidget);
+    expect(findText(l10n.dashboardHeatmapLess), findsOneWidget);
   });
 
   testWidgets('fits a small phone at 1.5x text', (tester) async {

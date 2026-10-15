@@ -27,22 +27,22 @@ void main() {
   testWidgets('an active category shows its icon and name only', (tester) async {
     await tester.pumpApp(CategoryTile(category: food()));
 
-    expect(find.text('Food'), findsOneWidget);
-    expect(find.text(l10n.categoryArchivedLabel), findsNothing);
+    expect(findText('Food'), findsOneWidget);
+    expect(findText(l10n.categoryArchivedLabel), findsNothing);
     expect(tester.widget<CategoryIcon>(find.byType(CategoryIcon)).iconKey, 'food');
   });
 
   testWidgetsBothThemes('an archived category is labelled', (tester, brightness) async {
     await tester.pumpApp(CategoryTile(category: food(archived: true)), brightness: brightness);
 
-    expect(find.text('Food'), findsOneWidget);
-    expect(find.text(l10n.categoryArchivedLabel), findsOneWidget);
+    expect(findText('Food'), findsOneWidget);
+    expect(findText(l10n.categoryArchivedLabel), findsOneWidget);
   });
 
   testWidgetsBothThemes('a missing category shows as unknown', (tester, brightness) async {
     await tester.pumpApp(const CategoryTile(category: null), brightness: brightness);
 
-    expect(find.text(l10n.categoryUnknown), findsOneWidget);
+    expect(findText(l10n.categoryUnknown), findsOneWidget);
     expect(
       tester.widget<Icon>(find.byType(Icon)).icon,
       CategoryIcon.fallback,

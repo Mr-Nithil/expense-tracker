@@ -19,10 +19,10 @@ void main() {
       ),
       brightness: brightness,
     );
-    expect(find.text('Title'), findsOneWidget);
+    expect(findText('Title'), findsOneWidget);
     expect(find.byTooltip('Add'), findsOneWidget);
     expect(find.byType(FloatingActionButton), findsOneWidget);
-    expect(find.text('Body'), findsOneWidget);
+    expect(findText('Body'), findsOneWidget);
     expect(find.byType(RefreshIndicator), findsNothing);
   });
 
@@ -58,7 +58,7 @@ void main() {
         ),
       ),
     );
-    expect(find.text('One'), findsOneWidget);
+    expect(findText('One'), findsOneWidget);
     expect(find.descendant(of: find.byType(AppBar), matching: find.byType(TabBar)), findsOneWidget);
   });
 }

@@ -62,12 +62,12 @@ void main() {
         currencyCodeProvider.overrideWith((ref) async => 'USD'),
       ],
     );
-    await tester.tap(find.text('open'));
+    await tester.tap(findText('open'));
     await tester.pumpAndSettle();
   }
 
-  Finder nameField() => find.widgetWithText(TextFormField, l10n.goalFormNameLabel);
-  Finder targetField() => find.widgetWithText(TextFormField, l10n.goalFormTargetLabel);
+  Finder nameField() => findWidgetWithText(TextFormField, l10n.goalFormNameLabel);
+  Finder targetField() => findWidgetWithText(TextFormField, l10n.goalFormTargetLabel);
   Finder sheet() => find.byType(GoalFormSheet);
 
   Future<void> tapVisible(WidgetTester tester, Finder finder) async {
@@ -76,7 +76,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> save(WidgetTester tester) => tapVisible(tester, find.text(l10n.commonSave));
+  Future<void> save(WidgetTester tester) => tapVisible(tester, findText(l10n.commonSave));
 
   testWidgetsBothThemes('a new goal starts without a deadline, with the default icon', (
     tester,
@@ -84,8 +84,8 @@ void main() {
   ) async {
     await open(tester, b: brightness);
 
-    expect(find.text(l10n.goalFormNewTitle), findsOneWidget);
-    expect(find.text(l10n.goalFormNoDeadline), findsOneWidget);
+    expect(findText(l10n.goalFormNewTitle), findsOneWidget);
+    expect(findText(l10n.goalFormNoDeadline), findsOneWidget);
     expect(find.byTooltip(l10n.goalFormClearDeadline), findsNothing);
     final preview = tester.widget<CategoryIcon>(find.byType(CategoryIcon).first);
     expect(preview.iconKey, GoalFormSheet.defaultIcon);
@@ -112,12 +112,12 @@ void main() {
     await tester.enterText(nameField(), 'Bike');
     await tester.enterText(targetField(), '400');
 
-    await tapVisible(tester, find.text(l10n.goalFormNoDeadline));
-    await tester.tap(find.text('20'));
-    await tester.tap(find.text('OK'));
+    await tapVisible(tester, findText(l10n.goalFormNoDeadline));
+    await tester.tap(findText('20'));
+    await tester.tap(findText('OK'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Oct 20, 2026'), findsOneWidget);
+    expect(findText('Oct 20, 2026'), findsOneWidget);
     await save(tester);
 
     final draft = verify(() => repository.create(captureAny())).captured.single as GoalDraft;
@@ -127,13 +127,13 @@ void main() {
   testWidgets('edits a goal: fields are filled, the deadline can be removed', (tester) async {
     await open(tester, goal: laptop);
 
-    expect(find.text(l10n.goalFormEditTitle), findsOneWidget);
-    expect(find.text('Laptop'), findsOneWidget);
-    expect(find.text('1500.00'), findsOneWidget);
-    expect(find.text('Jun 1, 2027'), findsOneWidget);
+    expect(findText(l10n.goalFormEditTitle), findsOneWidget);
+    expect(findText('Laptop'), findsOneWidget);
+    expect(findText('1500.00'), findsOneWidget);
+    expect(findText('Jun 1, 2027'), findsOneWidget);
 
     await tapVisible(tester, find.byTooltip(l10n.goalFormClearDeadline));
-    expect(find.text(l10n.goalFormNoDeadline), findsOneWidget);
+    expect(findText(l10n.goalFormNoDeadline), findsOneWidget);
     await save(tester);
 
     final updated = verify(() => repository.update(captureAny())).captured.single as Goal;
@@ -168,7 +168,7 @@ void main() {
 
     await save(tester);
 
-    expect(find.text(l10n.errorFieldRequired), findsNWidgets(2));
+    expect(findText(l10n.errorFieldRequired), findsNWidgets(2));
     verifyNever(() => repository.create(any()));
     expect(sheet(), findsOneWidget);
   });
@@ -186,7 +186,7 @@ void main() {
     await save(tester);
 
     expect(
-      find.text(l10n.errorGoalDeadlineOutOfRange(GoalValidator.maxDeadlineYearsAhead)),
+      findText(l10n.errorGoalDeadlineOutOfRange(GoalValidator.maxDeadlineYearsAhead)),
       findsOneWidget,
     );
     expect(sheet(), findsOneWidget);
@@ -202,7 +202,7 @@ void main() {
 
     await save(tester);
 
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
     expect(sheet(), findsOneWidget);
   });
 

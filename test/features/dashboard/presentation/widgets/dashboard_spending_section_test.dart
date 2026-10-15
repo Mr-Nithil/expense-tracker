@@ -71,14 +71,14 @@ void main() {
       brightness: brightness,
     );
 
-    expect(find.text(l10n.dashboardSpendingTitle), findsOneWidget);
-    expect(find.text('Rent'), findsOneWidget);
-    expect(find.text(r'$580.00'), findsOneWidget);
-    expect(find.text(l10n.dashboardSpendingPercent(58)), findsOneWidget);
-    expect(find.text(l10n.dashboardSpendingPercent(42)), findsOneWidget);
+    expect(findText(l10n.dashboardSpendingTitle), findsOneWidget);
+    expect(findText('Rent'), findsOneWidget);
+    expect(findText(r'$580.00'), findsOneWidget);
+    expect(findText(l10n.dashboardSpendingPercent(58)), findsOneWidget);
+    expect(findText(l10n.dashboardSpendingPercent(42)), findsOneWidget);
     expect(
-      tester.getTopLeft(find.text('Rent')).dy,
-      lessThan(tester.getTopLeft(find.text('Food')).dy),
+      tester.getTopLeft(findText('Rent')).dy,
+      lessThan(tester.getTopLeft(findText('Food')).dy),
     );
     final bars = tester.widgetList<ProgressBar>(find.byType(ProgressBar)).toList();
     expect(bars.map((b) => b.value), [0.58, 0.42]);
@@ -95,8 +95,8 @@ void main() {
       extra: categoryOverrides(ids),
     );
 
-    expect(find.text(l10n.dashboardSpendingOther(2)), findsOneWidget);
-    expect(find.text('f'), findsNothing);
+    expect(findText(l10n.dashboardSpendingOther(2)), findsOneWidget);
+    expect(findText('f'), findsNothing);
   });
 
   testWidgets('a share that rounds to 0 shows "<1%"', (tester) async {
@@ -106,7 +106,7 @@ void main() {
       extra: categoryOverrides(['Food', 'Rent']),
     );
 
-    expect(find.text(l10n.dashboardSpendingPercentTiny), findsOneWidget);
+    expect(findText(l10n.dashboardSpendingPercentTiny), findsOneWidget);
   });
 
   testWidgets('marks archived categories and unknown ones', (tester) async {
@@ -121,14 +121,14 @@ void main() {
       ],
     );
 
-    expect(find.text(l10n.categoryChipArchived('Old')), findsOneWidget);
-    expect(find.text(l10n.categoryUnknown), findsOneWidget);
+    expect(findText(l10n.categoryChipArchived('Old')), findsOneWidget);
+    expect(findText(l10n.categoryUnknown), findsOneWidget);
   });
 
   testWidgets('a month without expenses says so', (tester) async {
     await pump(tester, () => Stream.value(SpendingBreakdown.empty));
 
-    expect(find.text(l10n.dashboardSpendingEmpty('October 2026')), findsOneWidget);
+    expect(findText(l10n.dashboardSpendingEmpty('October 2026')), findsOneWidget);
     expect(find.byType(ProgressBar), findsNothing);
   });
 
@@ -140,12 +140,12 @@ void main() {
           ? Stream.error(const StorageFailure('db'))
           : Stream.value(SpendingBreakdown.of([spent('Food', 100)]));
     }, extra: categoryOverrides(['Food']));
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
-    expect(find.text('Food'), findsOneWidget);
+    expect(findText('Food'), findsOneWidget);
   });
 
   testWidgets('each row is read as name, amount and share; the bar is not read twice', (
@@ -179,8 +179,8 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(find.text(l10n.categoryUnknown), findsNothing);
-    expect(find.text(r'$1.00'), findsOneWidget);
+    expect(findText(l10n.categoryUnknown), findsNothing);
+    expect(findText(r'$1.00'), findsOneWidget);
   });
 
   testWidgets('fits a small phone at 1.5x text', (tester) async {

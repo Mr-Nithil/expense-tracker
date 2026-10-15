@@ -105,14 +105,14 @@ void main() {
   ) async {
     await pump(tester, () => Stream.value(full), brightness: brightness);
 
-    expect(find.text(l10n.dashboardBudgetsTitle), findsOneWidget);
+    expect(findText(l10n.dashboardBudgetsTitle), findsOneWidget);
     expect(find.byType(BudgetOverallCard), findsOneWidget);
     final names = [
       for (final tile in tester.widgetList<BudgetProgressTile>(find.byType(BudgetProgressTile)))
         tile.progress.budget.categoryId,
     ];
     expect(names, ['Over', 'High', 'Mid']);
-    expect(find.text('Low'), findsNothing);
+    expect(findText('Low'), findsNothing);
   });
 
   testWidgets('budget states look as on the Budget tab', (tester) async {
@@ -128,38 +128,38 @@ void main() {
       ProgressLevel.warning,
       ProgressLevel.normal,
     ]);
-    expect(find.text(l10n.budgetStatusExceeded), findsOneWidget);
-    expect(find.text(l10n.budgetStatusWarning), findsOneWidget);
+    expect(findText(l10n.budgetStatusExceeded), findsOneWidget);
+    expect(findText(l10n.budgetStatusWarning), findsOneWidget);
   });
 
   testWidgets('See all opens the Budget tab on the same month', (tester) async {
     await pump(tester, () => Stream.value(full));
 
-    await tester.tap(find.text(l10n.commonSeeAll));
+    await tester.tap(findText(l10n.commonSeeAll));
     await tester.pumpAndSettle();
 
-    expect(find.text('budget $september'), findsOneWidget);
+    expect(findText('budget $september'), findsOneWidget);
   });
 
   testWidgets('tapping a budget opens the Budget tab on the same month', (tester) async {
     await pump(tester, () => Stream.value(full));
 
-    await tester.tap(find.text('Over'));
+    await tester.tap(findText('Over'));
     await tester.pumpAndSettle();
 
-    expect(find.text('budget $september'), findsOneWidget);
+    expect(findText('budget $september'), findsOneWidget);
   });
 
   testWidgets('a month without budgets offers to set one', (tester) async {
     await pump(tester, () => Stream.value(const BudgetOverview()));
 
-    expect(find.text(l10n.dashboardBudgetsEmpty('September 2026')), findsOneWidget);
+    expect(findText(l10n.dashboardBudgetsEmpty('September 2026')), findsOneWidget);
     expect(find.byType(BudgetOverallCard), findsNothing);
 
-    await tester.tap(find.text(l10n.dashboardBudgetsSet));
+    await tester.tap(findText(l10n.dashboardBudgetsSet));
     await tester.pumpAndSettle();
 
-    expect(find.text('budget $september'), findsOneWidget);
+    expect(findText('budget $september'), findsOneWidget);
   });
 
   testWidgets('only category budgets: the card says no overall budget is set', (tester) async {
@@ -168,7 +168,7 @@ void main() {
       () => Stream.value(BudgetOverview(categories: [progress('Mid', 5000, categoryId: 'Mid')])),
     );
 
-    expect(find.text(l10n.budgetOverallEmptyTitle), findsOneWidget);
+    expect(findText(l10n.budgetOverallEmptyTitle), findsOneWidget);
     expect(find.byType(BudgetProgressTile), findsOneWidget);
   });
 
@@ -178,9 +178,9 @@ void main() {
       loads++;
       return loads == 1 ? Stream.error(const StorageFailure('db')) : Stream.value(full);
     });
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
     expect(find.byType(BudgetOverallCard), findsOneWidget);

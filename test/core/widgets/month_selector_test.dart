@@ -33,7 +33,7 @@ void main() {
 
   testWidgetsBothThemes('shows the month', (tester, brightness) async {
     await pumpSelector(tester, DateTime(2026, 10, 17), brightness: brightness);
-    expect(find.text('October 2026'), findsOneWidget);
+    expect(findText('October 2026'), findsOneWidget);
     expect(find.byTooltip(l10n.commonPreviousMonth), findsOneWidget);
     expect(find.byTooltip(l10n.commonNextMonth), findsOneWidget);
   });
@@ -72,14 +72,14 @@ void main() {
     );
 
     expect(tester.takeException(), isNull);
-    expect(find.text('September 2026'), findsOneWidget);
+    expect(findText('September 2026'), findsOneWidget);
   });
 
   testWidgets('announces the month as a live region', (tester) async {
     final handle = tester.ensureSemantics();
     await pumpSelector(tester, DateTime(2026, 10));
 
-    final node = tester.getSemantics(find.text('October 2026'));
+    final node = tester.getSemantics(findText('October 2026'));
     expect(node.label, 'October 2026');
     expect(node.flagsCollection.isLiveRegion, isTrue);
     handle.dispose();

@@ -25,15 +25,15 @@ void main() {
         ),
         brightness: brightness,
       );
-      expect(find.text('Nothing'), findsOneWidget);
-      expect(find.text('Add one'), findsOneWidget);
-      await tester.tap(find.text('Add'));
+      expect(findText('Nothing'), findsOneWidget);
+      expect(findText('Add one'), findsOneWidget);
+      await tester.tap(findText('Add'));
       expect(taps, 1);
     });
 
     testWidgets('hides the action without a callback', (tester) async {
       await tester.pumpApp(const EmptyState(message: 'Empty', actionLabel: 'Add'));
-      expect(find.text('Add'), findsNothing);
+      expect(findText('Add'), findsNothing);
     });
   });
 
@@ -42,7 +42,7 @@ void main() {
       await tester.pumpApp(const LoadingView(message: 'Syncing'), brightness: brightness);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
       expect(find.bySemanticsLabel(l10n.commonLoading), findsOneWidget);
-      expect(find.text('Syncing'), findsOneWidget);
+      expect(findText('Syncing'), findsOneWidget);
     });
   });
 
@@ -53,14 +53,14 @@ void main() {
         ErrorView(message: 'Failed', onRetry: () => retries++),
         brightness: brightness,
       );
-      expect(find.text('Failed'), findsOneWidget);
-      await tester.tap(find.text(l10n.commonRetry));
+      expect(findText('Failed'), findsOneWidget);
+      await tester.tap(findText(l10n.commonRetry));
       expect(retries, 1);
     });
 
     testWidgets('hides retry without a callback', (tester) async {
       await tester.pumpApp(const ErrorView(message: 'Failed'));
-      expect(find.text(l10n.commonRetry), findsNothing);
+      expect(findText(l10n.commonRetry), findsNothing);
     });
   });
 
@@ -72,7 +72,7 @@ void main() {
 
     testWidgets('renders data', (tester) async {
       await tester.pumpApp(view(const AsyncData(3)));
-      expect(find.text('value 3'), findsOneWidget);
+      expect(findText('value 3'), findsOneWidget);
     });
 
     testWidgets('renders loading', (tester) async {
@@ -82,10 +82,10 @@ void main() {
 
     testWidgets('renders a localized error for failures and unknown errors', (tester) async {
       await tester.pumpApp(view(const AsyncError(NetworkFailure('x'), StackTrace.empty)));
-      expect(find.text(l10n.errorNetwork), findsOneWidget);
+      expect(findText(l10n.errorNetwork), findsOneWidget);
 
       await tester.pumpApp(view(AsyncError(StateError('internal'), StackTrace.empty)));
-      expect(find.text(l10n.errorUnexpected), findsOneWidget);
+      expect(findText(l10n.errorUnexpected), findsOneWidget);
       expect(find.textContaining('internal'), findsNothing);
     });
   });

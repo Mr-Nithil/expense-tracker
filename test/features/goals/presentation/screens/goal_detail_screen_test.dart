@@ -92,7 +92,7 @@ void main() {
       }
     });
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Laptop'));
+    await tester.tap(findText('Laptop'));
     await tester.pumpAndSettle();
   }
 
@@ -100,9 +100,9 @@ void main() {
     await pump(tester);
 
     expect(find.byType(GoalDetailScreen), findsOneWidget);
-    expect(find.widgetWithText(AppBar, 'Laptop'), findsOneWidget);
+    expect(findWidgetWithText(AppBar, 'Laptop'), findsOneWidget);
     expect(find.byType(GoalSummary), findsOneWidget);
-    expect(find.text(l10n.goalsSavedOfTarget(r'$50.00', r'$1,500.00')), findsOneWidget);
+    expect(findText(l10n.goalsSavedOfTarget(r'$50.00', r'$1,500.00')), findsOneWidget);
   });
 
   testWidgets('lists the history newest first', (tester) async {
@@ -118,13 +118,13 @@ void main() {
   testWidgets('without contributions the history says so', (tester) async {
     await pump(tester, contributions: const []);
 
-    expect(find.text(l10n.goalDetailHistoryEmpty), findsOneWidget);
+    expect(findText(l10n.goalDetailHistoryEmpty), findsOneWidget);
   });
 
   testWidgets('"Add money" opens the sheet for this goal', (tester) async {
     await pump(tester);
 
-    await tester.tap(find.text(l10n.goalsAddMoney));
+    await tester.tap(findText(l10n.goalsAddMoney));
     await tester.pumpAndSettle();
 
     expect(
@@ -145,20 +145,20 @@ void main() {
   testWidgets('swiping a contribution removes it, and Undo brings it back', (tester) async {
     await pump(tester);
 
-    await tester.fling(find.text('n1'), const Offset(-500, 0), 1000);
+    await tester.fling(findText('n1'), const Offset(-500, 0), 1000);
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
     await tester.pumpAndSettle();
 
-    expect(find.text('n1'), findsNothing);
-    expect(find.text(l10n.goalContributionDeleted), findsOneWidget);
-    expect(find.text(l10n.goalsSavedOfTarget(r'$30.00', r'$1,500.00')), findsOneWidget);
+    expect(findText('n1'), findsNothing);
+    expect(findText(l10n.goalContributionDeleted), findsOneWidget);
+    expect(findText(l10n.goalsSavedOfTarget(r'$30.00', r'$1,500.00')), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonUndo));
+    await tester.tap(findText(l10n.commonUndo));
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
     await tester.pumpAndSettle();
 
-    expect(find.text('n1'), findsOneWidget);
-    expect(find.text(l10n.goalsSavedOfTarget(r'$50.00', r'$1,500.00')), findsOneWidget);
+    expect(findText('n1'), findsOneWidget);
+    expect(findText(l10n.goalsSavedOfTarget(r'$50.00', r'$1,500.00')), findsOneWidget);
   });
 
   testWidgets('Delete asks first, then closes the page and removes the goal', (tester) async {
@@ -166,14 +166,14 @@ void main() {
 
     await tester.tap(find.byTooltip(l10n.goalDetailDelete));
     await tester.pumpAndSettle();
-    expect(find.text(l10n.goalDeleteConfirmTitle('Laptop')), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, l10n.commonDelete));
+    expect(findText(l10n.goalDeleteConfirmTitle('Laptop')), findsOneWidget);
+    await tester.tap(findWidgetWithText(FilledButton, l10n.commonDelete));
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
     await tester.pumpAndSettle();
 
     expect(find.byType(GoalDetailScreen), findsNothing);
-    expect(find.text(l10n.goalsEmptyTitle), findsOneWidget);
-    expect(find.text(l10n.goalDetailMissingTitle), findsNothing);
+    expect(findText(l10n.goalsEmptyTitle), findsOneWidget);
+    expect(findText(l10n.goalDetailMissingTitle), findsNothing);
   });
 
   testWidgets('a goal deleted elsewhere shows "not found"', (tester) async {
@@ -182,7 +182,7 @@ void main() {
     await tester.runAsync(() => container.read(goalRepositoryProvider).delete(goal.id));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.goalDetailMissingTitle), findsOneWidget);
+    expect(findText(l10n.goalDetailMissingTitle), findsOneWidget);
   });
 
   group('accessibility (M9.5)', () {

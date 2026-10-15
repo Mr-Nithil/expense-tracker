@@ -6,6 +6,7 @@ import 'package:expense_tracker/core/db/tables/sync_columns.dart';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
+import 'package:expense_tracker/core/widgets/app_switch.dart';
 import 'package:expense_tracker/features/auth/domain/entities/auth_user.dart';
 import 'package:expense_tracker/features/calendar/presentation/shared/calendar_day_sheet.dart';
 import 'package:expense_tracker/features/categories/domain/services/default_categories.dart';
@@ -20,6 +21,7 @@ import 'helpers/fake_connectivity_service.dart';
 import 'helpers/fake_notification_service.dart';
 import 'helpers/fake_secure_storage.dart';
 import 'helpers/fake_sync_gateway.dart';
+import 'helpers/finders.dart';
 import 'helpers/test_database.dart';
 
 void main() {
@@ -74,7 +76,7 @@ void main() {
 
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(navBar(tester).selectedIndex, 0);
-    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
   });
 
   testWidgets('bottom navigation switches between the five tabs', (tester) async {
@@ -88,9 +90,9 @@ void main() {
       l10n.dashboardTitle,
     ];
     for (final (index, title) in tabs.indexed) {
-      await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text(title)));
+      await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: findText(title)));
       await tester.pumpAndSettle();
-      expect(find.widgetWithText(AppBar, title), findsOneWidget);
+      expect(findWidgetWithText(AppBar, title), findsOneWidget);
       expect(navBar(tester).selectedIndex, (index + 1) % 5);
     }
   });
@@ -99,17 +101,17 @@ void main() {
     await pumpApp(tester);
 
     await tester.tap(
-      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.goalsTitle)),
+      find.descendant(of: find.byType(NavigationBar), matching: findText(l10n.goalsTitle)),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.goalsEmptyTitle), findsOneWidget);
+    expect(findText(l10n.goalsEmptyTitle), findsOneWidget);
   });
 
   testWidgets('opens on login when there is no stored session', (tester) async {
     await pumpApp(tester, auth: FakeAuthRepository(currentUser: null));
 
-    expect(find.widgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
   });
 
@@ -122,28 +124,28 @@ void main() {
     auth.emitError(Exception('AuthRetryableFetchException: no network'));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
-    expect(find.widgetWithText(AppBar, l10n.authLoginTitle), findsNothing);
+    expect(findWidgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.authLoginTitle), findsNothing);
   });
 
   testWidgets('signing in through the login form reaches the dashboard', (tester) async {
     await pumpApp(tester, auth: FakeAuthRepository(currentUser: null));
 
     await tester.enterText(
-      find.widgetWithText(TextFormField, l10n.authEmailLabel),
+      findWidgetWithText(TextFormField, l10n.authEmailLabel),
       testUser.email,
     );
-    await tester.enterText(find.widgetWithText(TextFormField, l10n.authPasswordLabel), 'secret-pw');
-    await tester.tap(find.widgetWithText(FilledButton, l10n.authLoginSubmit));
+    await tester.enterText(findWidgetWithText(TextFormField, l10n.authPasswordLabel), 'secret-pw');
+    await tester.tap(findWidgetWithText(FilledButton, l10n.authLoginSubmit));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
   });
 
   testWidgets('a different user signing in gets their own onboarding state', (tester) async {
     final auth = FakeAuthRepository();
     await pumpApp(tester, auth: auth);
-    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
 
     auth.emit(null);
     await tester.pumpAndSettle();
@@ -151,7 +153,7 @@ void main() {
     auth.emit(const AuthUser(id: 'user-2', email: 'b@example.com'));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, l10n.onboardingTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.onboardingTitle), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
   });
 
@@ -183,7 +185,7 @@ void main() {
     auth.emit(testUser);
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
     final profile = await tester.runAsync(
       () => container.read(databaseProvider).profilesDao.getProfile(testUser.id),
     );
@@ -202,7 +204,7 @@ void main() {
     testWidgets('lands on reset-password instead of the dashboard', (tester) async {
       await openResetLink(tester);
 
-      expect(find.widgetWithText(AppBar, l10n.authResetPasswordTitle), findsOneWidget);
+      expect(findWidgetWithText(AppBar, l10n.authResetPasswordTitle), findsOneWidget);
       expect(find.byType(NavigationBar), findsNothing);
     });
 
@@ -210,26 +212,26 @@ void main() {
       await openResetLink(tester);
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, l10n.authNewPasswordLabel),
+        findWidgetWithText(TextFormField, l10n.authNewPasswordLabel),
         'new-password',
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, l10n.authConfirmPasswordLabel),
+        findWidgetWithText(TextFormField, l10n.authConfirmPasswordLabel),
         'new-password',
       );
-      await tester.tap(find.widgetWithText(FilledButton, l10n.authResetPasswordSubmit));
+      await tester.tap(findWidgetWithText(FilledButton, l10n.authResetPasswordSubmit));
       await tester.pumpAndSettle();
 
-      expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+      expect(findWidgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
     });
 
     testWidgets('cancel signs out to login', (tester) async {
       await openResetLink(tester);
 
-      await tester.tap(find.text(l10n.authResetPasswordCancel));
+      await tester.tap(findText(l10n.authResetPasswordCancel));
       await tester.pumpAndSettle();
 
-      expect(find.widgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
+      expect(findWidgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
     });
   });
 
@@ -241,8 +243,8 @@ void main() {
       auth.emitLinkError(const AuthFailure('link', reason: AuthFailureReason.linkExpired));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.errorAuthLinkExpired), findsOneWidget);
-      expect(find.widgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
+      expect(findText(l10n.errorAuthLinkExpired), findsOneWidget);
+      expect(findWidgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
     });
 
     testWidgets('an invalid link inside the app shows a message and stays put', (tester) async {
@@ -252,21 +254,21 @@ void main() {
       auth.emitLinkError(const AuthFailure('link', reason: AuthFailureReason.linkInvalid));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.errorAuthLinkInvalid), findsOneWidget);
-      expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+      expect(findText(l10n.errorAuthLinkInvalid), findsOneWidget);
+      expect(findWidgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
     });
   });
 
   testWidgets('a new user goes through onboarding, then reaches the dashboard', (tester) async {
     final container = await pumpApp(tester, onboarded: false);
 
-    expect(find.widgetWithText(AppBar, l10n.onboardingTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.onboardingTitle), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
 
-    await tester.tap(find.text(l10n.onboardingContinue));
+    await tester.tap(findText(l10n.onboardingContinue));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
     final categories = await tester.runAsync(
       () => container.read(databaseProvider).categoriesDao.watchActive(testUser.id).first,
     );
@@ -276,21 +278,21 @@ void main() {
   testWidgets('login links to sign-up', (tester) async {
     await pumpApp(tester, auth: FakeAuthRepository(currentUser: null));
 
-    await tester.tap(find.text(l10n.authLoginGoToSignUp));
+    await tester.tap(findText(l10n.authLoginGoToSignUp));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, l10n.authSignUpTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.authSignUpTitle), findsOneWidget);
   });
 
   testWidgets('login links to forgot-password with the typed email', (tester) async {
     await pumpApp(tester, auth: FakeAuthRepository(currentUser: null));
 
-    await tester.enterText(find.widgetWithText(TextFormField, l10n.authEmailLabel), 'me@x.io');
-    await tester.tap(find.text(l10n.authLoginForgotPassword));
+    await tester.enterText(findWidgetWithText(TextFormField, l10n.authEmailLabel), 'me@x.io');
+    await tester.tap(findText(l10n.authLoginForgotPassword));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, l10n.authForgotPasswordTitle), findsOneWidget);
-    expect(find.widgetWithText(TextFormField, 'me@x.io'), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.authForgotPasswordTitle), findsOneWidget);
+    expect(findWidgetWithText(TextFormField, 'me@x.io'), findsOneWidget);
   });
 
   testWidgets('signing out redirects to login, signing in returns to the app', (tester) async {
@@ -299,23 +301,23 @@ void main() {
 
     auth.emit(null);
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
 
     auth.emit(testUser);
     await tester.pumpAndSettle();
     expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.widgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.dashboardTitle), findsOneWidget);
   });
 
   testWidgets('logging out from settings clears local data and lands on login', (tester) async {
     final container = await pumpApp(tester);
 
     await tester.tap(
-      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
+      find.descendant(of: find.byType(NavigationBar), matching: findText(l10n.settingsTitle)),
     );
     await tester.pumpAndSettle();
-    final logout = find.widgetWithText(FilledButton, l10n.settingsLogout);
+    final logout = findWidgetWithText(FilledButton, l10n.settingsLogout);
     // Settings is taller than the test screen: build the button, then scroll it fully into view
     // (clear of the navigation bar).
     await tester.scrollUntilVisible(logout, 200);
@@ -326,13 +328,13 @@ void main() {
     // The seeded profile has never synced, so the real pending count (1) triggers the warning.
     final dialog = find.byType(AlertDialog);
     expect(
-      find.descendant(of: dialog, matching: find.text(l10n.settingsLogoutPendingMessage(1))),
+      find.descendant(of: dialog, matching: findText(l10n.settingsLogoutPendingMessage(1))),
       findsOneWidget,
     );
-    await tester.tap(find.descendant(of: dialog, matching: find.text(l10n.settingsLogoutAnyway)));
+    await tester.tap(find.descendant(of: dialog, matching: findText(l10n.settingsLogoutAnyway)));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.authLoginTitle), findsOneWidget);
     final profile = await tester.runAsync(
       () => container.read(databaseProvider).profilesDao.getProfile(testUser.id),
     );
@@ -343,34 +345,34 @@ void main() {
     await pumpApp(tester);
 
     final today = find.bySemanticsLabel(RegExp('^Sunday, October 11, 2026:'));
-    await tester.scrollUntilVisible(find.text(l10n.dashboardHeatmapLess), 200);
+    await tester.scrollUntilVisible(findText(l10n.dashboardHeatmapLess), 200);
     await tester.ensureVisible(today);
     await tester.pumpAndSettle();
     await tester.tap(today);
     await tester.pumpAndSettle();
 
     expect(find.byType(CalendarDaySheet), findsOneWidget);
-    expect(find.text('Sunday, October 11, 2026'), findsOneWidget);
-    expect(find.text(l10n.transactionsAdd), findsOneWidget);
+    expect(findText('Sunday, October 11, 2026'), findsOneWidget);
+    expect(findText(l10n.transactionsAdd), findsOneWidget);
   });
 
   testWidgets('settings opens the reminders screen inside the Settings tab', (tester) async {
     await pumpApp(tester);
 
     await tester.tap(
-      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
+      find.descendant(of: find.byType(NavigationBar), matching: findText(l10n.settingsTitle)),
     );
     await tester.pumpAndSettle();
-    final reminders = find.text(l10n.remindersTitle);
+    final reminders = findText(l10n.remindersTitle);
     await tester.scrollUntilVisible(reminders, 200);
     await tester.ensureVisible(reminders);
     await tester.pumpAndSettle();
     await tester.tap(reminders);
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, l10n.remindersTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.remindersTitle), findsOneWidget);
     expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text(l10n.remindersEmptyTitle), findsOneWidget);
+    expect(findText(l10n.remindersEmptyTitle), findsOneWidget);
   });
 
   testWidgets('settings opens the categories screen with the seeded defaults', (tester) async {
@@ -378,32 +380,32 @@ void main() {
     await tester.runAsync(() => container.read(defaultCategoriesSeederProvider).seed());
 
     await tester.tap(
-      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
+      find.descendant(of: find.byType(NavigationBar), matching: findText(l10n.settingsTitle)),
     );
     await tester.pumpAndSettle();
-    final categoriesRow = find.text(l10n.categoriesTitle);
+    final categoriesRow = findText(l10n.categoriesTitle);
     await tester.scrollUntilVisible(categoriesRow, 200);
     await tester.ensureVisible(categoriesRow);
     await tester.pumpAndSettle();
     await tester.tap(categoriesRow);
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(AppBar, l10n.categoriesTitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.categoriesTitle), findsOneWidget);
     expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text(l10n.categoryDefaultFood), findsOneWidget);
+    expect(findText(l10n.categoryDefaultFood), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonIncome));
+    await tester.tap(findText(l10n.commonIncome));
     await tester.pumpAndSettle();
-    expect(find.text(l10n.categoryDefaultSalary), findsOneWidget);
+    expect(findText(l10n.categoryDefaultSalary), findsOneWidget);
   });
 
   testWidgets('adding a category from the categories screen saves and lists it', (tester) async {
     await pumpApp(tester);
     await tester.tap(
-      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
+      find.descendant(of: find.byType(NavigationBar), matching: findText(l10n.settingsTitle)),
     );
     await tester.pumpAndSettle();
-    final categoriesRow = find.text(l10n.categoriesTitle);
+    final categoriesRow = findText(l10n.categoriesTitle);
     await tester.scrollUntilVisible(categoriesRow, 200);
     await tester.ensureVisible(categoriesRow);
     await tester.pumpAndSettle();
@@ -413,44 +415,44 @@ void main() {
     await tester.tap(find.byTooltip(l10n.categoriesAdd));
     await tester.pumpAndSettle();
     await tester.enterText(
-      find.widgetWithText(TextFormField, l10n.categoryFormNameLabel),
+      findWidgetWithText(TextFormField, l10n.categoryFormNameLabel),
       'Coffee',
     );
-    await tester.ensureVisible(find.text(l10n.commonSave));
-    await tester.tap(find.text(l10n.commonSave));
+    await tester.ensureVisible(findText(l10n.commonSave));
+    await tester.tap(findText(l10n.commonSave));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.categoryFormNewTitle), findsNothing);
-    expect(find.text('Coffee'), findsOneWidget);
+    expect(findText(l10n.categoryFormNewTitle), findsNothing);
+    expect(findText('Coffee'), findsOneWidget);
   });
 
   testWidgets('archiving a category hides it but keeps it readable', (tester) async {
     final container = await pumpApp(tester);
     await tester.runAsync(() => container.read(defaultCategoriesSeederProvider).seed());
     await tester.tap(
-      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
+      find.descendant(of: find.byType(NavigationBar), matching: findText(l10n.settingsTitle)),
     );
     await tester.pumpAndSettle();
-    final categoriesRow = find.text(l10n.categoriesTitle);
+    final categoriesRow = findText(l10n.categoriesTitle);
     await tester.scrollUntilVisible(categoriesRow, 200);
     await tester.ensureVisible(categoriesRow);
     await tester.pumpAndSettle();
     await tester.tap(categoriesRow);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text(l10n.categoryDefaultFood));
+    await tester.tap(findText(l10n.categoryDefaultFood));
     await tester.pumpAndSettle();
-    final archive = find.widgetWithText(TextButton, l10n.categoryFormArchive);
+    final archive = findWidgetWithText(TextButton, l10n.categoryFormArchive);
     await tester.ensureVisible(archive);
     await tester.tap(archive);
     await tester.pumpAndSettle();
     await tester.tap(
-      find.descendant(of: find.byType(AlertDialog), matching: find.text(l10n.categoryFormArchive)),
+      find.descendant(of: find.byType(AlertDialog), matching: findText(l10n.categoryFormArchive)),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.categoryFormEditTitle), findsNothing);
-    expect(find.text(l10n.categoryDefaultFood), findsNothing);
+    expect(findText(l10n.categoryFormEditTitle), findsNothing);
+    expect(findText(l10n.categoryDefaultFood), findsNothing);
     final row = await tester.runAsync(
       () => container
           .read(databaseProvider)
@@ -465,22 +467,22 @@ void main() {
     await tester.runAsync(() => container.read(defaultCategoriesSeederProvider).seed());
 
     await tester.tap(
-      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.transactionsTitle)),
+      find.descendant(of: find.byType(NavigationBar), matching: findText(l10n.transactionsTitle)),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip(l10n.transactionsAdd));
     await tester.pumpAndSettle();
     await tester.enterText(
-      find.widgetWithText(TextFormField, l10n.transactionFormAmountLabel),
+      findWidgetWithText(TextFormField, l10n.transactionFormAmountLabel),
       '12.50',
     );
-    await tester.tap(find.text(l10n.categoryDefaultFood));
+    await tester.tap(findText(l10n.categoryDefaultFood));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text(l10n.commonSave));
-    await tester.tap(find.text(l10n.commonSave));
+    await tester.ensureVisible(findText(l10n.commonSave));
+    await tester.tap(findText(l10n.commonSave));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.transactionFormNewTitle), findsNothing);
+    expect(findText(l10n.transactionFormNewTitle), findsNothing);
     final db = container.read(databaseProvider);
     final rows = await tester.runAsync(() => db.select(db.transactions).get());
     expect(rows, hasLength(1));
@@ -492,44 +494,44 @@ void main() {
     expect(find.byTooltip(l10n.syncStatusOffline), findsOneWidget);
 
     // The list follows the database: no manual refresh needed.
-    expect(find.text(l10n.commonToday), findsOneWidget);
-    expect(find.text(r'-$12.50'), findsWidgets);
-    expect(find.text(l10n.categoryDefaultFood), findsOneWidget);
+    expect(findText(l10n.commonToday), findsOneWidget);
+    expect(findText(r'-$12.50'), findsWidgets);
+    expect(findText(l10n.categoryDefaultFood), findsOneWidget);
 
     // Month filter: the previous month is empty, the current one shows it again.
     await tester.tap(find.byTooltip(l10n.commonPreviousMonth));
     await tester.pumpAndSettle();
-    expect(find.text(l10n.transactionsEmptyTitle('September 2026')), findsOneWidget);
+    expect(findText(l10n.transactionsEmptyTitle('September 2026')), findsOneWidget);
     await tester.tap(find.byTooltip(l10n.commonNextMonth));
     await tester.pumpAndSettle();
-    expect(find.text(l10n.categoryDefaultFood), findsOneWidget);
+    expect(findText(l10n.categoryDefaultFood), findsOneWidget);
 
     // Swipe to delete (soft), then Undo restores it.
-    await tester.fling(find.text(l10n.categoryDefaultFood), const Offset(-600, 0), 1000);
+    await tester.fling(findText(l10n.categoryDefaultFood), const Offset(-600, 0), 1000);
     await tester.pumpAndSettle();
-    expect(find.text(l10n.categoryDefaultFood), findsNothing);
+    expect(findText(l10n.categoryDefaultFood), findsNothing);
     final deleted = await tester.runAsync(() => db.select(db.transactions).getSingle());
     expect(deleted?.deletedAt, isNotNull);
 
-    await tester.tap(find.text(l10n.commonUndo));
+    await tester.tap(findText(l10n.commonUndo));
     await tester.pumpAndSettle();
-    expect(find.text(l10n.categoryDefaultFood), findsOneWidget);
+    expect(findText(l10n.categoryDefaultFood), findsOneWidget);
     final restored = await tester.runAsync(() => db.select(db.transactions).getSingle());
     expect(restored?.deletedAt, isNull);
 
     // Detail page: tap the row, delete from there, then undo from the list.
-    await tester.tap(find.text(l10n.categoryDefaultFood));
+    await tester.tap(findText(l10n.categoryDefaultFood));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, l10n.transactionDetailTitle), findsOneWidget);
-    expect(find.text(r'-$12.50'), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.transactionDetailTitle), findsOneWidget);
+    expect(findText(r'-$12.50'), findsOneWidget);
     await tester.tap(find.byTooltip(l10n.commonDelete));
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, l10n.transactionsTitle), findsOneWidget);
-    expect(find.text(l10n.transactionDeleted), findsOneWidget);
-    expect(find.text(l10n.categoryDefaultFood), findsNothing);
-    await tester.tap(find.text(l10n.commonUndo));
+    expect(findWidgetWithText(AppBar, l10n.transactionsTitle), findsOneWidget);
+    expect(findText(l10n.transactionDeleted), findsOneWidget);
+    expect(findText(l10n.categoryDefaultFood), findsNothing);
+    await tester.tap(findText(l10n.commonUndo));
     await tester.pumpAndSettle();
-    expect(find.text(l10n.categoryDefaultFood), findsOneWidget);
+    expect(findText(l10n.categoryDefaultFood), findsOneWidget);
   });
 
   testWidgets('theme picker in settings switches to dark mode and saves it on the profile', (
@@ -538,10 +540,10 @@ void main() {
     final container = await pumpApp(tester);
 
     await tester.tap(
-      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
+      find.descendant(of: find.byType(NavigationBar), matching: findText(l10n.settingsTitle)),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text(l10n.settingsThemeDark));
+    await tester.tap(findText(l10n.settingsThemeDark));
     await tester.pumpAndSettle();
 
     final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
@@ -561,7 +563,7 @@ void main() {
     final clock = container.read(clockProvider) as FixedClock;
     Future<void> typeIn(Finder area, String digits) async {
       for (final d in digits.split('')) {
-        await tester.tap(find.descendant(of: area, matching: find.text(d)).last);
+        await tester.tap(find.descendant(of: area, matching: findText(d)).last);
         await tester.pump();
       }
       await tester.pumpAndSettle();
@@ -581,27 +583,27 @@ void main() {
     }
 
     await tester.tap(
-      find.descendant(of: find.byType(NavigationBar), matching: find.text(l10n.settingsTitle)),
+      find.descendant(of: find.byType(NavigationBar), matching: findText(l10n.settingsTitle)),
     );
     await tester.pumpAndSettle();
-    final lockSwitch = find.widgetWithText(SwitchListTile, l10n.settingsAppLock);
+    final lockSwitch = findWidgetWithText(AppSwitchTile, l10n.settingsAppLock);
     await tester.scrollUntilVisible(lockSwitch, 200);
     await tester.tap(lockSwitch);
     await tester.pumpAndSettle();
     await typeIn(find.byType(BottomSheet), '1357');
     await typeIn(find.byType(BottomSheet), '1357');
-    expect(find.text(l10n.settingsAppLockOn), findsOneWidget);
+    expect(findText(l10n.settingsAppLockOn), findsOneWidget);
 
     // Away for less than the default 30 s: still open.
     await background(const Duration(seconds: 10));
-    expect(find.text(l10n.lockTitle), findsNothing);
+    expect(findText(l10n.lockTitle), findsNothing);
 
     // Away for 30 s: locked, and the PIN brings back the same screen.
     await background(const Duration(seconds: 30));
-    expect(find.text(l10n.lockTitle), findsOneWidget);
+    expect(findText(l10n.lockTitle), findsOneWidget);
 
     await typeIn(find.byType(Scaffold).last, '1357');
-    expect(find.text(l10n.lockTitle), findsNothing);
-    expect(find.widgetWithText(AppBar, l10n.settingsTitle), findsOneWidget);
+    expect(findText(l10n.lockTitle), findsNothing);
+    expect(findWidgetWithText(AppBar, l10n.settingsTitle), findsOneWidget);
   });
 }

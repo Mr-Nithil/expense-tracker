@@ -1,7 +1,7 @@
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
+import 'package:expense_tracker/core/widgets/app_switch.dart';
 import 'package:expense_tracker/features/reminders/domain/entities/reminder.dart';
 import 'package:expense_tracker/features/reminders/presentation/widgets/reminder_tile.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../helpers/pump_app.dart';
@@ -29,13 +29,13 @@ void main() {
       brightness: brightness,
     );
 
-    expect(find.text('Log expenses'), findsOneWidget);
-    expect(find.text(l10n.reminderEveryDay('8:30 PM')), findsOneWidget);
-    expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+    expect(findText('Log expenses'), findsOneWidget);
+    expect(findText(l10n.reminderEveryDay('8:30 PM')), findsOneWidget);
+    expect(tester.widget<AppSwitch>(find.byType(AppSwitch)).value, isTrue);
 
-    await tester.tap(find.byType(Switch));
+    await tester.tap(find.byType(AppSwitch));
     expect(toggled, isFalse);
-    await tester.tap(find.text('Log expenses'));
+    await tester.tap(findText('Log expenses'));
     expect(taps, 1);
   });
 

@@ -36,28 +36,28 @@ void main() {
   ) async {
     final deleted = await pumpItem(tester, brightness: brightness);
 
-    final gesture = await tester.startGesture(tester.getCenter(find.text('Row')));
+    final gesture = await tester.startGesture(tester.getCenter(findText('Row')));
     await gesture.moveBy(const Offset(-120, 0));
     await tester.pump();
     expect(find.byIcon(Icons.delete_outline), findsOneWidget);
     await gesture.up();
     await tester.pumpAndSettle();
 
-    await tester.fling(find.text('Row'), const Offset(-600, 0), 1000);
+    await tester.fling(findText('Row'), const Offset(-600, 0), 1000);
     await tester.pumpAndSettle();
 
     expect(deleted, ['row']);
-    expect(find.text('Row'), findsNothing);
+    expect(findText('Row'), findsNothing);
   });
 
   testWidgets('swiping right does nothing', (tester) async {
     final deleted = await pumpItem(tester);
 
-    await tester.fling(find.text('Row'), const Offset(600, 0), 1000);
+    await tester.fling(findText('Row'), const Offset(600, 0), 1000);
     await tester.pumpAndSettle();
 
     expect(deleted, isEmpty);
-    expect(find.text('Row'), findsOneWidget);
+    expect(findText('Row'), findsOneWidget);
   });
 
   testWidgets('screen readers get a Delete action', (tester) async {

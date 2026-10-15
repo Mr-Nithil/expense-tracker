@@ -32,22 +32,22 @@ void main() {
       brightness: brightness,
     );
 
-    expect(find.text(l10n.commonToday), findsOneWidget);
-    expect(find.text(r'$837.50'), findsOneWidget);
+    expect(findText(l10n.commonToday), findsOneWidget);
+    expect(findText(r'$837.50'), findsOneWidget);
   });
 
   testWidgets('labels yesterday, then weekday dates', (tester) async {
     await pumpHeader(tester, day(DateTime(2026, 10, 10)));
-    expect(find.text(l10n.commonYesterday), findsOneWidget);
+    expect(findText(l10n.commonYesterday), findsOneWidget);
 
     await pumpHeader(tester, day(DateTime(2026, 10, 9)));
-    expect(find.text('Fri, Oct 9'), findsOneWidget);
+    expect(findText('Fri, Oct 9'), findsOneWidget);
   });
 
   testWidgets('a negative day uses the expense color', (tester) async {
     await pumpHeader(tester, day(DateTime(2026, 10, 9), expense: 1250));
 
-    final text = tester.widget<Text>(find.text(r'-$12.50'));
+    final text = tester.widget<Text>(findText(r'-$12.50'));
     expect(text.style?.color, AppColors.light.expense);
   });
 }

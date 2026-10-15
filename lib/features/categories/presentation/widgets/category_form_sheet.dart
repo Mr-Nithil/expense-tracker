@@ -9,6 +9,7 @@ import 'package:expense_tracker/core/widgets/app_text_field.dart';
 import 'package:expense_tracker/core/widgets/category_icon.dart';
 import 'package:expense_tracker/core/widgets/confirm_dialog.dart';
 import 'package:expense_tracker/core/widgets/section_header.dart';
+import 'package:expense_tracker/core/widgets/segmented_pill.dart';
 import 'package:expense_tracker/features/categories/domain/entities/category.dart';
 import 'package:expense_tracker/features/categories/domain/services/category_palette.dart';
 import 'package:expense_tracker/features/categories/domain/services/category_validator.dart';
@@ -142,15 +143,13 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
           ),
           const Gap(AppSpacing.md),
           SectionHeader(title: l10n.categoryFormTypeLabel),
-          SegmentedButton<CategoryType>(
-            segments: [
+          SegmentedPill<CategoryType>(
+            options: [
               for (final type in CategoryType.values)
-                ButtonSegment(value: type, label: Text(type.label(context))),
+                SegmentedPillOption(value: type, label: type.label(context)),
             ],
-            selected: {_type},
-            onSelectionChanged: isSaving
-                ? null
-                : (selection) => setState(() => _type = selection.first),
+            selected: _type,
+            onChanged: isSaving ? null : (type) => setState(() => _type = type),
           ),
           const Gap(AppSpacing.md),
           SectionHeader(title: l10n.categoryFormIconLabel),

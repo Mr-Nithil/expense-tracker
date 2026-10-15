@@ -76,7 +76,7 @@ void main() {
       await tester.enterText(find.byType(TextFormField), '12.5');
       await tester.pump();
 
-      expect(find.text(r'$ '), findsOneWidget);
+      expect(findText(r'$ '), findsOneWidget);
       expect(await latest(), const Money(1250));
     });
 
@@ -99,7 +99,7 @@ void main() {
     testWidgets('shows the initial value', (tester) async {
       final latest = pumpField(tester, initial: const Money(123450));
       await latest();
-      expect(find.text('1234.50'), findsOneWidget);
+      expect(findText('1234.50'), findsOneWidget);
     });
 
     testWidgets('validates required and greater than zero', (tester) async {
@@ -109,12 +109,12 @@ void main() {
 
       formKey.currentState!.validate();
       await tester.pump();
-      expect(find.text(l10n.errorFieldRequired), findsOneWidget);
+      expect(findText(l10n.errorFieldRequired), findsOneWidget);
 
       await tester.enterText(find.byType(TextFormField), '0');
       formKey.currentState!.validate();
       await tester.pump();
-      expect(find.text(l10n.errorAmountInvalid), findsOneWidget);
+      expect(findText(l10n.errorAmountInvalid), findsOneWidget);
 
       await tester.enterText(find.byType(TextFormField), '0.01');
       expect(formKey.currentState!.validate(), isTrue);

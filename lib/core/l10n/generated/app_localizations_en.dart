@@ -840,6 +840,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingTitle => 'Choose your currency';
 
   @override
+  String get passwordStrengthGood => 'Good';
+
+  @override
+  String get passwordStrengthGreat => 'Great';
+
+  @override
+  String passwordStrengthLabel(String level) {
+    return 'Password strength: $level';
+  }
+
+  @override
+  String passwordStrengthMore(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString more',
+      one: '1 more',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passwordStrengthOkay => 'Okay';
+
+  @override
+  String get passwordStrengthStrong => 'Strong';
+
+  @override
   String get pinConfirmTitle => 'Enter the PIN again';
 
   @override

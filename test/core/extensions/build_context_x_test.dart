@@ -19,12 +19,12 @@ void main() {
 
     context.showSnack('first');
     await tester.pumpAndSettle();
-    expect(find.text('first'), findsOneWidget);
+    expect(findText('first'), findsOneWidget);
 
     context.showSnack('second');
     await tester.pumpAndSettle();
-    expect(find.text('first'), findsNothing);
-    expect(find.text('second'), findsOneWidget);
+    expect(findText('first'), findsNothing);
+    expect(findText('second'), findsOneWidget);
   });
 
   testWidgets('showSnack can offer one action', (tester) async {
@@ -41,7 +41,7 @@ void main() {
 
     context.showSnack('Not confirmed', actionLabel: 'Resend', onAction: () => tapped++);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Resend'));
+    await tester.tap(findText('Resend'));
     await tester.pumpAndSettle();
 
     expect(tapped, 1);
@@ -61,7 +61,7 @@ void main() {
 
     context.showUndoSnack('Deleted', onUndo: () => undone++);
     await tester.pumpAndSettle();
-    await tester.tap(find.text(AppLocalizationsEn().commonUndo));
+    await tester.tap(findText(AppLocalizationsEn().commonUndo));
     await tester.pumpAndSettle();
 
     expect(undone, 1);
@@ -84,4 +84,26 @@ void main() {
       expect(context.formatNumber(7), '7');
     });
   }
+
+  testWidgets('toasts last 3 s with a decorative leading icon', (tester) async {
+    late BuildContext context;
+    await tester.pumpApp(
+      Builder(
+        builder: (c) {
+          context = c;
+          return const SizedBox();
+        },
+      ),
+    );
+
+    context.showSnack('Saved');
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
+    expect(tester.widget<SnackBar>(find.byType(SnackBar)).duration, const Duration(seconds: 3));
+    expect(find.bySemanticsLabel('Saved'), findsOneWidget);
+
+    context.showUndoSnack('Deleted', onUndo: () {});
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.undo_rounded), findsOneWidget);
+  });
 }

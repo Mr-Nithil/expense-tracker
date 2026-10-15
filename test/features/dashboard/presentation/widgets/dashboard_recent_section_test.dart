@@ -99,13 +99,13 @@ void main() {
   ) async {
     await pump(tester, () => Stream.value(seven), brightness: brightness);
 
-    expect(find.text(l10n.dashboardRecentTitle), findsOneWidget);
+    expect(findText(l10n.dashboardRecentTitle), findsOneWidget);
     final shown = [
       for (final tile in tester.widgetList<TransactionTile>(find.byType(TransactionTile)))
         tile.transaction.id,
     ];
     expect(shown, ['t30', 't29', 't28', 't27', 't26']);
-    expect(find.text(r'-$30.00'), findsOneWidget);
+    expect(findText(r'-$30.00'), findsOneWidget);
   });
 
   testWidgets('See all opens the Transactions tab on the same month, unfiltered', (tester) async {
@@ -118,25 +118,25 @@ void main() {
       ..setType(TransactionType.income)
       ..setCategory('salary');
 
-    await tester.tap(find.text(l10n.commonSeeAll));
+    await tester.tap(findText(l10n.commonSeeAll));
     await tester.pumpAndSettle();
 
-    expect(find.text('transactions ${TransactionFilter(month: september)}'), findsOneWidget);
+    expect(findText('transactions ${TransactionFilter(month: september)}'), findsOneWidget);
   });
 
   testWidgets('tapping a transaction opens its detail page', (tester) async {
     await pump(tester, () => Stream.value(seven));
 
-    await tester.tap(find.text(r'-$28.00'));
+    await tester.tap(findText(r'-$28.00'));
     await tester.pumpAndSettle();
 
-    expect(find.text('detail t28'), findsOneWidget);
+    expect(findText('detail t28'), findsOneWidget);
   });
 
   testWidgets('a month without transactions says so', (tester) async {
     await pump(tester, () => Stream.value(const []));
 
-    expect(find.text(l10n.dashboardRecentEmpty('September 2026')), findsOneWidget);
+    expect(findText(l10n.dashboardRecentEmpty('September 2026')), findsOneWidget);
     expect(find.byType(TransactionTile), findsNothing);
   });
 
@@ -146,9 +146,9 @@ void main() {
       loads++;
       return loads == 1 ? Stream.error(const StorageFailure('db')) : Stream.value(seven);
     });
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
     expect(find.byType(TransactionTile), findsNWidgets(5));

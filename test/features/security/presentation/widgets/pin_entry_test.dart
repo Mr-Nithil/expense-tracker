@@ -29,7 +29,7 @@ void main() {
 
   Future<void> type(WidgetTester tester, String digits) async {
     for (final d in digits.split('')) {
-      await tester.tap(find.text(d));
+      await tester.tap(findText(d));
       await tester.pump();
     }
   }

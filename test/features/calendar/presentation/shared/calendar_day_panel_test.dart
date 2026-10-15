@@ -95,7 +95,7 @@ void main() {
   testWidgetsBothThemes('lists only the selected day\'s transactions', (tester, brightness) async {
     await pump(tester, () => Stream.value(month), brightness: brightness);
 
-    expect(find.text('Monday, October 5, 2026'), findsOneWidget);
+    expect(findText('Monday, October 5, 2026'), findsOneWidget);
     final ids = [
       for (final tile in tester.widgetList<TransactionTile>(find.byType(TransactionTile)))
         tile.transaction.id,
@@ -107,7 +107,7 @@ void main() {
     await pump(tester, () => Stream.value(month), selected: DateTime(2026, 10, 6));
 
     expect(
-      find.text(l10n.calendarNoTransactionsOn('Tuesday, October 6, 2026')),
+      findText(l10n.calendarNoTransactionsOn('Tuesday, October 6, 2026')),
       findsOneWidget,
     );
     expect(find.byType(TransactionTile), findsNothing);
@@ -116,12 +116,12 @@ void main() {
   testWidgets('"Add transaction" opens the sheet on that day', (tester) async {
     await pump(tester, () => Stream.value(month));
 
-    await tester.tap(find.text(l10n.transactionsAdd));
+    await tester.tap(findText(l10n.transactionsAdd));
     await tester.pumpAndSettle();
 
     final sheet = tester.widget<TransactionFormSheet>(find.byType(TransactionFormSheet));
     expect(sheet.initialDate, day);
-    expect(find.text('Oct 5, 2026'), findsOneWidget);
+    expect(findText('Oct 5, 2026'), findsOneWidget);
   });
 
   testWidgets('tapping a transaction opens its detail page', (tester) async {
@@ -130,14 +130,14 @@ void main() {
     await tester.tap(find.byType(TransactionTile).first);
     await tester.pumpAndSettle();
 
-    expect(find.text('detail a'), findsOneWidget);
+    expect(findText('detail a'), findsOneWidget);
   });
 
   testWidgets('can hide the date', (tester) async {
     await pump(tester, () => Stream.value(month), showDate: false);
 
-    expect(find.text('Monday, October 5, 2026'), findsNothing);
-    expect(find.text(l10n.transactionsAdd), findsOneWidget);
+    expect(findText('Monday, October 5, 2026'), findsNothing);
+    expect(findText(l10n.transactionsAdd), findsOneWidget);
   });
 
   testWidgets('a custom tap handler replaces opening the detail page', (tester) async {
@@ -148,7 +148,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tapped?.id, 'a');
-    expect(find.text('detail a'), findsNothing);
+    expect(findText('detail a'), findsNothing);
   });
 
   testWidgets('an error offers a retry that reloads', (tester) async {
@@ -157,9 +157,9 @@ void main() {
       loads++;
       return loads == 1 ? Stream.error(const StorageFailure('db')) : Stream.value(month);
     });
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
     expect(find.byType(TransactionTile), findsNWidgets(2));

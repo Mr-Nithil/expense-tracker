@@ -9,6 +9,8 @@ import 'package:go_router/go_router.dart';
 import 'accessibility.dart';
 import 'test_database.dart';
 
+export 'finders.dart';
+
 extension PumpApp on WidgetTester {
   /// Pumps [widget] inside a themed, localized [MaterialApp] ([locale], en_US by default) with a
   /// [Scaffold].

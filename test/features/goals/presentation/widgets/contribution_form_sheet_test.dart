@@ -58,24 +58,24 @@ void main() {
         currencyCodeProvider.overrideWith((ref) async => 'USD'),
       ],
     );
-    await tester.tap(find.text('open'));
+    await tester.tap(findText('open'));
     await tester.pumpAndSettle();
   }
 
-  Finder amountField() => find.widgetWithText(TextFormField, l10n.goalContributionAmountLabel);
-  Finder noteField() => find.widgetWithText(TextFormField, l10n.goalContributionNoteLabel);
+  Finder amountField() => findWidgetWithText(TextFormField, l10n.goalContributionAmountLabel);
+  Finder noteField() => findWidgetWithText(TextFormField, l10n.goalContributionNoteLabel);
 
   Future<void> save(WidgetTester tester) async {
-    await tester.ensureVisible(find.text(l10n.commonSave));
-    await tester.tap(find.text(l10n.commonSave));
+    await tester.ensureVisible(findText(l10n.commonSave));
+    await tester.tap(findText(l10n.commonSave));
     await tester.pumpAndSettle();
   }
 
   testWidgetsBothThemes('starts on today', (tester, brightness) async {
     await open(tester, b: brightness);
 
-    expect(find.text(l10n.goalsAddMoney), findsOneWidget);
-    expect(find.text('Oct 11, 2026'), findsOneWidget);
+    expect(findText(l10n.goalsAddMoney), findsOneWidget);
+    expect(findText('Oct 11, 2026'), findsOneWidget);
   });
 
   testWidgets('adds money with a note and closes', (tester) async {
@@ -98,10 +98,10 @@ void main() {
     await open(tester);
     await tester.enterText(amountField(), '50');
 
-    await tester.tap(find.text('Oct 11, 2026'));
+    await tester.tap(findText('Oct 11, 2026'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('3'));
-    await tester.tap(find.text('OK'));
+    await tester.tap(findText('3'));
+    await tester.tap(findText('OK'));
     await tester.pumpAndSettle();
     await save(tester);
 
@@ -115,7 +115,7 @@ void main() {
 
     await save(tester);
 
-    expect(find.text(l10n.errorFieldRequired), findsOneWidget);
+    expect(findText(l10n.errorFieldRequired), findsOneWidget);
     verifyNever(() => repository.addContribution(any()));
   });
 
@@ -130,7 +130,7 @@ void main() {
 
     await save(tester);
 
-    expect(find.text(l10n.errorGoalNotFound), findsOneWidget);
+    expect(findText(l10n.errorGoalNotFound), findsOneWidget);
     expect(find.byType(ContributionFormSheet), findsOneWidget);
   });
 
@@ -145,7 +145,7 @@ void main() {
 
     await save(tester);
 
-    expect(find.text(l10n.errorGoalContributionDateOutOfRange), findsOneWidget);
+    expect(findText(l10n.errorGoalContributionDateOutOfRange), findsOneWidget);
   });
 
   group('accessibility (M9.5)', () {

@@ -17,7 +17,7 @@ void main() {
     final viewport = tester.getSize(find.byType(AlwaysScrollable));
     expect(tester.getSize(find.byType(SizedBox).last).height, viewport.height);
 
-    await tester.fling(find.text('Nothing here'), const Offset(0, 400), 1000);
+    await tester.fling(findText('Nothing here'), const Offset(0, 400), 1000);
     await tester.pumpAndSettle();
 
     expect(refreshed, 1);

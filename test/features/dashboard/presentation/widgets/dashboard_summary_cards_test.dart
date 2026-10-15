@@ -23,7 +23,7 @@ void main() {
 
   AmountText amountOf(WidgetTester tester, String label) => tester.widget(
     find.descendant(
-      of: find.ancestor(of: find.text(label), matching: find.byType(MergeSemantics)),
+      of: find.ancestor(of: findText(label), matching: find.byType(MergeSemantics)),
       matching: find.byType(AmountText),
     ),
   );
@@ -35,10 +35,10 @@ void main() {
       brightness: brightness,
     );
 
-    expect(find.text(l10n.dashboardBalance), findsOneWidget);
-    expect(find.text(r'$3,799.50'), findsOneWidget);
-    expect(find.text(r'$5,000.00'), findsOneWidget);
-    expect(find.text(r'$1,200.50'), findsOneWidget);
+    expect(findText(l10n.dashboardBalance), findsOneWidget);
+    expect(findText(r'$3,799.50'), findsOneWidget);
+    expect(findText(r'$5,000.00'), findsOneWidget);
+    expect(findText(r'$1,200.50'), findsOneWidget);
     expect(amountOf(tester, l10n.commonIncome).type, AmountType.income);
     expect(amountOf(tester, l10n.commonExpense).type, AmountType.expense);
     expect(amountOf(tester, l10n.dashboardBalance).type, AmountType.neutral);
@@ -47,8 +47,8 @@ void main() {
   testWidgets('a negative balance shows in the expense color', (tester) async {
     await pump(tester, const MonthTotals(income: Money(1000), expense: Money(2500)));
 
-    final balance = tester.widget<Text>(find.text(r'-$15.00'));
-    final colors = Theme.of(tester.element(find.text(r'-$15.00'))).extension<AppColors>()!;
+    final balance = tester.widget<Text>(findText(r'-$15.00'));
+    final colors = Theme.of(tester.element(findText(r'-$15.00'))).extension<AppColors>()!;
     expect(balance.style?.color, colors.expense);
   });
 

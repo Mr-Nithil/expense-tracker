@@ -47,8 +47,8 @@ void main() {
     ],
   );
 
-  Finder emailField() => find.widgetWithText(TextFormField, l10n.authEmailLabel);
-  Finder submitButton() => find.widgetWithText(FilledButton, l10n.authForgotPasswordSubmit);
+  Finder emailField() => findWidgetWithText(TextFormField, l10n.authEmailLabel);
+  Finder submitButton() => findWidgetWithText(FilledButton, l10n.authForgotPasswordSubmit);
 
   void stubReset(Future<Result<void>> Function() answer) => when(
     () => repository.sendPasswordReset(email: any(named: 'email')),
@@ -62,8 +62,8 @@ void main() {
   testWidgetsBothThemes('renders the form', (tester, brightness) async {
     await pumpScreen(tester, brightness: brightness);
 
-    expect(find.widgetWithText(AppBar, l10n.authForgotPasswordTitle), findsOneWidget);
-    expect(find.text(l10n.authForgotPasswordSubtitle), findsOneWidget);
+    expect(findWidgetWithText(AppBar, l10n.authForgotPasswordTitle), findsOneWidget);
+    expect(findText(l10n.authForgotPasswordSubtitle), findsOneWidget);
     expect(emailField(), findsOneWidget);
     expect(submitButton(), findsOneWidget);
   });
@@ -74,14 +74,14 @@ void main() {
     await tester.enterText(emailField(), 'nope');
     await submit(tester);
 
-    expect(find.text(l10n.errorEmailInvalid), findsOneWidget);
+    expect(findText(l10n.errorEmailInvalid), findsOneWidget);
     verifyNever(() => repository.sendPasswordReset(email: any(named: 'email')));
   });
 
   testWidgets('pre-fills the email passed from login', (tester) async {
     await pumpScreen(tester, initialEmail: email);
 
-    expect(find.widgetWithText(TextFormField, email), findsOneWidget);
+    expect(findWidgetWithText(TextFormField, email), findsOneWidget);
   });
 
   testWidgets('sends the link, shows loading, then the neutral sent view', (tester) async {
@@ -99,8 +99,8 @@ void main() {
     await tester.pumpAndSettle();
 
     verify(() => repository.sendPasswordReset(email: email)).called(1);
-    expect(find.text(l10n.authForgotPasswordSentTitle), findsOneWidget);
-    expect(find.text(l10n.authForgotPasswordSentMessage(email)), findsOneWidget);
+    expect(findText(l10n.authForgotPasswordSentTitle), findsOneWidget);
+    expect(findText(l10n.authForgotPasswordSentMessage(email)), findsOneWidget);
     expect(emailField(), findsNothing);
   });
 
@@ -110,10 +110,10 @@ void main() {
     await submit(tester);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text(l10n.authForgotPasswordBackToLogin));
+    await tester.tap(findText(l10n.authForgotPasswordBackToLogin));
     await tester.pumpAndSettle();
 
-    expect(find.text('login'), findsOneWidget);
+    expect(findText('login'), findsOneWidget);
   });
 
   testWidgets('a failure shows a snackbar and keeps the form', (tester) async {
@@ -123,7 +123,7 @@ void main() {
     await submit(tester);
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.errorNetwork), findsOneWidget);
+    expect(findText(l10n.errorNetwork), findsOneWidget);
     expect(emailField(), findsOneWidget);
   });
 

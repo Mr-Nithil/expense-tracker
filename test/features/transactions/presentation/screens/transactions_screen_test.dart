@@ -95,10 +95,10 @@ void main() {
       tx('c', 9, 400),
     ], brightness: brightness);
 
-    expect(find.text(l10n.commonToday), findsOneWidget);
-    expect(find.text('Fri, Oct 9'), findsOneWidget);
-    expect(find.text(r'-$20.00'), findsOneWidget);
-    expect(find.text(r'-$4.00'), findsNWidgets(2));
+    expect(findText(l10n.commonToday), findsOneWidget);
+    expect(findText('Fri, Oct 9'), findsOneWidget);
+    expect(findText(r'-$20.00'), findsOneWidget);
+    expect(findText(r'-$4.00'), findsNWidgets(2));
     expect(find.byType(TransactionTile), findsNWidgets(3));
   });
 
@@ -112,11 +112,11 @@ void main() {
   testWidgets('an empty month offers to add one', (tester) async {
     await pumpScreen(tester, const []);
 
-    expect(find.text(l10n.transactionsEmptyTitle('October 2026')), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, l10n.transactionsAdd));
+    expect(findText(l10n.transactionsEmptyTitle('October 2026')), findsOneWidget);
+    await tester.tap(findWidgetWithText(FilledButton, l10n.transactionsAdd));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.transactionFormNewTitle), findsOneWidget);
+    expect(findText(l10n.transactionFormNewTitle), findsOneWidget);
   });
 
   testWidgets('tapping a row opens its detail page', (tester) async {
@@ -142,7 +142,7 @@ void main() {
     await tester.tap(find.byType(TransactionTile));
     await tester.pumpAndSettle();
 
-    expect(find.text('detail a'), findsOneWidget);
+    expect(findText('detail a'), findsOneWidget);
   });
 
   testWidgets('the add button opens the new-transaction sheet', (tester) async {
@@ -151,7 +151,7 @@ void main() {
     await tester.tap(find.byTooltip(l10n.transactionsAdd));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.transactionFormNewTitle), findsOneWidget);
+    expect(findText(l10n.transactionFormNewTitle), findsOneWidget);
   });
 
   testWidgets('an error offers a retry that reloads', (tester) async {
@@ -165,8 +165,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.errorStorage), findsOneWidget);
-    await tester.tap(find.text(l10n.commonRetry));
+    expect(findText(l10n.errorStorage), findsOneWidget);
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
     expect(loads, greaterThan(1));
   });
@@ -191,8 +191,8 @@ void main() {
       await tester.tap(find.byTooltip(l10n.commonPreviousMonth));
       await tester.pumpAndSettle();
 
-      expect(find.text('September 2026'), findsOneWidget);
-      expect(find.text(r'-$9.99'), findsWidgets);
+      expect(findText('September 2026'), findsOneWidget);
+      expect(findText(r'-$9.99'), findsWidgets);
     });
 
     testWidgets('choosing income shows only the income list', (tester) async {
@@ -209,11 +209,11 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text(l10n.commonIncome));
+      await tester.tap(findText(l10n.commonIncome));
       await tester.pumpAndSettle();
 
-      expect(find.text(r'+$850.00'), findsWidgets);
-      expect(find.text(r'-$12.50'), findsNothing);
+      expect(findText(r'+$850.00'), findsWidgets);
+      expect(findText(r'-$12.50'), findsNothing);
     });
 
     testWidgets('a filter that hides everything offers to clear it', (tester) async {
@@ -227,11 +227,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.text(l10n.commonIncome));
+      await tester.tap(findText(l10n.commonIncome));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.transactionsNoMatchesTitle), findsOneWidget);
-      await tester.tap(find.widgetWithText(FilledButton, l10n.transactionsClearFilters));
+      expect(findText(l10n.transactionsNoMatchesTitle), findsOneWidget);
+      await tester.tap(findWidgetWithText(FilledButton, l10n.transactionsClearFilters));
       await tester.pumpAndSettle();
 
       expect(find.byType(TransactionTile), findsOneWidget);
@@ -261,7 +261,7 @@ void main() {
     /// Swipes the row showing [amount] (not the day header, which can show the same text).
     Future<void> swipe(WidgetTester tester, String amount) async {
       await tester.fling(
-        find.descendant(of: find.byType(TransactionTile), matching: find.text(amount)),
+        find.descendant(of: find.byType(TransactionTile), matching: findText(amount)),
         const Offset(-600, 0),
         1000,
       );
@@ -275,10 +275,10 @@ void main() {
 
       verify(() => repository.delete('a')).called(1);
       expect(find.byType(TransactionTile), findsOneWidget);
-      expect(find.text(l10n.transactionDeleted), findsOneWidget);
-      expect(find.text(r'-$7.50'), findsNWidgets(2));
+      expect(findText(l10n.transactionDeleted), findsOneWidget);
+      expect(findText(r'-$7.50'), findsNWidgets(2));
 
-      await tester.tap(find.text(l10n.commonUndo));
+      await tester.tap(findText(l10n.commonUndo));
       await tester.pumpAndSettle();
 
       verify(() => repository.restore('a')).called(1);
@@ -313,9 +313,9 @@ void main() {
       await tester.pumpAndSettle();
 
       await swipe(tester, r'-$12.50');
-      expect(find.text(l10n.transactionsEmptyTitle('October 2026')), findsOneWidget);
+      expect(findText(l10n.transactionsEmptyTitle('October 2026')), findsOneWidget);
 
-      await tester.tap(find.text(l10n.commonUndo));
+      await tester.tap(findText(l10n.commonUndo));
       await tester.pumpAndSettle();
 
       verify(() => repository.restore('a')).called(1);
@@ -331,7 +331,7 @@ void main() {
       await swipe(tester, r'-$12.50');
 
       expect(find.byType(TransactionTile), findsOneWidget);
-      expect(find.text(l10n.errorStorage), findsOneWidget);
+      expect(findText(l10n.errorStorage), findsOneWidget);
     });
 
     testWidgets('swiping a day’s only transaction removes its header', (tester) async {
@@ -339,8 +339,8 @@ void main() {
 
       await swipe(tester, r'-$4.00');
 
-      expect(find.text('Fri, Oct 9'), findsNothing);
-      expect(find.text(l10n.commonToday), findsOneWidget);
+      expect(findText('Fri, Oct 9'), findsNothing);
+      expect(findText(l10n.commonToday), findsOneWidget);
     });
   });
 
@@ -366,9 +366,9 @@ void main() {
       ],
     );
     await tester.pumpAndSettle();
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
     expect(find.byType(TransactionTile), findsOneWidget);
@@ -403,7 +403,7 @@ void main() {
     testWidgets('an empty month can be pulled too', (tester) async {
       await pumpWith(tester, const []);
 
-      await pull(tester, find.text(l10n.transactionsEmptyTitle('October 2026')));
+      await pull(tester, findText(l10n.transactionsEmptyTitle('October 2026')));
 
       expect(trigger.immediate, 1);
     });
@@ -414,7 +414,7 @@ void main() {
 
       await pull(tester, find.byType(TransactionTile));
 
-      expect(find.text(l10n.errorNetwork), findsOneWidget);
+      expect(findText(l10n.errorNetwork), findsOneWidget);
     });
   });
 

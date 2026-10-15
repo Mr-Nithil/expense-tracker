@@ -31,9 +31,9 @@ void main() {
     await tester.pumpApp(const Center(child: ProgressRing(value: 1.4, child: Text('140%'))));
 
     expect(indicator(tester).value, 1.0);
-    expect(find.text('140%'), findsOneWidget);
+    expect(findText('140%'), findsOneWidget);
     expect(
-      tester.getCenter(find.text('140%')),
+      tester.getCenter(findText('140%')),
       tester.getCenter(find.byType(CircularProgressIndicator)),
     );
   });

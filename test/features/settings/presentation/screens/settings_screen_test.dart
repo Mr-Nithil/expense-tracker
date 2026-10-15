@@ -4,6 +4,7 @@ import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_si.dart';
 import 'package:expense_tracker/core/sync/sync_status.dart';
+import 'package:expense_tracker/core/widgets/app_switch.dart';
 import 'package:expense_tracker/features/auth/data/logout_repository_provider.dart';
 import 'package:expense_tracker/features/auth/domain/logout_repository.dart';
 import 'package:expense_tracker/features/profile/data/profile_repository_provider.dart';
@@ -70,7 +71,7 @@ void main() {
   }
 
   Finder dialog() => find.byType(AlertDialog);
-  Finder inDialog(String text) => find.descendant(of: dialog(), matching: find.text(text));
+  Finder inDialog(String text) => find.descendant(of: dialog(), matching: findText(text));
 
   /// Settings is taller than the test screen: build [finder] and scroll it fully into view.
   Future<void> reveal(WidgetTester tester, Finder finder) async {
@@ -80,7 +81,7 @@ void main() {
   }
 
   Future<void> tapLogout(WidgetTester tester) async {
-    final logout = find.widgetWithText(FilledButton, l10n.settingsLogout);
+    final logout = findWidgetWithText(FilledButton, l10n.settingsLogout);
     await reveal(tester, logout);
     await tester.tap(logout);
     await tester.pumpAndSettle();
@@ -101,20 +102,20 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await reveal(tester, find.text(l10n.settingsManageLabel));
-    expect(find.text(l10n.categoriesTitle), findsOneWidget);
-    await reveal(tester, find.widgetWithText(FilledButton, l10n.settingsLogout));
-    expect(find.text(l10n.settingsAccountLabel), findsOneWidget);
+    await reveal(tester, findText(l10n.settingsManageLabel));
+    expect(findText(l10n.categoriesTitle), findsOneWidget);
+    await reveal(tester, findWidgetWithText(FilledButton, l10n.settingsLogout));
+    expect(findText(l10n.settingsAccountLabel), findsOneWidget);
   });
 
   testWidgets('renders in Sinhala without overflow', (tester) async {
     final si = AppLocalizationsSi();
     await pumpSettings(tester, locale: const Locale('si'));
 
-    expect(find.text(si.settingsTitle), findsOneWidget);
-    await reveal(tester, find.text(si.settingsManageLabel));
-    await reveal(tester, find.widgetWithText(FilledButton, si.settingsLogout));
-    await tester.tap(find.widgetWithText(FilledButton, si.settingsLogout));
+    expect(findText(si.settingsTitle), findsOneWidget);
+    await reveal(tester, findText(si.settingsManageLabel));
+    await reveal(tester, findWidgetWithText(FilledButton, si.settingsLogout));
+    await tester.tap(findWidgetWithText(FilledButton, si.settingsLogout));
     await tester.pumpAndSettle();
     expect(inDialog(si.settingsLogoutConfirmMessage), findsOneWidget);
   });
@@ -173,16 +174,16 @@ void main() {
       syncInfo = const SyncStatusInfo(SyncIndicator.pending, pendingCount: 3);
       await pumpSettings(tester);
 
-      await reveal(tester, find.text(l10n.syncStatusPending(3)));
-      expect(find.text(l10n.settingsSyncLabel), findsOneWidget);
-      expect(find.text(l10n.syncStatusPending(3)), findsOneWidget);
+      await reveal(tester, findText(l10n.syncStatusPending(3)));
+      expect(findText(l10n.settingsSyncLabel), findsOneWidget);
+      expect(findText(l10n.syncStatusPending(3)), findsOneWidget);
     });
 
     testWidgets('Sync now syncs', (tester) async {
       await pumpSettings(tester);
 
-      await reveal(tester, find.text(l10n.syncNow));
-      await tester.tap(find.text(l10n.syncNow));
+      await reveal(tester, findText(l10n.syncNow));
+      await tester.tap(findText(l10n.syncNow));
       await tester.pumpAndSettle();
 
       expect(trigger.immediate, 1);
@@ -193,7 +194,7 @@ void main() {
     testWidgets('choosing Dark saves it on the profile', (tester) async {
       await pumpSettings(tester);
 
-      await tester.tap(find.text(l10n.settingsThemeDark));
+      await tester.tap(findText(l10n.settingsThemeDark));
       await tester.pumpAndSettle();
 
       verify(() => profiles.setThemeMode(AppThemeMode.dark)).called(1);
@@ -205,10 +206,10 @@ void main() {
       ).thenAnswer((_) async => const Result.failure(StorageFailure('db')));
       await pumpSettings(tester);
 
-      await tester.tap(find.text(l10n.settingsThemeDark));
+      await tester.tap(findText(l10n.settingsThemeDark));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.errorStorage), findsOneWidget);
+      expect(findText(l10n.errorStorage), findsOneWidget);
     });
   });
 
@@ -232,7 +233,7 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    Finder alertsSwitch() => find.widgetWithText(SwitchListTile, l10n.settingsBudgetAlerts);
+    Finder alertsSwitch() => findWidgetWithText(AppSwitchTile, l10n.settingsBudgetAlerts);
 
     Future<void> flip(WidgetTester tester) async {
       await tester.tap(alertsSwitch());
@@ -242,13 +243,13 @@ void main() {
 
     testWidgets('is off until turned on; turning on asks for permission', (tester) async {
       await pumpWithAlerts(tester);
-      expect(tester.widget<SwitchListTile>(alertsSwitch()).value, isFalse);
+      expect(tester.widget<AppSwitchTile>(alertsSwitch()).value, isFalse);
 
       await flip(tester);
 
-      expect(tester.widget<SwitchListTile>(alertsSwitch()).value, isTrue);
+      expect(tester.widget<AppSwitchTile>(alertsSwitch()).value, isTrue);
       expect(notifications.permissionRequests, 1);
-      expect(find.text(l10n.settingsBudgetAlertsPermissionDenied), findsNothing);
+      expect(findText(l10n.settingsBudgetAlertsPermissionDenied), findsNothing);
     });
 
     testWidgets('a refused permission is explained; the choice stays saved', (tester) async {
@@ -257,8 +258,8 @@ void main() {
 
       await flip(tester);
 
-      expect(find.text(l10n.settingsBudgetAlertsPermissionDenied), findsOneWidget);
-      expect(tester.widget<SwitchListTile>(alertsSwitch()).value, isTrue);
+      expect(findText(l10n.settingsBudgetAlertsPermissionDenied), findsOneWidget);
+      expect(tester.widget<AppSwitchTile>(alertsSwitch()).value, isTrue);
     });
   });
 

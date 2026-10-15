@@ -4,6 +4,7 @@ import 'package:expense_tracker/core/l10n/failure_l10n.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations.dart';
 import 'package:expense_tracker/core/services/biometric_service.dart';
 import 'package:expense_tracker/core/services/local_biometric_service.dart';
+import 'package:expense_tracker/core/widgets/app_switch.dart';
 import 'package:expense_tracker/core/widgets/section_header.dart';
 import 'package:expense_tracker/features/security/domain/entities/lock_settings.dart';
 import 'package:expense_tracker/features/security/presentation/providers/lock_settings_controller.dart';
@@ -109,7 +110,7 @@ class SecuritySettingsSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SectionHeader(title: l10n.settingsSecurityLabel),
-        SwitchListTile(
+        AppSwitchTile(
           secondary: const Icon(Icons.lock_outline),
           title: Text(l10n.settingsAppLock),
           subtitle: Text(l10n.settingsAppLockDescription),
@@ -123,7 +124,7 @@ class SecuritySettingsSection extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _changePin(context),
           ),
-          SwitchListTile(
+          AppSwitchTile(
             secondary: const Icon(Icons.fingerprint),
             title: Text(l10n.settingsBiometrics),
             subtitle: biometricsAvailable ? null : Text(l10n.settingsBiometricsUnavailable),

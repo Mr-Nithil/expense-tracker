@@ -33,8 +33,8 @@ void main() {
         overrides: [authRepositoryProvider.overrideWithValue(repository)],
       );
 
-  Finder field(String label) => find.widgetWithText(TextFormField, label);
-  Finder submitButton() => find.widgetWithText(FilledButton, l10n.authLoginSubmit);
+  Finder field(String label) => findWidgetWithText(TextFormField, label);
+  Finder submitButton() => findWidgetWithText(FilledButton, l10n.authLoginSubmit);
 
   void stubSignIn(Future<Result<AuthUser>> Function() answer) => when(
     () => repository.signIn(
@@ -53,7 +53,7 @@ void main() {
   testWidgetsBothThemes('renders the form', (tester, brightness) async {
     await pumpLogin(tester, brightness: brightness);
 
-    expect(find.text(l10n.authLoginSubtitle), findsOneWidget);
+    expect(findText(l10n.authLoginSubtitle), findsOneWidget);
     expect(field(l10n.authEmailLabel), findsOneWidget);
     expect(field(l10n.authPasswordLabel), findsOneWidget);
     expect(submitButton(), findsOneWidget);
@@ -65,7 +65,7 @@ void main() {
     await tester.tap(submitButton());
     await tester.pump();
 
-    expect(find.text(l10n.errorFieldRequired), findsNWidgets(2));
+    expect(findText(l10n.errorFieldRequired), findsNWidgets(2));
     verifyNever(
       () => repository.signIn(
         email: any(named: 'email'),
@@ -79,7 +79,7 @@ void main() {
 
     await fillAndSubmit(tester, mail: 'not-an-email');
 
-    expect(find.text(l10n.errorEmailInvalid), findsOneWidget);
+    expect(findText(l10n.errorEmailInvalid), findsOneWidget);
     verifyNever(
       () => repository.signIn(
         email: any(named: 'email'),
@@ -121,7 +121,7 @@ void main() {
     await fillAndSubmit(tester);
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.errorAuthInvalidCredentials), findsOneWidget);
+    expect(findText(l10n.errorAuthInvalidCredentials), findsOneWidget);
   });
 
   testWidgets('the eye button toggles password visibility', (tester) async {
@@ -166,13 +166,13 @@ void main() {
 
       await fillAndSubmit(tester);
       await tester.pumpAndSettle();
-      expect(find.text(l10n.errorAuthEmailNotConfirmed), findsOneWidget);
+      expect(findText(l10n.errorAuthEmailNotConfirmed), findsOneWidget);
 
-      await tester.tap(find.text(l10n.authResendConfirmation));
+      await tester.tap(findText(l10n.authResendConfirmation));
       await tester.pumpAndSettle();
 
       verify(() => repository.resendConfirmation(email: email)).called(1);
-      expect(find.text(l10n.authConfirmationResent), findsOneWidget);
+      expect(findText(l10n.authConfirmationResent), findsOneWidget);
     });
 
     testWidgets('a failed resend shows why', (tester) async {
@@ -185,10 +185,10 @@ void main() {
 
       await fillAndSubmit(tester);
       await tester.pumpAndSettle();
-      await tester.tap(find.text(l10n.authResendConfirmation));
+      await tester.tap(findText(l10n.authResendConfirmation));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.errorAuthRateLimited), findsOneWidget);
+      expect(findText(l10n.errorAuthRateLimited), findsOneWidget);
     });
   });
 
@@ -203,8 +203,8 @@ void main() {
     await fillAndSubmit(tester);
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.errorAuthInvalidCredentials), findsOneWidget);
-    expect(find.text(l10n.authResendConfirmation), findsNothing);
+    expect(findText(l10n.errorAuthInvalidCredentials), findsOneWidget);
+    expect(findText(l10n.authResendConfirmation), findsNothing);
   });
 
   group('accessibility (M9.5)', () {

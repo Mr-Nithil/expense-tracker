@@ -60,8 +60,8 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Food'), findsOneWidget);
-    expect(find.text(l10n.categoryUnknown), findsNothing);
+    expect(findText('Food'), findsOneWidget);
+    expect(findText(l10n.categoryUnknown), findsNothing);
   });
 
   testWidgets('a load error offers a retry that reloads', (tester) async {
@@ -74,10 +74,10 @@ void main() {
       },
     );
     await tester.pumpAndSettle();
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
     final before = loads;
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
     expect(loads, greaterThan(before));
@@ -87,6 +87,6 @@ void main() {
     await pumpPicker(tester, active: () => Stream.value(const []));
     await tester.pumpAndSettle();
 
-    expect(find.text(l10n.transactionFormNoCategories), findsOneWidget);
+    expect(findText(l10n.transactionFormNoCategories), findsOneWidget);
   });
 }

@@ -87,10 +87,10 @@ void main() {
   testWidgetsBothThemes('shows this month\'s summary', (tester, brightness) async {
     await pumpScreen(tester, brightness: brightness);
 
-    expect(find.text(l10n.dashboardTitle), findsOneWidget);
-    expect(find.text('October 2026'), findsOneWidget);
+    expect(findText(l10n.dashboardTitle), findsOneWidget);
+    expect(findText('October 2026'), findsOneWidget);
     expect(find.byType(DashboardSummaryCards), findsOneWidget);
-    expect(find.text(r'$3,799.50'), findsOneWidget);
+    expect(findText(r'$3,799.50'), findsOneWidget);
     expect(find.byType(DashboardHeatmapSection), findsOneWidget);
     await tester.scrollUntilVisible(find.byType(DashboardSpendingSection), 200);
     expect(find.byType(DashboardSpendingSection), findsOneWidget);
@@ -106,10 +106,10 @@ void main() {
     final si = AppLocalizationsSi();
     await pumpScreen(tester, locale: const Locale('si'));
 
-    expect(find.text(si.dashboardTitle), findsOneWidget);
-    expect(find.text(AppDateUtils.formatMonthYear(october, 'si')), findsOneWidget);
+    expect(findText(si.dashboardTitle), findsOneWidget);
+    expect(findText(AppDateUtils.formatMonthYear(october, 'si')), findsOneWidget);
     await tester.scrollUntilVisible(find.byType(DashboardRecentSection), 200);
-    expect(find.text(si.dashboardRecentTitle), findsOneWidget);
+    expect(findText(si.dashboardRecentTitle), findsOneWidget);
   });
 
   testWidgets('the + button opens the add-transaction sheet', (tester) async {
@@ -126,7 +126,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(TransactionFormSheet), findsOneWidget);
-    expect(find.text(l10n.transactionFormNewTitle), findsOneWidget);
+    expect(findText(l10n.transactionFormNewTitle), findsOneWidget);
   });
 
   testWidgets('the app bar shows the sync state', (tester) async {
@@ -141,8 +141,8 @@ void main() {
     await tester.tap(find.byTooltip(l10n.commonPreviousMonth));
     await tester.pumpAndSettle();
 
-    expect(find.text('September 2026'), findsOneWidget);
-    expect(find.text(r'-$42.00'), findsOneWidget);
+    expect(findText('September 2026'), findsOneWidget);
+    expect(findText(r'-$42.00'), findsOneWidget);
   });
 
   testWidgets('cannot go past the last month that can hold transactions', (tester) async {
@@ -169,9 +169,9 @@ void main() {
       }),
     );
     await tester.pumpAndSettle();
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
     expect(find.byType(DashboardSummaryCards), findsOneWidget);
@@ -203,9 +203,9 @@ void main() {
       ],
     );
     await tester.pumpAndSettle();
-    expect(find.text(l10n.errorStorage), findsOneWidget);
+    expect(findText(l10n.errorStorage), findsOneWidget);
 
-    await tester.tap(find.text(l10n.commonRetry));
+    await tester.tap(findText(l10n.commonRetry));
     await tester.pumpAndSettle();
 
     expect(find.byType(DashboardSummaryCards), findsOneWidget);
@@ -237,7 +237,7 @@ void main() {
 
       await pull(tester);
 
-      expect(find.text(l10n.errorNetwork), findsOneWidget);
+      expect(findText(l10n.errorNetwork), findsOneWidget);
     });
   });
 

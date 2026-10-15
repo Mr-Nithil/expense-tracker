@@ -65,24 +65,24 @@ void main() {
       brightness: brightness,
     );
 
-    expect(find.text('Food'), findsOneWidget);
-    expect(find.text('Team lunch'), findsOneWidget);
-    expect(find.text(r'-$12.50'), findsOneWidget);
+    expect(findText('Food'), findsOneWidget);
+    expect(findText('Team lunch'), findsOneWidget);
+    expect(findText(r'-$12.50'), findsOneWidget);
   });
 
   testWidgets('an income is signed positive', (tester) async {
     await pumpTile(tester, tx(type: TransactionType.income, amount: 85000), category: category());
-    expect(find.text(r'+$850.00'), findsOneWidget);
+    expect(findText(r'+$850.00'), findsOneWidget);
   });
 
   testWidgets('an archived category is marked', (tester) async {
     await pumpTile(tester, tx(), category: category(archived: true));
-    expect(find.text(l10n.categoryChipArchived('Food')), findsOneWidget);
+    expect(findText(l10n.categoryChipArchived('Food')), findsOneWidget);
   });
 
   testWidgets('a missing category shows as unknown', (tester) async {
     await pumpTile(tester, tx());
-    expect(find.text(l10n.categoryUnknown), findsOneWidget);
+    expect(findText(l10n.categoryUnknown), findsOneWidget);
   });
 
   testWidgets('tapping calls back', (tester) async {

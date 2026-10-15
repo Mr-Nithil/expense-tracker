@@ -27,7 +27,7 @@ class AppBottomSheet extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(bottom: keyboardInset),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.lg),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.screen, 0, AppSpacing.screen, AppSpacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

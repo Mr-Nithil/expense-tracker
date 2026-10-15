@@ -85,7 +85,7 @@ void main() {
         categoryByIdProvider('Food').overrideWith((ref) => Stream.value(category('Food'))),
       ],
     );
-    await tester.tap(find.text('open'));
+    await tester.tap(findText('open'));
     await tester.pumpAndSettle();
   }
 
@@ -101,7 +101,7 @@ void main() {
     categories: categories,
   );
 
-  Finder limitField() => find.widgetWithText(TextFormField, l10n.budgetFormLimitLabel);
+  Finder limitField() => findWidgetWithText(TextFormField, l10n.budgetFormLimitLabel);
   Finder sheet() => find.byType(BudgetFormSheet);
 
   Future<void> tapVisible(WidgetTester tester, Finder finder) async {
@@ -110,7 +110,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> save(WidgetTester tester) => tapVisible(tester, find.text(l10n.commonSave));
+  Future<void> save(WidgetTester tester) => tapVisible(tester, findText(l10n.commonSave));
 
   testWidgetsBothThemes('a month without budgets starts with the overall budget', (
     tester,
@@ -118,10 +118,10 @@ void main() {
   ) async {
     await openAdd(tester, brightness: brightness);
 
-    expect(find.text(l10n.budgetFormNewTitle), findsOneWidget);
-    expect(find.text('October 2026'), findsOneWidget);
-    expect(find.text(l10n.budgetFormOverallHint), findsOneWidget);
-    expect(find.text('Food'), findsNothing);
+    expect(findText(l10n.budgetFormNewTitle), findsOneWidget);
+    expect(findText('October 2026'), findsOneWidget);
+    expect(findText(l10n.budgetFormOverallHint), findsOneWidget);
+    expect(findText('Food'), findsNothing);
   });
 
   testWidgets('saves the overall budget and closes', (tester) async {
@@ -137,8 +137,8 @@ void main() {
   testWidgets('saves a category budget', (tester) async {
     await openAdd(tester);
 
-    await tapVisible(tester, find.text(l10n.budgetFormCategory));
-    await tapVisible(tester, find.text('Bills'));
+    await tapVisible(tester, findText(l10n.budgetFormCategory));
+    await tapVisible(tester, findText('Bills'));
     await tester.enterText(limitField(), '120.50');
     await save(tester);
 
@@ -151,11 +151,11 @@ void main() {
   testWidgets('a category budget needs a category', (tester) async {
     await openAdd(tester);
 
-    await tapVisible(tester, find.text(l10n.budgetFormCategory));
+    await tapVisible(tester, findText(l10n.budgetFormCategory));
     await tester.enterText(limitField(), '100');
     await save(tester);
 
-    expect(find.text(l10n.errorBudgetCategoryRequired), findsOneWidget);
+    expect(findText(l10n.errorBudgetCategoryRequired), findsOneWidget);
     verifyNever(
       () => repository.set(
         month: any(named: 'month'),
@@ -170,7 +170,7 @@ void main() {
 
     await save(tester);
 
-    expect(find.text(l10n.errorFieldRequired), findsOneWidget);
+    expect(findText(l10n.errorFieldRequired), findsOneWidget);
     expect(sheet(), findsOneWidget);
   });
 
@@ -185,9 +185,9 @@ void main() {
       ),
     );
 
-    expect(find.text(l10n.budgetFormOverall), findsNothing);
-    expect(find.text('Food'), findsNothing);
-    expect(find.text('Bills'), findsOneWidget);
+    expect(findText(l10n.budgetFormOverall), findsNothing);
+    expect(findText('Food'), findsNothing);
+    expect(findText('Bills'), findsOneWidget);
   });
 
   testWidgets('says so when every category has a budget', (tester) async {
@@ -200,7 +200,7 @@ void main() {
       categories: [category('Food')],
     );
 
-    expect(find.text(l10n.budgetFormNoCategoriesLeft), findsOneWidget);
+    expect(findText(l10n.budgetFormNoCategoriesLeft), findsOneWidget);
   });
 
   testWidgets('shows the repository\'s reason next to the category', (tester) async {
@@ -220,12 +220,12 @@ void main() {
     );
     await openAdd(tester);
 
-    await tapVisible(tester, find.text(l10n.budgetFormCategory));
-    await tapVisible(tester, find.text('Food'));
+    await tapVisible(tester, findText(l10n.budgetFormCategory));
+    await tapVisible(tester, findText('Food'));
     await tester.enterText(limitField(), '100');
     await save(tester);
 
-    expect(find.text(l10n.errorBudgetCategoryArchived), findsOneWidget);
+    expect(findText(l10n.errorBudgetCategoryArchived), findsOneWidget);
     expect(sheet(), findsOneWidget);
   });
 
@@ -247,7 +247,7 @@ void main() {
     await save(tester);
 
     expect(
-      find.text(l10n.errorBudgetMonthOutOfRange(BudgetValidator.maxMonthsAhead)),
+      findText(l10n.errorBudgetMonthOutOfRange(BudgetValidator.maxMonthsAhead)),
       findsOneWidget,
     );
   });
@@ -261,10 +261,10 @@ void main() {
         (context) => BudgetFormSheet.showEdit(context, budget(categoryId: 'Food')),
       );
 
-      expect(find.text(l10n.budgetFormEditTitle), findsOneWidget);
-      expect(find.text('Food'), findsOneWidget);
-      expect(find.text('Bills'), findsNothing);
-      expect(find.text('200.00'), findsOneWidget);
+      expect(findText(l10n.budgetFormEditTitle), findsOneWidget);
+      expect(findText('Food'), findsOneWidget);
+      expect(findText('Bills'), findsNothing);
+      expect(findText('200.00'), findsOneWidget);
 
       await tester.enterText(limitField(), '250');
       await save(tester);
@@ -278,8 +278,8 @@ void main() {
     testWidgets('the overall budget offers no switch to a category', (tester) async {
       await open(tester, (context) => BudgetFormSheet.showEdit(context, budget()));
 
-      expect(find.text(l10n.budgetOverallTitle), findsOneWidget);
-      expect(find.text(l10n.budgetFormCategory), findsNothing);
+      expect(findText(l10n.budgetOverallTitle), findsOneWidget);
+      expect(findText(l10n.budgetFormCategory), findsNothing);
     });
 
     testWidgets('remove asks first, then deletes and closes', (tester) async {
@@ -289,14 +289,14 @@ void main() {
         (context) => BudgetFormSheet.showEdit(context, budget(categoryId: 'Food')),
       );
 
-      await tapVisible(tester, find.text(l10n.budgetFormRemove));
-      expect(find.text(l10n.budgetRemoveConfirmTitle), findsOneWidget);
-      await tester.tap(find.text(l10n.commonCancel));
+      await tapVisible(tester, findText(l10n.budgetFormRemove));
+      expect(findText(l10n.budgetRemoveConfirmTitle), findsOneWidget);
+      await tester.tap(findText(l10n.commonCancel));
       await tester.pumpAndSettle();
       verifyNever(() => repository.delete(any()));
 
-      await tapVisible(tester, find.text(l10n.budgetFormRemove));
-      await tester.tap(find.widgetWithText(FilledButton, l10n.budgetFormRemove));
+      await tapVisible(tester, findText(l10n.budgetFormRemove));
+      await tester.tap(findWidgetWithText(FilledButton, l10n.budgetFormRemove));
       await tester.pumpAndSettle();
 
       verify(() => repository.delete('Food')).called(1);
@@ -312,11 +312,11 @@ void main() {
         (context) => BudgetFormSheet.showEdit(context, budget(categoryId: 'Food')),
       );
 
-      await tapVisible(tester, find.text(l10n.budgetFormRemove));
-      await tester.tap(find.widgetWithText(FilledButton, l10n.budgetFormRemove));
+      await tapVisible(tester, findText(l10n.budgetFormRemove));
+      await tester.tap(findWidgetWithText(FilledButton, l10n.budgetFormRemove));
       await tester.pumpAndSettle();
 
-      expect(find.text(l10n.errorStorage), findsOneWidget);
+      expect(findText(l10n.errorStorage), findsOneWidget);
       expect(sheet(), findsOneWidget);
     });
   });

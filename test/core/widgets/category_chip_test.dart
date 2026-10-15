@@ -22,7 +22,7 @@ void main() {
   testWidgetsBothThemes('shows the icon and name', (tester, brightness) async {
     await tester.pumpApp(food(), brightness: brightness);
 
-    expect(find.text('Food'), findsOneWidget);
+    expect(findText('Food'), findsOneWidget);
     expect(tester.widget<CategoryIcon>(find.byType(CategoryIcon)).iconKey, 'food');
     expect(find.byIcon(Icons.archive_outlined), findsNothing);
   });
@@ -30,7 +30,7 @@ void main() {
   testWidgetsBothThemes('an archived category is marked and announced', (tester, brightness) async {
     await tester.pumpApp(food(archived: true), brightness: brightness);
 
-    expect(find.text('Food'), findsOneWidget);
+    expect(findText('Food'), findsOneWidget);
     expect(find.byIcon(Icons.archive_outlined), findsOneWidget);
     expect(find.bySemanticsLabel(l10n.categoryChipArchived('Food')), findsOneWidget);
   });
@@ -41,7 +41,7 @@ void main() {
   ) async {
     await tester.pumpApp(const CategoryChip.unknown(), brightness: brightness);
 
-    expect(find.text(l10n.categoryUnknown), findsOneWidget);
+    expect(findText(l10n.categoryUnknown), findsOneWidget);
     expect(tester.widget<Icon>(find.byType(Icon)).icon, CategoryIcon.fallback);
   });
 
