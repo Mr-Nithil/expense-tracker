@@ -90,4 +90,57 @@ final class NotificationSetupProvider
   }
 }
 
-String _$notificationSetupHash() => r'27d5ccc8d3f9a428582f6ff056367c0d5ce2498f';
+String _$notificationSetupHash() => r'4db68c2e1bdabcdeebd011549fefccfea8bfb3b8';
+
+/// Keeps the Android channel names in the app language (M9.8; watched by `App`). Setup names them
+/// at start, often before the profile's language has loaded; this renames them whenever the
+/// language actually changes: the app setting (Settings, or a pull from another phone), or the
+/// phone's language while the app follows it. Failures are logged, never fatal.
+
+@ProviderFor(notificationChannelLanguage)
+final notificationChannelLanguageProvider = NotificationChannelLanguageProvider._();
+
+/// Keeps the Android channel names in the app language (M9.8; watched by `App`). Setup names them
+/// at start, often before the profile's language has loaded; this renames them whenever the
+/// language actually changes: the app setting (Settings, or a pull from another phone), or the
+/// phone's language while the app follows it. Failures are logged, never fatal.
+
+final class NotificationChannelLanguageProvider extends $FunctionalProvider<void, void, void>
+    with $Provider<void> {
+  /// Keeps the Android channel names in the app language (M9.8; watched by `App`). Setup names them
+  /// at start, often before the profile's language has loaded; this renames them whenever the
+  /// language actually changes: the app setting (Settings, or a pull from another phone), or the
+  /// phone's language while the app follows it. Failures are logged, never fatal.
+  NotificationChannelLanguageProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'notificationChannelLanguageProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$notificationChannelLanguageHash();
+
+  @$internal
+  @override
+  $ProviderElement<void> $createElement($ProviderPointer pointer) => $ProviderElement(pointer);
+
+  @override
+  void create(Ref ref) {
+    return notificationChannelLanguage(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(void value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<void>(value),
+    );
+  }
+}
+
+String _$notificationChannelLanguageHash() => r'a3b287a1332fa9822e93543b626810d3e0c3b0bf';

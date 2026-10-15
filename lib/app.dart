@@ -26,6 +26,8 @@ class App extends ConsumerWidget {
     ref.watch(syncSchedulerProvider);
     // Local notifications: time zone, plugin, channels (never asks for permission here).
     ref.watch(notificationSetupProvider);
+    // Channel names follow the app language (M9.8).
+    ref.watch(notificationChannelLanguageProvider);
     // This device's reminder notifications follow its reminders (incl. changes from sync).
     ref.watch(reminderSchedulerProvider);
     // Budget alerts at 80% / 100% (when the user turned them on).

@@ -5,6 +5,7 @@ import 'package:expense_tracker/core/l10n/locale_controller.dart';
 import 'package:expense_tracker/core/logging/app_logger.dart';
 import 'package:expense_tracker/core/services/notification_service.dart';
 import 'package:flutter/foundation.dart' show PlatformDispatcher;
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -65,19 +66,30 @@ class LocalNotificationService implements NotificationService {
       },
     );
 
+    await _createChannels();
+  }
+
+  @override
+  Future<void> updateChannelLabels(NotificationChannelLabels labels) async {
+    _labels = labels;
+    await _createChannels();
+  }
+
+  /// Creates the Android channels, or renames them: creating a channel with an existing id
+  /// updates its name and description (the user's settings for it are kept).
+  Future<void> _createChannels() async {
     final android = _android;
-    if (android != null) {
-      for (final channel in NotificationChannel.values) {
-        final (name, description) = _label(channel);
-        await android.createNotificationChannel(
-          AndroidNotificationChannel(
-            channelId(channel),
-            name,
-            description: description,
-            importance: Importance.defaultImportance,
-          ),
-        );
-      }
+    if (android == null) return;
+    for (final channel in NotificationChannel.values) {
+      final (name, description) = _label(channel);
+      await android.createNotificationChannel(
+        AndroidNotificationChannel(
+          channelId(channel),
+          name,
+          description: description,
+          importance: Importance.defaultImportance,
+        ),
+      );
     }
   }
 
@@ -206,17 +218,48 @@ Future<void> notificationSetup(Ref ref) async {
     device: PlatformDispatcher.instance.locale,
   );
   try {
-    await ref
-        .read(notificationServiceProvider)
-        .init(
-          NotificationChannelLabels(
-            reminders: l10n.notificationsChannelReminders,
-            remindersDescription: l10n.notificationsChannelRemindersDescription,
-            budgetAlerts: l10n.notificationsChannelBudgetAlerts,
-            budgetAlertsDescription: l10n.notificationsChannelBudgetAlertsDescription,
-          ),
-        );
+    await ref.read(notificationServiceProvider).init(NotificationChannelLabels.of(l10n));
   } on Object catch (error, stackTrace) {
     AppLogger.error('notifications: setup failed', error, stackTrace);
   }
+}
+
+/// Keeps the Android channel names in the app language (M9.8; watched by `App`). Setup names them
+/// at start, often before the profile's language has loaded; this renames them whenever the
+/// language actually changes: the app setting (Settings, or a pull from another phone), or the
+/// phone's language while the app follows it. Failures are logged, never fatal.
+@Riverpod(keepAlive: true)
+void notificationChannelLanguage(Ref ref) {
+  final service = ref.watch(notificationServiceProvider);
+  String? applied;
+
+  Future<void> apply() async {
+    try {
+      await ref.read(notificationSetupProvider.future);
+      final l10n = appLocalizationsFor(
+        ref.read(localeControllerProvider).value,
+        device: WidgetsBinding.instance.platformDispatcher.locale,
+      );
+      if (l10n.localeName == applied) return;
+      applied = l10n.localeName;
+      await service.updateChannelLabels(NotificationChannelLabels.of(l10n));
+    } on Object catch (error, stackTrace) {
+      AppLogger.error('notifications: renaming channels failed', error, stackTrace);
+    }
+  }
+
+  ref.listen(localeControllerProvider, (_, _) => unawaited(apply()), fireImmediately: true);
+  final observer = _DeviceLocaleObserver(() => unawaited(apply()));
+  WidgetsBinding.instance.addObserver(observer);
+  ref.onDispose(() => WidgetsBinding.instance.removeObserver(observer));
+}
+
+/// Calls [onChange] when the phone's language changes.
+class _DeviceLocaleObserver with WidgetsBindingObserver {
+  _DeviceLocaleObserver(this.onChange);
+
+  final VoidCallback onChange;
+
+  @override
+  void didChangeLocales(List<Locale>? locales) => onChange();
 }

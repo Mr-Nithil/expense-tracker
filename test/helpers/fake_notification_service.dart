@@ -19,6 +19,17 @@ class FakeNotificationService implements NotificationService {
   @override
   Future<void> init(NotificationChannelLabels labels) async => this.labels = labels;
 
+  /// Every [updateChannelLabels] call, in order. Set [failRenames] to make them throw.
+  final labelUpdates = <NotificationChannelLabels>[];
+  var failRenames = false;
+
+  @override
+  Future<void> updateChannelLabels(NotificationChannelLabels labels) async {
+    if (failRenames) throw StateError('plugin failed');
+    labelUpdates.add(labels);
+    this.labels = labels;
+  }
+
   @override
   Future<bool> requestPermission() async {
     permissionRequests++;

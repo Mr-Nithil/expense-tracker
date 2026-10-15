@@ -1,3 +1,5 @@
+import 'package:expense_tracker/core/l10n/generated/app_localizations.dart';
+
 /// Which Android channel a notification goes to. Users can turn each off in system settings.
 enum NotificationChannel { reminders, budgetAlerts }
 
@@ -13,6 +15,14 @@ class NotificationChannelLabels {
     required this.budgetAlertsDescription,
   });
 
+  /// The four texts in [l10n]'s language.
+  factory NotificationChannelLabels.of(AppLocalizations l10n) => NotificationChannelLabels(
+    reminders: l10n.notificationsChannelReminders,
+    remindersDescription: l10n.notificationsChannelRemindersDescription,
+    budgetAlerts: l10n.notificationsChannelBudgetAlerts,
+    budgetAlertsDescription: l10n.notificationsChannelBudgetAlertsDescription,
+  );
+
   final String reminders;
   final String remindersDescription;
   final String budgetAlerts;
@@ -24,6 +34,9 @@ class NotificationChannelLabels {
 abstract interface class NotificationService {
   /// Time zone, plugin and channels. Never asks for permission (see [requestPermission]).
   Future<void> init(NotificationChannelLabels labels);
+
+  /// Renames the Android channels (system settings) after a language change (M9.8). No-op on iOS.
+  Future<void> updateChannelLabels(NotificationChannelLabels labels);
 
   /// Asks the OS for permission (Android 13+, iOS). True when notifications are allowed.
   Future<bool> requestPermission();
