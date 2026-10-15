@@ -3,6 +3,7 @@ import 'package:expense_tracker/core/db/app_database.dart';
 import 'package:expense_tracker/core/db/tables/sync_columns.dart';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
+import 'package:expense_tracker/core/sync/row_sealer.dart';
 import 'package:expense_tracker/core/sync/sync_gateway.dart';
 import 'package:expense_tracker/core/sync/sync_puller.dart';
 import 'package:expense_tracker/core/sync/sync_registry.dart';
@@ -120,7 +121,7 @@ void main() {
       transactionJson('t1', 'food', serverAt: base.add(const Duration(seconds: 2))),
     ];
 
-    final result = await puller().pull(user);
+    final result = await puller().pull(user, sealer: RowSealer.none);
 
     expect(result.valueOrNull, 3);
     expect(await categoryIds(), ['bills', 'food']);
@@ -135,7 +136,7 @@ void main() {
       for (var i = 0; i < 5; i++) categoryJson('c$i', serverAt: base.add(Duration(seconds: i))),
     ];
 
-    await puller(pageSize: 2).pull(user);
+    await puller(pageSize: 2).pull(user, sealer: RowSealer.none);
 
     expect(await categoryIds(), ['c0', 'c1', 'c2', 'c3', 'c4']);
     final pages = server.fetches.where((f) => f.$1 == 'categories').toList();
@@ -149,7 +150,7 @@ void main() {
       for (final id in ['a', 'b', 'c']) categoryJson(id, serverAt: same),
     ];
 
-    await puller(pageSize: 2).pull(user);
+    await puller(pageSize: 2).pull(user, sealer: RowSealer.none);
 
     expect(await categoryIds(), ['a', 'b', 'c']);
   });
@@ -158,14 +159,14 @@ void main() {
     'the next pull starts at cursor minus the overlap, without duplicates or rewinding',
     () async {
       server.rows['categories'] = [categoryJson('food', serverAt: base)];
-      await puller().pull(user);
+      await puller().pull(user, sealer: RowSealer.none);
       server.fetches.clear();
       // Committed late: its server time is before the cursor, but inside the overlap.
       server.rows['categories']!.add(
         categoryJson('late', serverAt: base.subtract(const Duration(seconds: 2))),
       );
 
-      final result = await puller().pull(user);
+      final result = await puller().pull(user, sealer: RowSealer.none);
 
       final first = server.fetches.firstWhere((f) => f.$1 == 'categories');
       expect(first.$2, base.subtract(SyncPuller.defaultOverlap));
@@ -182,14 +183,14 @@ void main() {
     // profiles is fetch 1, categories page 1 is fetch 2, page 2 is fetch 3.
     server.failOnFetch = 3;
 
-    final failed = await puller(pageSize: 2).pull(user);
+    final failed = await puller(pageSize: 2).pull(user, sealer: RowSealer.none);
 
     expect(failed.failureOrNull, isA<NetworkFailure>());
     expect(await categoryIds(), ['c0', 'c1']);
     expect(await cursor('categories'), base.add(const Duration(seconds: 1)));
 
     server.failOnFetch = null;
-    await puller(pageSize: 2).pull(user);
+    await puller(pageSize: 2).pull(user, sealer: RowSealer.none);
     expect(await categoryIds(), ['c0', 'c1', 'c2', 'c3']);
   });
 
@@ -213,7 +214,7 @@ void main() {
       categoryJson('food', serverAt: base.add(const Duration(seconds: 1)), name: 'Food'),
     ];
 
-    await puller().pull(user);
+    await puller().pull(user, sealer: RowSealer.none);
 
     final local = await db.categoriesDao.getById(user, 'food');
     expect(local?.name, 'Groceries');
@@ -225,7 +226,7 @@ void main() {
       categoryJson('theirs', serverAt: base, userId: 'user-2'),
     ];
 
-    final result = await puller().pull(user);
+    final result = await puller().pull(user, sealer: RowSealer.none);
 
     expect(result.valueOrNull, 0);
     expect(await categoryIds(), isEmpty);
@@ -235,7 +236,7 @@ void main() {
     test('an empty server still completes the first pull (a new account)', () async {
       expect(await puller().hasCompletedFirstPull(), isFalse);
 
-      final result = await puller().pull(user);
+      final result = await puller().pull(user, sealer: RowSealer.none);
 
       expect(result.isSuccess, isTrue);
       expect(await puller().hasCompletedFirstPull(), isTrue);
@@ -246,7 +247,7 @@ void main() {
       // profiles, then categories fails.
       server.failOnFetch = 2;
 
-      await puller().pull(user);
+      await puller().pull(user, sealer: RowSealer.none);
 
       expect(await puller().hasCompletedFirstPull(), isFalse);
     });
@@ -260,7 +261,7 @@ void main() {
       transactionJson('t2', 'missing', serverAt: base.add(const Duration(seconds: 2))),
     ];
 
-    final result = await puller().pull(user);
+    final result = await puller().pull(user, sealer: RowSealer.none);
 
     expect(result.failureOrNull, isA<StorageFailure>());
     expect(await categoryIds(), ['food']);

@@ -3,6 +3,7 @@ import 'package:expense_tracker/core/db/database_provider.dart';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/logging/app_logger.dart';
+import 'package:expense_tracker/core/sync/row_sealer.dart';
 import 'package:expense_tracker/core/sync/supabase_sync_gateway.dart';
 import 'package:expense_tracker/core/sync/sync_gateway.dart';
 import 'package:expense_tracker/core/sync/sync_registry.dart';
@@ -26,8 +27,9 @@ class SyncPusher {
   final SyncGateway gateway;
   final int batchSize;
 
-  /// Pushes [userId]'s pending rows. Returns how many were pushed and marked synced.
-  Future<Result<int>> push(String userId) async {
+  /// Pushes [userId]'s pending rows, private columns sealed by [sealer]. Returns how many were
+  /// pushed and marked synced.
+  Future<Result<int>> push(String userId, {required RowSealer sealer}) async {
     var pushed = 0;
     for (final table in tables) {
       final List<DataClass> rows;
@@ -40,9 +42,14 @@ class SyncPusher {
 
       for (var start = 0; start < rows.length; start += batchSize) {
         final batch = rows.sublist(start, (start + batchSize).clamp(0, rows.length));
-        final sent = await gateway.upsert(table.name, [
-          for (final row in batch) table.toRemote(row),
-        ]);
+        final List<Map<String, Object?>> sealed;
+        try {
+          sealed = [for (final row in batch) await sealer.seal(table, table.toRemote(row))];
+        } catch (error, stackTrace) {
+          AppLogger.error('push ${table.name}: sealing failed', error, stackTrace);
+          return Result.failure(UnexpectedFailure('push ${table.name}: sealing', cause: error));
+        }
+        final sent = await gateway.upsert(table.name, sealed);
         if (sent case Failure(:final failure)) return Result.failure(failure);
 
         try {

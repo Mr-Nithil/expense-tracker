@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import 'package:drift_flutter/drift_flutter.dart';
 import 'package:expense_tracker/core/db/app_database.steps.dart';
 import 'package:expense_tracker/core/db/converters/date_only_converter.dart';
 import 'package:expense_tracker/core/db/daos/app_settings_dao.dart';
@@ -49,7 +48,8 @@ part 'app_database.g.dart';
   ],
 )
 class AppDatabase extends _$AppDatabase {
-  AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
+  /// The app opens it with `EncryptedDatabase.executor` (M11.8); tests pass an in-memory one.
+  AppDatabase(super.executor);
 
   static const databaseName = 'expense_tracker';
 
@@ -101,6 +101,4 @@ class AppDatabase extends _$AppDatabase {
       await delete(table).go();
     }
   });
-
-  static QueryExecutor _openConnection() => driftDatabase(name: databaseName);
 }

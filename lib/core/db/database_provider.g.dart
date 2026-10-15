@@ -8,16 +8,19 @@ part of 'database_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The app database. Override with an in-memory database in tests.
+/// The app database, encrypted on disk with SQLCipher (M11.8). Override with an in-memory database
+/// in tests.
 
 @ProviderFor(database)
 final databaseProvider = DatabaseProvider._();
 
-/// The app database. Override with an in-memory database in tests.
+/// The app database, encrypted on disk with SQLCipher (M11.8). Override with an in-memory database
+/// in tests.
 
 final class DatabaseProvider extends $FunctionalProvider<AppDatabase, AppDatabase, AppDatabase>
     with $Provider<AppDatabase> {
-  /// The app database. Override with an in-memory database in tests.
+  /// The app database, encrypted on disk with SQLCipher (M11.8). Override with an in-memory database
+  /// in tests.
   DatabaseProvider._()
     : super(
         from: null,
@@ -51,4 +54,4 @@ final class DatabaseProvider extends $FunctionalProvider<AppDatabase, AppDatabas
   }
 }
 
-String _$databaseHash() => r'0fe56aaf5bde72ce9021e425b918c495557124c1';
+String _$databaseHash() => r'51c8710f7d48d382c8da413fcc6bd31e02f7bfb0';

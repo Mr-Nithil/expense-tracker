@@ -47,4 +47,4 @@ final class SyncServiceProvider extends $FunctionalProvider<SyncService, SyncSer
   }
 }
 
-String _$syncServiceHash() => r'fff39fa295b51bb7ef76f9b7079b9ff06b5d212d';
+String _$syncServiceHash() => r'23d9bb19f6b8b31fa033f22612e2520b895f2668';

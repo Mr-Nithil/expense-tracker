@@ -1,9 +1,11 @@
 import 'package:drift/drift.dart' show InsertMode, Value;
+import 'package:expense_tracker/core/crypto/row_cipher.dart';
 import 'package:expense_tracker/core/db/app_database.dart';
 import 'package:expense_tracker/core/db/database_provider.dart';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/logging/app_logger.dart';
+import 'package:expense_tracker/core/sync/row_sealer.dart';
 import 'package:expense_tracker/core/sync/supabase_sync_gateway.dart';
 import 'package:expense_tracker/core/sync/sync_gateway.dart';
 import 'package:expense_tracker/core/sync/sync_registry.dart';
@@ -38,9 +40,16 @@ class SyncPuller {
   final int pageSize;
   final Duration overlap;
 
-  /// Pulls [userId]'s changes. Returns how many rows were inserted or updated locally.
-  Future<Result<int>> pull(String userId) async {
+  /// Plain rows (M11.7) the last [pull] marked pending to be pushed again sealed.
+  int get lastResealed => _resealed;
+  var _resealed = 0;
+
+  /// Pulls [userId]'s changes, private columns opened by [sealer]. Returns how many rows were
+  /// inserted or updated locally. A row that can't be opened fails the run (the cursor stays, so
+  /// nothing is skipped).
+  Future<Result<int>> pull(String userId, {required RowSealer sealer}) async {
     var merged = 0;
+    _resealed = 0;
     for (final table in tables) {
       DateTime? cursor;
       try {
@@ -68,10 +77,29 @@ class SyncPuller {
         }
         if (rows.isEmpty) break;
 
+        final opened = <Map<String, Object?>>[];
+        for (final row in rows) {
+          try {
+            opened.add(await sealer.open(table, row));
+          } on RowCipherException catch (error) {
+            AppLogger.warning(
+              'pull ${table.name}: undecryptable row ${row['id']} (${error.message})',
+            );
+            return Result.failure(
+              UnexpectedFailure('pull ${table.name}: undecryptable row ${row['id']}', cause: error),
+            );
+          }
+        }
+
         try {
-          final (changed, newest) = await _mergePage(table, rows, userId, cursor);
+          final (changed, newest) = await _mergePage(table, opened, userId, cursor);
           merged += changed;
           cursor = newest;
+          // Plain rows of this user come back pending, so the next push seals them.
+          _resealed += await table.markPending([
+            for (final row in rows)
+              if (row['user_id'] == userId && sealer.isPlain(table, row)) row['id']! as String,
+          ]);
         } catch (error, stackTrace) {
           AppLogger.error('pull ${table.name}: merging a page failed', error, stackTrace);
           return Result.failure(StorageFailure('pull ${table.name}: $error'));

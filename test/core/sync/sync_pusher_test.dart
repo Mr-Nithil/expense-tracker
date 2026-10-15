@@ -3,6 +3,7 @@ import 'package:expense_tracker/core/db/app_database.dart';
 import 'package:expense_tracker/core/db/tables/sync_columns.dart';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
+import 'package:expense_tracker/core/sync/row_sealer.dart';
 import 'package:expense_tracker/core/sync/sync_gateway.dart';
 import 'package:expense_tracker/core/sync/sync_pusher.dart';
 import 'package:expense_tracker/core/sync/sync_registry.dart';
@@ -88,7 +89,7 @@ void main() {
     await category('food');
     await transaction('t1', categoryId: 'food');
 
-    final result = await pusher().push(user);
+    final result = await pusher().push(user, sealer: RowSealer.none);
 
     expect(result.valueOrNull, 2);
     expect(gateway.calls.map((c) => c.$1), ['categories', 'transactions']);
@@ -102,7 +103,7 @@ void main() {
       await transaction('t$i');
     }
 
-    await pusher(batchSize: 2).push(user);
+    await pusher(batchSize: 2).push(user, sealer: RowSealer.none);
 
     final batches = gateway.calls.where((c) => c.$1 == 'transactions').map((c) => c.$2.length);
     expect(batches, [2, 2, 1]);
@@ -113,7 +114,7 @@ void main() {
     await transaction('t1');
     gateway.failures['transactions'] = const NetworkFailure('offline');
 
-    final result = await pusher().push(user);
+    final result = await pusher().push(user, sealer: RowSealer.none);
 
     expect(result.failureOrNull, isA<NetworkFailure>());
     expect(gateway.calls.map((c) => c.$1), ['categories', 'transactions']);
@@ -121,7 +122,7 @@ void main() {
   });
 
   test('nothing pending means no requests', () async {
-    final result = await pusher().push(user);
+    final result = await pusher().push(user, sealer: RowSealer.none);
 
     expect(result.valueOrNull, 0);
     expect(gateway.calls, isEmpty);
@@ -131,7 +132,7 @@ void main() {
     await category('mine');
     await category('theirs', userId: 'user-2');
 
-    await pusher().push(user);
+    await pusher().push(user, sealer: RowSealer.none);
 
     expect(gateway.calls.single.$2.map((r) => r['id']), ['mine']);
   });
@@ -140,7 +141,7 @@ void main() {
     await category('food');
     await transaction('t1', deletedAt: at);
 
-    await pusher().push(user);
+    await pusher().push(user, sealer: RowSealer.none);
 
     final sent = gateway.calls.firstWhere((c) => c.$1 == 'transactions').$2.single;
     expect(sent['deleted_at'], at.toIso8601String());
@@ -161,7 +162,7 @@ void main() {
       }
     };
 
-    final result = await pusher().push(user);
+    final result = await pusher().push(user, sealer: RowSealer.none);
 
     expect(result.valueOrNull, 0);
     expect((await statuses())['food'], SyncStatus.pending);
@@ -171,7 +172,7 @@ void main() {
     test('reading pending rows fails: nothing is sent', () async {
       await db.customStatement('DROP TABLE reminders');
 
-      final result = await pusher().push(user);
+      final result = await pusher().push(user, sealer: RowSealer.none);
 
       expect(result.failureOrNull, isA<StorageFailure>());
       expect(gateway.calls.map((c) => c.$1), isNot(contains('reminders')));
@@ -187,7 +188,7 @@ void main() {
         );
       };
 
-      final result = await pusher().push(user);
+      final result = await pusher().push(user, sealer: RowSealer.none);
 
       expect(result.failureOrNull, isA<StorageFailure>());
       expect(gateway.calls.single.$1, 'categories');

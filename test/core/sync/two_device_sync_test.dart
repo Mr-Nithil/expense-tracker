@@ -1,8 +1,13 @@
 import 'package:drift/drift.dart' show Value;
+import 'package:expense_tracker/core/crypto/data_key_service.dart';
+import 'package:expense_tracker/core/crypto/row_cipher.dart';
 import 'package:expense_tracker/core/db/app_database.dart';
 import 'package:expense_tracker/core/db/tables/sync_columns.dart';
+import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/session/session.dart';
+import 'package:expense_tracker/core/sync/row_resealer.dart';
+import 'package:expense_tracker/core/sync/row_sealer.dart';
 import 'package:expense_tracker/core/sync/sync_gateway.dart';
 import 'package:expense_tracker/core/sync/sync_puller.dart';
 import 'package:expense_tracker/core/sync/sync_pusher.dart';
@@ -20,6 +25,8 @@ import 'package:expense_tracker/features/reminders/domain/reminder_repository.da
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/fake_data_key_gateway.dart';
+import '../../helpers/fake_secure_storage.dart';
 import '../../helpers/fake_sync_trigger.dart';
 import '../../helpers/test_database.dart';
 
@@ -28,6 +35,9 @@ const _user = 'user-1';
 /// Supabase as the app sees it, including `0002_keep_newer_rows.sql`: an upsert older than the
 /// stored row keeps the stored row, and every write stamps a fresh `server_updated_at`.
 class _SharedServer implements SyncGateway {
+  /// The `user-key` function: one key per user, shared by both phones.
+  final keys = FakeKeyServer();
+
   final _tables = <String, Map<String, Map<String, Object?>>>{};
   var _clock = DateTime.utc(2026, 10, 12, 12);
 
@@ -39,6 +49,20 @@ class _SharedServer implements SyncGateway {
   static DateTime _time(Object? iso) => DateTime.parse(iso! as String).toUtc();
 
   Map<String, Object?>? row(String table, String id) => _tables[table]?[id];
+
+  Iterable<Map<String, Object?>> get allRows => _tables.values.expand((rows) => rows.values);
+
+  /// The stored row with its private columns decrypted with the user's key, as a phone sees it.
+  Future<Map<String, Object?>?> opened(String table, String id) async {
+    final stored = row(table, id);
+    if (stored == null) return null;
+    final payload = stored[RowSealer.payloadColumn] as String?;
+    if (payload == null) return stored;
+    final fields = await RowCipher(
+      keys.keyOf(_user),
+    ).open(payload, table: table, id: id, userId: _user);
+    return {...stored, ...fields};
+  }
 
   @override
   Future<Result<void>> upsert(String table, List<Map<String, Object?>> rows) async {
@@ -100,6 +124,11 @@ class _Device {
       pusher: SyncPusher(tables: tables, gateway: server),
       puller: SyncPuller(db: db, tables: tables, gateway: server),
       session: session,
+      dataKeys: DataKeyService(
+        storage: FakeSecureStorage(),
+        gateway: server.keys.gatewayFor(() => _user),
+      ),
+      resealer: RowResealer(db: db, tables: tables),
     );
   }
 
@@ -166,8 +195,110 @@ void main() {
       expect(row?.deletedAt != null, deleted, reason: 'deleted on $label');
       expect(row?.syncStatus, SyncStatus.synced, reason: 'status on $label');
     }
-    expect(server.row('categories', id)?['name'], name);
+    expect((await server.opened('categories', id))?['name'], name);
   }
+
+  test('the server stores private columns only sealed', () async {
+    await a.saveCategory('food', name: 'Secret groceries', at: t0);
+    final goal = (await a.goals.create(
+      const GoalDraft(name: 'Hidden laptop', target: Money(150000), icon: 'savings', color: 0),
+    )).valueOrNull!;
+    await a.goals.addContribution(
+      ContributionDraft(
+        goalId: goal.id,
+        amount: const Money(4321),
+        contributedOn: DateTime(2026, 10, 1),
+        note: 'birthday money',
+      ),
+    );
+
+    await a.syncOk();
+
+    final stored = server.allRows.map((row) => row.toString()).join('\n');
+    for (final secret in [
+      'Secret groceries',
+      'Hidden laptop',
+      '150000',
+      '4321',
+      'birthday money',
+    ]) {
+      expect(stored, isNot(contains(secret)), reason: secret);
+    }
+    final category = server.row('categories', 'food')!;
+    expect(category['name'], isNull);
+    expect(category[RowSealer.payloadColumn], startsWith('v1.'));
+    // Not private: still readable for sync and RLS.
+    expect(category['type'], 'expense');
+    expect(category['user_id'], _user);
+  });
+
+  test(
+    'a row sealed for another row cannot be opened: the pull fails and nothing is skipped',
+    () async {
+      await a.saveCategory('food', name: 'Food', at: t0);
+      await a.saveCategory('rent', name: 'Rent', at: t0);
+      await a.syncOk();
+      // Someone swaps the payloads on the server.
+      final food = server.row('categories', 'food')!;
+      final rent = server.row('categories', 'rent')!;
+      final swapped = food[RowSealer.payloadColumn];
+      food[RowSealer.payloadColumn] = rent[RowSealer.payloadColumn];
+      rent[RowSealer.payloadColumn] = swapped;
+
+      final result = await b.sync.run();
+
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect(await b.category('food'), isNull);
+    },
+  );
+
+  group('re-encrypting existing data (M11.7)', () {
+    /// A row stored in plain text, as before M11 (or by an old app version).
+    void storePlain(String id, String name, DateTime at) =>
+        server._tables.putIfAbsent('categories', () => {})[id] = {
+          'id': id,
+          'user_id': _user,
+          'name': name,
+          'icon': 'food',
+          'color': 0,
+          'type': 'expense',
+          'is_default': false,
+          'sort_order': 0,
+          'created_at': '2026-10-01T00:00:00.000Z',
+          'updated_at': at.toIso8601String(),
+          'deleted_at': null,
+          'server_updated_at': server._stamp(),
+        };
+
+    test('plain rows already on the server are sealed by the next phone that syncs', () async {
+      storePlain('food', 'Food', t0);
+
+      await b.syncOk();
+
+      expect((await b.category('food'))?.name, 'Food');
+      final stored = server.row('categories', 'food')!;
+      expect(stored['name'], isNull);
+      expect(stored[RowSealer.payloadColumn], startsWith('v1.'));
+      expect(stored['updated_at'], t0.toIso8601String(), reason: 'same version, only sealed');
+      expect((await b.category('food'))?.syncStatus, SyncStatus.synced);
+
+      await a.syncOk();
+      expect((await a.category('food'))?.name, 'Food');
+    });
+
+    test('rows synced in plain text before the update are re-uploaded sealed, once', () async {
+      // Synced before M11: on the phone as synced, on the server in plain text.
+      await a.saveCategory('rent', name: 'Rent', at: t0);
+      storePlain('rent', 'Rent', t0);
+      await a.db.customStatement('UPDATE categories SET sync_status = ${SyncStatus.synced.index}');
+
+      await a.syncOk();
+
+      expect(server.row('categories', 'rent')!['name'], isNull);
+      expect((await server.opened('categories', 'rent'))?['name'], 'Rent');
+      expect(await a.db.appSettingsDao.getValue(RowResealer.flagKey), _user);
+    });
+  });
 
   test('a row created on one phone reaches the other', () async {
     await a.saveCategory('food', name: 'Food', at: t0);
@@ -272,7 +403,7 @@ void main() {
       expect(onB?.goal.name, 'Laptop');
       expect(onB?.saved, const Money(5000));
       expect(await b.goals.watchContributions(goal.id).first, hasLength(2));
-      expect(server.row('goals', goal.id)?['target_minor'], 150000);
+      expect((await server.opened('goals', goal.id))?['target_minor'], 150000);
     });
 
     test('deleting a goal on one phone removes it and its contributions on the other', () async {

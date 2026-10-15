@@ -28,10 +28,11 @@ class FakeSecureStorage implements SecureStorageService {
     values.remove(key);
   }
 
+  /// Like the real one: [SecureStorageService.deviceKeys] survive.
   @override
   Future<void> deleteAll() async {
     _maybeFail();
-    values.clear();
+    values.removeWhere((key, _) => !SecureStorageService.deviceKeys.contains(key));
   }
 
   Override get providerOverride => secureStorageServiceProvider.overrideWithValue(this);

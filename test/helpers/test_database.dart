@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'fake_data_key_gateway.dart';
 import 'fake_sync_trigger.dart';
 
 /// A fresh in-memory database, closed automatically at the end of the test.
@@ -20,7 +21,8 @@ AppDatabase createTestDatabase() {
 /// A [ProviderContainer] backed by an in-memory database, disposed at the end of the test.
 ///
 /// Sync is never triggered for real: repositories get a [FakeSyncTrigger] ([syncTrigger] lets a
-/// test pass its own to inspect it), so no test reaches Supabase.
+/// test pass its own to inspect it) and the data key comes from a [FakeKeyServer], so no test
+/// reaches Supabase.
 ProviderContainer createTestContainer({
   AppDatabase? db,
   FakeSyncTrigger? syncTrigger,
@@ -31,6 +33,8 @@ ProviderContainer createTestContainer({
     overrides: [
       databaseProvider.overrideWithValue(db ?? createTestDatabase()),
       (syncTrigger ?? FakeSyncTrigger()).providerOverride,
+      // Sync asks the `user-key` function for the data key first (M11).
+      fakeDataKeyGatewayOverride(FakeKeyServer()),
       ...overrides,
     ],
   );

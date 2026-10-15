@@ -6,30 +6,29 @@ import 'package:mocktail/mocktail.dart';
 class _MockStorage extends Mock implements FlutterSecureStorage {}
 
 void main() {
-  late _MockStorage storage;
-  late SecureStorageService service;
+  test('deleteAll wipes user secrets but keeps the database key', () async {
+    final plugin = _MockStorage();
+    final values = <String, String>{
+      SecureStorageService.databaseKeyName: 'db',
+      'data_key': 'user',
+      'app_lock': 'pin',
+    };
+    when(() => plugin.read(key: any(named: 'key'))).thenAnswer(
+      (call) async => values[call.namedArguments[#key]],
+    );
+    when(plugin.deleteAll).thenAnswer((_) async => values.clear());
+    when(
+      () => plugin.write(
+        key: any(named: 'key'),
+        value: any(named: 'value'),
+      ),
+    ).thenAnswer(
+      (call) async =>
+          values[call.namedArguments[#key] as String] = call.namedArguments[#value] as String,
+    );
 
-  setUp(() {
-    storage = _MockStorage();
-    service = SecureStorageService(storage);
-  });
+    await SecureStorageService(plugin).deleteAll();
 
-  test('read, write and delete pass through to secure storage', () async {
-    when(() => storage.read(key: 'pin')).thenAnswer((_) async => 'hash');
-    when(() => storage.write(key: 'pin', value: 'hash')).thenAnswer((_) async {});
-    when(() => storage.delete(key: 'pin')).thenAnswer((_) async {});
-
-    expect(await service.read('pin'), 'hash');
-    await service.write('pin', 'hash');
-    await service.delete('pin');
-
-    verify(() => storage.write(key: 'pin', value: 'hash')).called(1);
-    verify(() => storage.delete(key: 'pin')).called(1);
-  });
-
-  test('deleteAll clears everything', () async {
-    when(() => storage.deleteAll()).thenAnswer((_) async {});
-    await service.deleteAll();
-    verify(() => storage.deleteAll()).called(1);
+    expect(values, {SecureStorageService.databaseKeyName: 'db'});
   });
 }

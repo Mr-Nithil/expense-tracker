@@ -104,4 +104,21 @@ void main() {
       }
     }
   });
+
+  test('encrypted columns match the server list in 0004_encryption.sql (M11)', () {
+    final sql = File('supabase/migrations/0004_encryption.sql').readAsStringSync();
+    final server = {
+      for (final match in RegExp(r"\('(\w+)',\s*array\[([^\]]*)\]").allMatches(sql))
+        match.group(1)!: {
+          for (final column in RegExp(r"'(\w+)'").allMatches(match.group(2)!)) column.group(1)!,
+        },
+    };
+
+    for (final table in registry) {
+      expect(table.encryptedColumns, server[table.name] ?? const <String>{}, reason: table.name);
+      final local = {for (final c in table.table.$columns) c.name};
+      expect(local, containsAll(table.encryptedColumns), reason: table.name);
+    }
+    expect(server.keys, everyElement(isIn(registry.map((t) => t.name))));
+  });
 }

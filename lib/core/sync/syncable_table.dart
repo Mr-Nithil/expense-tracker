@@ -23,10 +23,13 @@ enum MergeOutcome {
 /// stay in step without hand-written mappers. Local and remote tables share their name and
 /// snake_case columns (ARCHITECTURE §6.2).
 class SyncableTable<T extends Table, R extends DataClass> {
-  const SyncableTable(this.db, this.table);
+  const SyncableTable(this.db, this.table, {this.encryptedColumns = const {}});
 
   final GeneratedDatabase db;
   final TableInfo<T, R> table;
+
+  /// Private columns sealed into `payload_enc` before upload (M11, ARCHITECTURE §13).
+  final Set<String> encryptedColumns;
 
   /// Local only: never sent.
   static const syncStatusColumn = 'sync_status';
@@ -79,6 +82,33 @@ class SyncableTable<T extends Table, R extends DataClass> {
       ..orderBy([(_) => OrderingTerm.asc(_column<DateTime>('updated_at'))]);
     return query.get();
   }
+
+  /// Marks the rows [ids] pending again without touching `updated_at`, so the next push sends
+  /// them unchanged (M11.7: re-upload a plain row sealed). Returns how many were marked.
+  Future<int> markPending(Iterable<String> ids) async {
+    var marked = 0;
+    for (final id in ids) {
+      marked += await db.customUpdate(
+        'UPDATE "$name" SET $syncStatusColumn = ? WHERE id = ?',
+        variables: [Variable<int>(SyncStatus.pending.index), Variable<String>(id)],
+        updates: {table},
+        updateKind: UpdateKind.update,
+      );
+    }
+    return marked;
+  }
+
+  /// Marks every synced row of [userId] pending again, `updated_at` unchanged (M11.7).
+  Future<int> markAllSyncedPending(String userId) => db.customUpdate(
+    'UPDATE "$name" SET $syncStatusColumn = ? WHERE user_id = ? AND $syncStatusColumn = ?',
+    variables: [
+      Variable<int>(SyncStatus.pending.index),
+      Variable<String>(userId),
+      Variable<int>(SyncStatus.synced.index),
+    ],
+    updates: {table},
+    updateKind: UpdateKind.update,
+  );
 
   /// Marks pushed [rows] as synced, but only where `updated_at` still equals the pushed value:
   /// a row edited while the push was in flight stays pending for the next run. Returns how many

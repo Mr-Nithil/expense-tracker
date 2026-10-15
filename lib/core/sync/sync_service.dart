@@ -1,11 +1,18 @@
 import 'dart:async';
 
+import 'package:expense_tracker/core/crypto/data_key_service.dart';
+import 'package:expense_tracker/core/crypto/row_cipher.dart';
+import 'package:expense_tracker/core/db/database_provider.dart';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/logging/app_logger.dart';
 import 'package:expense_tracker/core/session/session.dart';
+import 'package:expense_tracker/core/sync/row_resealer.dart';
+import 'package:expense_tracker/core/sync/row_sealer.dart';
+import 'package:expense_tracker/core/sync/supabase_data_key_gateway.dart';
 import 'package:expense_tracker/core/sync/sync_puller.dart';
 import 'package:expense_tracker/core/sync/sync_pusher.dart';
+import 'package:expense_tracker/core/sync/sync_registry.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -54,7 +61,13 @@ class SyncRunState {
 /// schedules one more pass right after it (if it succeeded), so changes made meanwhile are not
 /// left waiting. Never throws.
 class SyncService {
-  SyncService({required this.pusher, required this.puller, required this.session});
+  SyncService({
+    required this.pusher,
+    required this.puller,
+    required this.session,
+    required this.dataKeys,
+    required this.resealer,
+  });
 
   /// Returned when nobody is signed in: nothing to sync, and nothing to retry.
   static const noSessionFailure = AuthFailure('sync: no session');
@@ -62,6 +75,12 @@ class SyncService {
   final SyncPusher pusher;
   final SyncPuller puller;
   final Session session;
+
+  /// The user's data key: every run seals and opens private columns with it (M11.6).
+  final DataKeyService dataKeys;
+
+  /// Re-uploads this phone's existing rows sealed, once per user (M11.7).
+  final RowResealer resealer;
 
   Future<Result<SyncReport>>? _running;
   var _runAgain = false;
@@ -138,11 +157,25 @@ class SyncService {
     final userId = session.currentUser?.userId;
     if (userId == null) return const Result.failure(noSessionFailure);
     try {
-      final pushedCount = switch (await pusher.push(userId)) {
+      // No key, no sync: nothing private ever leaves or is read without it.
+      final sealer = switch (await dataKeys.keyFor(userId)) {
+        Failure(:final failure) => throw _Stop(failure),
+        Success(:final value) => RowSealer(RowCipher(value)),
+      };
+      try {
+        await resealer.ensureSealed(userId);
+      } catch (error, stackTrace) {
+        AppLogger.error('sync: marking rows for sealing failed', error, stackTrace);
+        throw _Stop(StorageFailure('reseal: $error'));
+      }
+      final pushedCount = switch (await pusher.push(userId, sealer: sealer)) {
         Failure(:final failure) => throw _Stop(failure),
         Success(:final value) => value,
       };
-      return switch (await puller.pull(userId)) {
+      final pulled = await puller.pull(userId, sealer: sealer);
+      // Plain rows from the server were marked pending: push them sealed right away.
+      if (pulled.isSuccess && puller.lastResealed > 0) _runAgain = true;
+      return switch (pulled) {
         Failure(:final failure) => Result.failure(failure),
         Success(:final value) => Result.success(SyncReport(pushed: pushedCount, pulled: value)),
       };
@@ -155,7 +188,7 @@ class SyncService {
   }
 }
 
-/// Ends a run early with [failure] (push failed, so pull is skipped).
+/// Ends a run early with [failure] (no key, or push failed, so pull is skipped).
 class _Stop implements Exception {
   const _Stop(this.failure);
 
@@ -164,10 +197,13 @@ class _Stop implements Exception {
 
 @Riverpod(keepAlive: true)
 SyncService syncService(Ref ref) {
+  final db = ref.watch(databaseProvider);
   final service = SyncService(
     pusher: ref.watch(syncPusherProvider),
     puller: ref.watch(syncPullerProvider),
     session: ref.watch(sessionProvider.notifier),
+    dataKeys: ref.watch(dataKeyServiceProvider),
+    resealer: RowResealer(db: db, tables: syncableTables(db)),
   );
   ref.onDispose(service.dispose);
   return service;
