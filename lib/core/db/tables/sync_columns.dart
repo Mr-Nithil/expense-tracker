@@ -1,3 +1,6 @@
+// Drift CHECK constraints reference their own column getter; drift_dev parses, never runs, it.
+// ignore_for_file: recursive_getters
+
 import 'package:drift/drift.dart';
 
 /// Local sync state of a row. Stored as its index: **only append new values, never reorder.**
@@ -28,4 +31,25 @@ mixin SyncColumns on Table {
   /// `pending` after a local write, `synced` after a successful push. Local only.
   IntColumn get syncStatus =>
       intEnum<SyncStatus>().withDefault(Constant(SyncStatus.pending.index))();
+
+  /// Who created the row: [ChangeSource.user] or [ChangeSource.agent] (M10.14). Never changes.
+  TextColumn get createdBy => text()
+      .check(createdBy.isIn(ChangeSource.values))
+      .withDefault(const Constant(ChangeSource.user))();
+
+  /// Who made the last change. Local edits reset it to [ChangeSource.user] (trigger in
+  /// `change_source.drift`); the agent's changes arrive by sync as [ChangeSource.agent].
+  TextColumn get updatedBy => text()
+      .check(updatedBy.isIn(ChangeSource.values))
+      .withDefault(const Constant(ChangeSource.user))();
+
+  /// The approved agent proposal behind the last change; null when the user made it.
+  TextColumn get agentProposalId => text().nullable()();
+}
+
+/// Values of `created_by` / `updated_by` (M10.14, ARCHITECTURE §14).
+abstract final class ChangeSource {
+  static const user = 'user';
+  static const agent = 'agent';
+  static const values = [user, agent];
 }

@@ -79,6 +79,43 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, ProfileRow>
     requiredDuringInsert: false,
     defaultValue: Constant(SyncStatus.pending.index),
   ).withConverter<SyncStatus>($ProfilesTable.$convertersyncStatus);
+  static const VerificationMeta _createdByMeta = const VerificationMeta(
+    'createdBy',
+  );
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    false,
+    check: () => createdBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _updatedByMeta = const VerificationMeta(
+    'updatedBy',
+  );
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+    'updated_by',
+    aliasedName,
+    false,
+    check: () => updatedBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _agentProposalIdMeta = const VerificationMeta(
+    'agentProposalId',
+  );
+  @override
+  late final GeneratedColumn<String> agentProposalId = GeneratedColumn<String>(
+    'agent_proposal_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _displayNameMeta = const VerificationMeta(
     'displayName',
   );
@@ -137,6 +174,9 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, ProfileRow>
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     displayName,
     currencyCode,
     locale,
@@ -195,6 +235,27 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, ProfileRow>
         serverUpdatedAt.isAcceptableOrUnknown(
           data['server_updated_at']!,
           _serverUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(
+        _updatedByMeta,
+        updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta),
+      );
+    }
+    if (data.containsKey('agent_proposal_id')) {
+      context.handle(
+        _agentProposalIdMeta,
+        agentProposalId.isAcceptableOrUnknown(
+          data['agent_proposal_id']!,
+          _agentProposalIdMeta,
         ),
       );
     }
@@ -267,6 +328,18 @@ class $ProfilesTable extends Profiles with TableInfo<$ProfilesTable, ProfileRow>
           data['${effectivePrefix}sync_status'],
         )!,
       ),
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      )!,
+      updatedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_by'],
+      )!,
+      agentProposalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}agent_proposal_id'],
+      ),
       displayName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}display_name'],
@@ -316,6 +389,16 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
 
   /// `pending` after a local write, `synced` after a successful push. Local only.
   final SyncStatus syncStatus;
+
+  /// Who created the row: [ChangeSource.user] or [ChangeSource.agent] (M10.14). Never changes.
+  final String createdBy;
+
+  /// Who made the last change. Local edits reset it to [ChangeSource.user] (trigger in
+  /// `change_source.drift`); the agent's changes arrive by sync as [ChangeSource.agent].
+  final String updatedBy;
+
+  /// The approved agent proposal behind the last change; null when the user made it.
+  final String? agentProposalId;
   final String? displayName;
 
   /// ISO 4217 code. Null until onboarding is complete. Read-only afterwards.
@@ -332,6 +415,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     this.deletedAt,
     this.serverUpdatedAt,
     required this.syncStatus,
+    required this.createdBy,
+    required this.updatedBy,
+    this.agentProposalId,
     this.displayName,
     this.currencyCode,
     this.locale,
@@ -354,6 +440,11 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       map['sync_status'] = Variable<int>(
         $ProfilesTable.$convertersyncStatus.toSql(syncStatus),
       );
+    }
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    if (!nullToAbsent || agentProposalId != null) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId);
     }
     if (!nullToAbsent || displayName != null) {
       map['display_name'] = Variable<String>(displayName);
@@ -379,6 +470,11 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           ? const Value.absent()
           : Value(serverUpdatedAt),
       syncStatus: Value(syncStatus),
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      agentProposalId: agentProposalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(agentProposalId),
       displayName: displayName == null && nullToAbsent ? const Value.absent() : Value(displayName),
       currencyCode: currencyCode == null && nullToAbsent
           ? const Value.absent()
@@ -403,6 +499,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       syncStatus: $ProfilesTable.$convertersyncStatus.fromJson(
         serializer.fromJson<int>(json['syncStatus']),
       ),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      agentProposalId: serializer.fromJson<String?>(json['agentProposalId']),
       displayName: serializer.fromJson<String?>(json['displayName']),
       currencyCode: serializer.fromJson<String?>(json['currencyCode']),
       locale: serializer.fromJson<String?>(json['locale']),
@@ -422,6 +521,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
       'syncStatus': serializer.toJson<int>(
         $ProfilesTable.$convertersyncStatus.toJson(syncStatus),
       ),
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'agentProposalId': serializer.toJson<String?>(agentProposalId),
       'displayName': serializer.toJson<String?>(displayName),
       'currencyCode': serializer.toJson<String?>(currencyCode),
       'locale': serializer.toJson<String?>(locale),
@@ -437,6 +539,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     Value<DateTime?> deletedAt = const Value.absent(),
     Value<DateTime?> serverUpdatedAt = const Value.absent(),
     SyncStatus? syncStatus,
+    String? createdBy,
+    String? updatedBy,
+    Value<String?> agentProposalId = const Value.absent(),
     Value<String?> displayName = const Value.absent(),
     Value<String?> currencyCode = const Value.absent(),
     Value<String?> locale = const Value.absent(),
@@ -449,6 +554,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     serverUpdatedAt: serverUpdatedAt.present ? serverUpdatedAt.value : this.serverUpdatedAt,
     syncStatus: syncStatus ?? this.syncStatus,
+    createdBy: createdBy ?? this.createdBy,
+    updatedBy: updatedBy ?? this.updatedBy,
+    agentProposalId: agentProposalId.present ? agentProposalId.value : this.agentProposalId,
     displayName: displayName.present ? displayName.value : this.displayName,
     currencyCode: currencyCode.present ? currencyCode.value : this.currencyCode,
     locale: locale.present ? locale.value : this.locale,
@@ -465,6 +573,11 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           ? data.serverUpdatedAt.value
           : this.serverUpdatedAt,
       syncStatus: data.syncStatus.present ? data.syncStatus.value : this.syncStatus,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      agentProposalId: data.agentProposalId.present
+          ? data.agentProposalId.value
+          : this.agentProposalId,
       displayName: data.displayName.present ? data.displayName.value : this.displayName,
       currencyCode: data.currencyCode.present ? data.currencyCode.value : this.currencyCode,
       locale: data.locale.present ? data.locale.value : this.locale,
@@ -482,6 +595,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('displayName: $displayName, ')
           ..write('currencyCode: $currencyCode, ')
           ..write('locale: $locale, ')
@@ -499,6 +615,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     displayName,
     currencyCode,
     locale,
@@ -515,6 +634,9 @@ class ProfileRow extends DataClass implements Insertable<ProfileRow> {
           other.deletedAt == this.deletedAt &&
           other.serverUpdatedAt == this.serverUpdatedAt &&
           other.syncStatus == this.syncStatus &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.agentProposalId == this.agentProposalId &&
           other.displayName == this.displayName &&
           other.currencyCode == this.currencyCode &&
           other.locale == this.locale &&
@@ -529,6 +651,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
   final Value<DateTime?> deletedAt;
   final Value<DateTime?> serverUpdatedAt;
   final Value<SyncStatus> syncStatus;
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<String?> agentProposalId;
   final Value<String?> displayName;
   final Value<String?> currencyCode;
   final Value<String?> locale;
@@ -542,6 +667,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     this.displayName = const Value.absent(),
     this.currencyCode = const Value.absent(),
     this.locale = const Value.absent(),
@@ -556,6 +684,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     this.displayName = const Value.absent(),
     this.currencyCode = const Value.absent(),
     this.locale = const Value.absent(),
@@ -573,6 +704,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Expression<DateTime>? deletedAt,
     Expression<DateTime>? serverUpdatedAt,
     Expression<int>? syncStatus,
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<String>? agentProposalId,
     Expression<String>? displayName,
     Expression<String>? currencyCode,
     Expression<String>? locale,
@@ -587,6 +721,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (serverUpdatedAt != null) 'server_updated_at': serverUpdatedAt,
       if (syncStatus != null) 'sync_status': syncStatus,
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (agentProposalId != null) 'agent_proposal_id': agentProposalId,
       if (displayName != null) 'display_name': displayName,
       if (currencyCode != null) 'currency_code': currencyCode,
       if (locale != null) 'locale': locale,
@@ -603,6 +740,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
     Value<DateTime?>? deletedAt,
     Value<DateTime?>? serverUpdatedAt,
     Value<SyncStatus>? syncStatus,
+    Value<String>? createdBy,
+    Value<String>? updatedBy,
+    Value<String?>? agentProposalId,
     Value<String?>? displayName,
     Value<String?>? currencyCode,
     Value<String?>? locale,
@@ -617,6 +757,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
       deletedAt: deletedAt ?? this.deletedAt,
       serverUpdatedAt: serverUpdatedAt ?? this.serverUpdatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      agentProposalId: agentProposalId ?? this.agentProposalId,
       displayName: displayName ?? this.displayName,
       currencyCode: currencyCode ?? this.currencyCode,
       locale: locale ?? this.locale,
@@ -651,6 +794,15 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
         $ProfilesTable.$convertersyncStatus.toSql(syncStatus.value),
       );
     }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (agentProposalId.present) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId.value);
+    }
     if (displayName.present) {
       map['display_name'] = Variable<String>(displayName.value);
     }
@@ -679,6 +831,9 @@ class ProfilesCompanion extends UpdateCompanion<ProfileRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('displayName: $displayName, ')
           ..write('currencyCode: $currencyCode, ')
           ..write('locale: $locale, ')
@@ -765,6 +920,43 @@ class $CategoriesTable extends Categories with TableInfo<$CategoriesTable, Categ
     requiredDuringInsert: false,
     defaultValue: Constant(SyncStatus.pending.index),
   ).withConverter<SyncStatus>($CategoriesTable.$convertersyncStatus);
+  static const VerificationMeta _createdByMeta = const VerificationMeta(
+    'createdBy',
+  );
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    false,
+    check: () => createdBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _updatedByMeta = const VerificationMeta(
+    'updatedBy',
+  );
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+    'updated_by',
+    aliasedName,
+    false,
+    check: () => updatedBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _agentProposalIdMeta = const VerificationMeta(
+    'agentProposalId',
+  );
+  @override
+  late final GeneratedColumn<String> agentProposalId = GeneratedColumn<String>(
+    'agent_proposal_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -842,6 +1034,9 @@ class $CategoriesTable extends Categories with TableInfo<$CategoriesTable, Categ
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     name,
     icon,
     color,
@@ -902,6 +1097,27 @@ class $CategoriesTable extends Categories with TableInfo<$CategoriesTable, Categ
         serverUpdatedAt.isAcceptableOrUnknown(
           data['server_updated_at']!,
           _serverUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(
+        _updatedByMeta,
+        updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta),
+      );
+    }
+    if (data.containsKey('agent_proposal_id')) {
+      context.handle(
+        _agentProposalIdMeta,
+        agentProposalId.isAcceptableOrUnknown(
+          data['agent_proposal_id']!,
+          _agentProposalIdMeta,
         ),
       );
     }
@@ -988,6 +1204,18 @@ class $CategoriesTable extends Categories with TableInfo<$CategoriesTable, Categ
           data['${effectivePrefix}sync_status'],
         )!,
       ),
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      )!,
+      updatedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_by'],
+      )!,
+      agentProposalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}agent_proposal_id'],
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -1045,6 +1273,16 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
 
   /// `pending` after a local write, `synced` after a successful push. Local only.
   final SyncStatus syncStatus;
+
+  /// Who created the row: [ChangeSource.user] or [ChangeSource.agent] (M10.14). Never changes.
+  final String createdBy;
+
+  /// Who made the last change. Local edits reset it to [ChangeSource.user] (trigger in
+  /// `change_source.drift`); the agent's changes arrive by sync as [ChangeSource.agent].
+  final String updatedBy;
+
+  /// The approved agent proposal behind the last change; null when the user made it.
+  final String? agentProposalId;
   final String name;
 
   /// Icon key resolved by the UI (not a code point, so icon fonts can change).
@@ -1063,6 +1301,9 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
     this.deletedAt,
     this.serverUpdatedAt,
     required this.syncStatus,
+    required this.createdBy,
+    required this.updatedBy,
+    this.agentProposalId,
     required this.name,
     required this.icon,
     required this.color,
@@ -1088,6 +1329,11 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
         $CategoriesTable.$convertersyncStatus.toSql(syncStatus),
       );
     }
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    if (!nullToAbsent || agentProposalId != null) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId);
+    }
     map['name'] = Variable<String>(name);
     map['icon'] = Variable<String>(icon);
     map['color'] = Variable<int>(color);
@@ -1108,6 +1354,11 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
           ? const Value.absent()
           : Value(serverUpdatedAt),
       syncStatus: Value(syncStatus),
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      agentProposalId: agentProposalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(agentProposalId),
       name: Value(name),
       icon: Value(icon),
       color: Value(color),
@@ -1132,6 +1383,9 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
       syncStatus: $CategoriesTable.$convertersyncStatus.fromJson(
         serializer.fromJson<int>(json['syncStatus']),
       ),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      agentProposalId: serializer.fromJson<String?>(json['agentProposalId']),
       name: serializer.fromJson<String>(json['name']),
       icon: serializer.fromJson<String>(json['icon']),
       color: serializer.fromJson<int>(json['color']),
@@ -1153,6 +1407,9 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
       'syncStatus': serializer.toJson<int>(
         $CategoriesTable.$convertersyncStatus.toJson(syncStatus),
       ),
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'agentProposalId': serializer.toJson<String?>(agentProposalId),
       'name': serializer.toJson<String>(name),
       'icon': serializer.toJson<String>(icon),
       'color': serializer.toJson<int>(color),
@@ -1170,6 +1427,9 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
     Value<DateTime?> deletedAt = const Value.absent(),
     Value<DateTime?> serverUpdatedAt = const Value.absent(),
     SyncStatus? syncStatus,
+    String? createdBy,
+    String? updatedBy,
+    Value<String?> agentProposalId = const Value.absent(),
     String? name,
     String? icon,
     int? color,
@@ -1184,6 +1444,9 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     serverUpdatedAt: serverUpdatedAt.present ? serverUpdatedAt.value : this.serverUpdatedAt,
     syncStatus: syncStatus ?? this.syncStatus,
+    createdBy: createdBy ?? this.createdBy,
+    updatedBy: updatedBy ?? this.updatedBy,
+    agentProposalId: agentProposalId.present ? agentProposalId.value : this.agentProposalId,
     name: name ?? this.name,
     icon: icon ?? this.icon,
     color: color ?? this.color,
@@ -1202,6 +1465,11 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
           ? data.serverUpdatedAt.value
           : this.serverUpdatedAt,
       syncStatus: data.syncStatus.present ? data.syncStatus.value : this.syncStatus,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      agentProposalId: data.agentProposalId.present
+          ? data.agentProposalId.value
+          : this.agentProposalId,
       name: data.name.present ? data.name.value : this.name,
       icon: data.icon.present ? data.icon.value : this.icon,
       color: data.color.present ? data.color.value : this.color,
@@ -1221,6 +1489,9 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('name: $name, ')
           ..write('icon: $icon, ')
           ..write('color: $color, ')
@@ -1240,6 +1511,9 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     name,
     icon,
     color,
@@ -1258,6 +1532,9 @@ class CategoryRow extends DataClass implements Insertable<CategoryRow> {
           other.deletedAt == this.deletedAt &&
           other.serverUpdatedAt == this.serverUpdatedAt &&
           other.syncStatus == this.syncStatus &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.agentProposalId == this.agentProposalId &&
           other.name == this.name &&
           other.icon == this.icon &&
           other.color == this.color &&
@@ -1274,6 +1551,9 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
   final Value<DateTime?> deletedAt;
   final Value<DateTime?> serverUpdatedAt;
   final Value<SyncStatus> syncStatus;
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<String?> agentProposalId;
   final Value<String> name;
   final Value<String> icon;
   final Value<int> color;
@@ -1289,6 +1569,9 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     this.name = const Value.absent(),
     this.icon = const Value.absent(),
     this.color = const Value.absent(),
@@ -1305,6 +1588,9 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     required String name,
     required String icon,
     required int color,
@@ -1328,6 +1614,9 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
     Expression<DateTime>? deletedAt,
     Expression<DateTime>? serverUpdatedAt,
     Expression<int>? syncStatus,
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<String>? agentProposalId,
     Expression<String>? name,
     Expression<String>? icon,
     Expression<int>? color,
@@ -1344,6 +1633,9 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (serverUpdatedAt != null) 'server_updated_at': serverUpdatedAt,
       if (syncStatus != null) 'sync_status': syncStatus,
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (agentProposalId != null) 'agent_proposal_id': agentProposalId,
       if (name != null) 'name': name,
       if (icon != null) 'icon': icon,
       if (color != null) 'color': color,
@@ -1362,6 +1654,9 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
     Value<DateTime?>? deletedAt,
     Value<DateTime?>? serverUpdatedAt,
     Value<SyncStatus>? syncStatus,
+    Value<String>? createdBy,
+    Value<String>? updatedBy,
+    Value<String?>? agentProposalId,
     Value<String>? name,
     Value<String>? icon,
     Value<int>? color,
@@ -1378,6 +1673,9 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
       deletedAt: deletedAt ?? this.deletedAt,
       serverUpdatedAt: serverUpdatedAt ?? this.serverUpdatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      agentProposalId: agentProposalId ?? this.agentProposalId,
       name: name ?? this.name,
       icon: icon ?? this.icon,
       color: color ?? this.color,
@@ -1414,6 +1712,15 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
         $CategoriesTable.$convertersyncStatus.toSql(syncStatus.value),
       );
     }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (agentProposalId.present) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId.value);
+    }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
@@ -1448,6 +1755,9 @@ class CategoriesCompanion extends UpdateCompanion<CategoryRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('name: $name, ')
           ..write('icon: $icon, ')
           ..write('color: $color, ')
@@ -1536,6 +1846,43 @@ class $TransactionsTable extends Transactions with TableInfo<$TransactionsTable,
     requiredDuringInsert: false,
     defaultValue: Constant(SyncStatus.pending.index),
   ).withConverter<SyncStatus>($TransactionsTable.$convertersyncStatus);
+  static const VerificationMeta _createdByMeta = const VerificationMeta(
+    'createdBy',
+  );
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    false,
+    check: () => createdBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _updatedByMeta = const VerificationMeta(
+    'updatedBy',
+  );
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+    'updated_by',
+    aliasedName,
+    false,
+    check: () => updatedBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _agentProposalIdMeta = const VerificationMeta(
+    'agentProposalId',
+  );
+  @override
+  late final GeneratedColumn<String> agentProposalId = GeneratedColumn<String>(
+    'agent_proposal_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
   late final GeneratedColumn<String> type = GeneratedColumn<String>(
@@ -1600,6 +1947,9 @@ class $TransactionsTable extends Transactions with TableInfo<$TransactionsTable,
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     type,
     amountMinor,
     categoryId,
@@ -1659,6 +2009,27 @@ class $TransactionsTable extends Transactions with TableInfo<$TransactionsTable,
         serverUpdatedAt.isAcceptableOrUnknown(
           data['server_updated_at']!,
           _serverUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(
+        _updatedByMeta,
+        updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta),
+      );
+    }
+    if (data.containsKey('agent_proposal_id')) {
+      context.handle(
+        _agentProposalIdMeta,
+        agentProposalId.isAcceptableOrUnknown(
+          data['agent_proposal_id']!,
+          _agentProposalIdMeta,
         ),
       );
     }
@@ -1734,6 +2105,18 @@ class $TransactionsTable extends Transactions with TableInfo<$TransactionsTable,
           data['${effectivePrefix}sync_status'],
         )!,
       ),
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      )!,
+      updatedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_by'],
+      )!,
+      agentProposalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}agent_proposal_id'],
+      ),
       type: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}type'],
@@ -1790,6 +2173,16 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
 
   /// `pending` after a local write, `synced` after a successful push. Local only.
   final SyncStatus syncStatus;
+
+  /// Who created the row: [ChangeSource.user] or [ChangeSource.agent] (M10.14). Never changes.
+  final String createdBy;
+
+  /// Who made the last change. Local edits reset it to [ChangeSource.user] (trigger in
+  /// `change_source.drift`); the agent's changes arrive by sync as [ChangeSource.agent].
+  final String updatedBy;
+
+  /// The approved agent proposal behind the last change; null when the user made it.
+  final String? agentProposalId;
   final String type;
 
   /// Always positive. [type] gives the direction.
@@ -1805,6 +2198,9 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
     this.deletedAt,
     this.serverUpdatedAt,
     required this.syncStatus,
+    required this.createdBy,
+    required this.updatedBy,
+    this.agentProposalId,
     required this.type,
     required this.amountMinor,
     required this.categoryId,
@@ -1828,6 +2224,11 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
       map['sync_status'] = Variable<int>(
         $TransactionsTable.$convertersyncStatus.toSql(syncStatus),
       );
+    }
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    if (!nullToAbsent || agentProposalId != null) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId);
     }
     map['type'] = Variable<String>(type);
     map['amount_minor'] = Variable<int>(amountMinor);
@@ -1854,6 +2255,11 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
           ? const Value.absent()
           : Value(serverUpdatedAt),
       syncStatus: Value(syncStatus),
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      agentProposalId: agentProposalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(agentProposalId),
       type: Value(type),
       amountMinor: Value(amountMinor),
       categoryId: Value(categoryId),
@@ -1877,6 +2283,9 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
       syncStatus: $TransactionsTable.$convertersyncStatus.fromJson(
         serializer.fromJson<int>(json['syncStatus']),
       ),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      agentProposalId: serializer.fromJson<String?>(json['agentProposalId']),
       type: serializer.fromJson<String>(json['type']),
       amountMinor: serializer.fromJson<int>(json['amountMinor']),
       categoryId: serializer.fromJson<String>(json['categoryId']),
@@ -1897,6 +2306,9 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
       'syncStatus': serializer.toJson<int>(
         $TransactionsTable.$convertersyncStatus.toJson(syncStatus),
       ),
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'agentProposalId': serializer.toJson<String?>(agentProposalId),
       'type': serializer.toJson<String>(type),
       'amountMinor': serializer.toJson<int>(amountMinor),
       'categoryId': serializer.toJson<String>(categoryId),
@@ -1913,6 +2325,9 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
     Value<DateTime?> deletedAt = const Value.absent(),
     Value<DateTime?> serverUpdatedAt = const Value.absent(),
     SyncStatus? syncStatus,
+    String? createdBy,
+    String? updatedBy,
+    Value<String?> agentProposalId = const Value.absent(),
     String? type,
     int? amountMinor,
     String? categoryId,
@@ -1926,6 +2341,9 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     serverUpdatedAt: serverUpdatedAt.present ? serverUpdatedAt.value : this.serverUpdatedAt,
     syncStatus: syncStatus ?? this.syncStatus,
+    createdBy: createdBy ?? this.createdBy,
+    updatedBy: updatedBy ?? this.updatedBy,
+    agentProposalId: agentProposalId.present ? agentProposalId.value : this.agentProposalId,
     type: type ?? this.type,
     amountMinor: amountMinor ?? this.amountMinor,
     categoryId: categoryId ?? this.categoryId,
@@ -1943,6 +2361,11 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
           ? data.serverUpdatedAt.value
           : this.serverUpdatedAt,
       syncStatus: data.syncStatus.present ? data.syncStatus.value : this.syncStatus,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      agentProposalId: data.agentProposalId.present
+          ? data.agentProposalId.value
+          : this.agentProposalId,
       type: data.type.present ? data.type.value : this.type,
       amountMinor: data.amountMinor.present ? data.amountMinor.value : this.amountMinor,
       categoryId: data.categoryId.present ? data.categoryId.value : this.categoryId,
@@ -1961,6 +2384,9 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('type: $type, ')
           ..write('amountMinor: $amountMinor, ')
           ..write('categoryId: $categoryId, ')
@@ -1979,6 +2405,9 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     type,
     amountMinor,
     categoryId,
@@ -1996,6 +2425,9 @@ class TransactionRow extends DataClass implements Insertable<TransactionRow> {
           other.deletedAt == this.deletedAt &&
           other.serverUpdatedAt == this.serverUpdatedAt &&
           other.syncStatus == this.syncStatus &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.agentProposalId == this.agentProposalId &&
           other.type == this.type &&
           other.amountMinor == this.amountMinor &&
           other.categoryId == this.categoryId &&
@@ -2011,6 +2443,9 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
   final Value<DateTime?> deletedAt;
   final Value<DateTime?> serverUpdatedAt;
   final Value<SyncStatus> syncStatus;
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<String?> agentProposalId;
   final Value<String> type;
   final Value<int> amountMinor;
   final Value<String> categoryId;
@@ -2025,6 +2460,9 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     this.type = const Value.absent(),
     this.amountMinor = const Value.absent(),
     this.categoryId = const Value.absent(),
@@ -2040,6 +2478,9 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     required String type,
     required int amountMinor,
     required String categoryId,
@@ -2062,6 +2503,9 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     Expression<DateTime>? deletedAt,
     Expression<DateTime>? serverUpdatedAt,
     Expression<int>? syncStatus,
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<String>? agentProposalId,
     Expression<String>? type,
     Expression<int>? amountMinor,
     Expression<String>? categoryId,
@@ -2077,6 +2521,9 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (serverUpdatedAt != null) 'server_updated_at': serverUpdatedAt,
       if (syncStatus != null) 'sync_status': syncStatus,
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (agentProposalId != null) 'agent_proposal_id': agentProposalId,
       if (type != null) 'type': type,
       if (amountMinor != null) 'amount_minor': amountMinor,
       if (categoryId != null) 'category_id': categoryId,
@@ -2094,6 +2541,9 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
     Value<DateTime?>? deletedAt,
     Value<DateTime?>? serverUpdatedAt,
     Value<SyncStatus>? syncStatus,
+    Value<String>? createdBy,
+    Value<String>? updatedBy,
+    Value<String?>? agentProposalId,
     Value<String>? type,
     Value<int>? amountMinor,
     Value<String>? categoryId,
@@ -2109,6 +2559,9 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
       deletedAt: deletedAt ?? this.deletedAt,
       serverUpdatedAt: serverUpdatedAt ?? this.serverUpdatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      agentProposalId: agentProposalId ?? this.agentProposalId,
       type: type ?? this.type,
       amountMinor: amountMinor ?? this.amountMinor,
       categoryId: categoryId ?? this.categoryId,
@@ -2144,6 +2597,15 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
         $TransactionsTable.$convertersyncStatus.toSql(syncStatus.value),
       );
     }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (agentProposalId.present) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId.value);
+    }
     if (type.present) {
       map['type'] = Variable<String>(type.value);
     }
@@ -2177,6 +2639,9 @@ class TransactionsCompanion extends UpdateCompanion<TransactionRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('type: $type, ')
           ..write('amountMinor: $amountMinor, ')
           ..write('categoryId: $categoryId, ')
@@ -2264,6 +2729,43 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, BudgetRow> {
     requiredDuringInsert: false,
     defaultValue: Constant(SyncStatus.pending.index),
   ).withConverter<SyncStatus>($BudgetsTable.$convertersyncStatus);
+  static const VerificationMeta _createdByMeta = const VerificationMeta(
+    'createdBy',
+  );
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    false,
+    check: () => createdBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _updatedByMeta = const VerificationMeta(
+    'updatedBy',
+  );
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+    'updated_by',
+    aliasedName,
+    false,
+    check: () => updatedBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _agentProposalIdMeta = const VerificationMeta(
+    'agentProposalId',
+  );
+  @override
+  late final GeneratedColumn<String> agentProposalId = GeneratedColumn<String>(
+    'agent_proposal_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   late final GeneratedColumnWithTypeConverter<DateTime, String> month = GeneratedColumn<String>(
     'month',
@@ -2307,6 +2809,9 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, BudgetRow> {
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     month,
     categoryId,
     limitMinor,
@@ -2367,6 +2872,27 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, BudgetRow> {
         ),
       );
     }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(
+        _updatedByMeta,
+        updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta),
+      );
+    }
+    if (data.containsKey('agent_proposal_id')) {
+      context.handle(
+        _agentProposalIdMeta,
+        agentProposalId.isAcceptableOrUnknown(
+          data['agent_proposal_id']!,
+          _agentProposalIdMeta,
+        ),
+      );
+    }
     if (data.containsKey('category_id')) {
       context.handle(
         _categoryIdMeta,
@@ -2420,6 +2946,18 @@ class $BudgetsTable extends Budgets with TableInfo<$BudgetsTable, BudgetRow> {
           data['${effectivePrefix}sync_status'],
         )!,
       ),
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      )!,
+      updatedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_by'],
+      )!,
+      agentProposalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}agent_proposal_id'],
+      ),
       month: $BudgetsTable.$convertermonth.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -2469,6 +3007,16 @@ class BudgetRow extends DataClass implements Insertable<BudgetRow> {
   /// `pending` after a local write, `synced` after a successful push. Local only.
   final SyncStatus syncStatus;
 
+  /// Who created the row: [ChangeSource.user] or [ChangeSource.agent] (M10.14). Never changes.
+  final String createdBy;
+
+  /// Who made the last change. Local edits reset it to [ChangeSource.user] (trigger in
+  /// `change_source.drift`); the agent's changes arrive by sync as [ChangeSource.agent].
+  final String updatedBy;
+
+  /// The approved agent proposal behind the last change; null when the user made it.
+  final String? agentProposalId;
+
   /// First day of the month (`yyyy-MM-01`).
   final DateTime month;
   final String? categoryId;
@@ -2481,6 +3029,9 @@ class BudgetRow extends DataClass implements Insertable<BudgetRow> {
     this.deletedAt,
     this.serverUpdatedAt,
     required this.syncStatus,
+    required this.createdBy,
+    required this.updatedBy,
+    this.agentProposalId,
     required this.month,
     this.categoryId,
     required this.limitMinor,
@@ -2502,6 +3053,11 @@ class BudgetRow extends DataClass implements Insertable<BudgetRow> {
       map['sync_status'] = Variable<int>(
         $BudgetsTable.$convertersyncStatus.toSql(syncStatus),
       );
+    }
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    if (!nullToAbsent || agentProposalId != null) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId);
     }
     {
       map['month'] = Variable<String>(
@@ -2526,6 +3082,11 @@ class BudgetRow extends DataClass implements Insertable<BudgetRow> {
           ? const Value.absent()
           : Value(serverUpdatedAt),
       syncStatus: Value(syncStatus),
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      agentProposalId: agentProposalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(agentProposalId),
       month: Value(month),
       categoryId: categoryId == null && nullToAbsent ? const Value.absent() : Value(categoryId),
       limitMinor: Value(limitMinor),
@@ -2547,6 +3108,9 @@ class BudgetRow extends DataClass implements Insertable<BudgetRow> {
       syncStatus: $BudgetsTable.$convertersyncStatus.fromJson(
         serializer.fromJson<int>(json['syncStatus']),
       ),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      agentProposalId: serializer.fromJson<String?>(json['agentProposalId']),
       month: serializer.fromJson<DateTime>(json['month']),
       categoryId: serializer.fromJson<String?>(json['categoryId']),
       limitMinor: serializer.fromJson<int>(json['limitMinor']),
@@ -2565,6 +3129,9 @@ class BudgetRow extends DataClass implements Insertable<BudgetRow> {
       'syncStatus': serializer.toJson<int>(
         $BudgetsTable.$convertersyncStatus.toJson(syncStatus),
       ),
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'agentProposalId': serializer.toJson<String?>(agentProposalId),
       'month': serializer.toJson<DateTime>(month),
       'categoryId': serializer.toJson<String?>(categoryId),
       'limitMinor': serializer.toJson<int>(limitMinor),
@@ -2579,6 +3146,9 @@ class BudgetRow extends DataClass implements Insertable<BudgetRow> {
     Value<DateTime?> deletedAt = const Value.absent(),
     Value<DateTime?> serverUpdatedAt = const Value.absent(),
     SyncStatus? syncStatus,
+    String? createdBy,
+    String? updatedBy,
+    Value<String?> agentProposalId = const Value.absent(),
     DateTime? month,
     Value<String?> categoryId = const Value.absent(),
     int? limitMinor,
@@ -2590,6 +3160,9 @@ class BudgetRow extends DataClass implements Insertable<BudgetRow> {
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     serverUpdatedAt: serverUpdatedAt.present ? serverUpdatedAt.value : this.serverUpdatedAt,
     syncStatus: syncStatus ?? this.syncStatus,
+    createdBy: createdBy ?? this.createdBy,
+    updatedBy: updatedBy ?? this.updatedBy,
+    agentProposalId: agentProposalId.present ? agentProposalId.value : this.agentProposalId,
     month: month ?? this.month,
     categoryId: categoryId.present ? categoryId.value : this.categoryId,
     limitMinor: limitMinor ?? this.limitMinor,
@@ -2605,6 +3178,11 @@ class BudgetRow extends DataClass implements Insertable<BudgetRow> {
           ? data.serverUpdatedAt.value
           : this.serverUpdatedAt,
       syncStatus: data.syncStatus.present ? data.syncStatus.value : this.syncStatus,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      agentProposalId: data.agentProposalId.present
+          ? data.agentProposalId.value
+          : this.agentProposalId,
       month: data.month.present ? data.month.value : this.month,
       categoryId: data.categoryId.present ? data.categoryId.value : this.categoryId,
       limitMinor: data.limitMinor.present ? data.limitMinor.value : this.limitMinor,
@@ -2621,6 +3199,9 @@ class BudgetRow extends DataClass implements Insertable<BudgetRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('month: $month, ')
           ..write('categoryId: $categoryId, ')
           ..write('limitMinor: $limitMinor')
@@ -2637,6 +3218,9 @@ class BudgetRow extends DataClass implements Insertable<BudgetRow> {
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     month,
     categoryId,
     limitMinor,
@@ -2652,6 +3236,9 @@ class BudgetRow extends DataClass implements Insertable<BudgetRow> {
           other.deletedAt == this.deletedAt &&
           other.serverUpdatedAt == this.serverUpdatedAt &&
           other.syncStatus == this.syncStatus &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.agentProposalId == this.agentProposalId &&
           other.month == this.month &&
           other.categoryId == this.categoryId &&
           other.limitMinor == this.limitMinor);
@@ -2665,6 +3252,9 @@ class BudgetsCompanion extends UpdateCompanion<BudgetRow> {
   final Value<DateTime?> deletedAt;
   final Value<DateTime?> serverUpdatedAt;
   final Value<SyncStatus> syncStatus;
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<String?> agentProposalId;
   final Value<DateTime> month;
   final Value<String?> categoryId;
   final Value<int> limitMinor;
@@ -2677,6 +3267,9 @@ class BudgetsCompanion extends UpdateCompanion<BudgetRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     this.month = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.limitMinor = const Value.absent(),
@@ -2690,6 +3283,9 @@ class BudgetsCompanion extends UpdateCompanion<BudgetRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     required DateTime month,
     this.categoryId = const Value.absent(),
     required int limitMinor,
@@ -2708,6 +3304,9 @@ class BudgetsCompanion extends UpdateCompanion<BudgetRow> {
     Expression<DateTime>? deletedAt,
     Expression<DateTime>? serverUpdatedAt,
     Expression<int>? syncStatus,
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<String>? agentProposalId,
     Expression<String>? month,
     Expression<String>? categoryId,
     Expression<int>? limitMinor,
@@ -2721,6 +3320,9 @@ class BudgetsCompanion extends UpdateCompanion<BudgetRow> {
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (serverUpdatedAt != null) 'server_updated_at': serverUpdatedAt,
       if (syncStatus != null) 'sync_status': syncStatus,
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (agentProposalId != null) 'agent_proposal_id': agentProposalId,
       if (month != null) 'month': month,
       if (categoryId != null) 'category_id': categoryId,
       if (limitMinor != null) 'limit_minor': limitMinor,
@@ -2736,6 +3338,9 @@ class BudgetsCompanion extends UpdateCompanion<BudgetRow> {
     Value<DateTime?>? deletedAt,
     Value<DateTime?>? serverUpdatedAt,
     Value<SyncStatus>? syncStatus,
+    Value<String>? createdBy,
+    Value<String>? updatedBy,
+    Value<String?>? agentProposalId,
     Value<DateTime>? month,
     Value<String?>? categoryId,
     Value<int>? limitMinor,
@@ -2749,6 +3354,9 @@ class BudgetsCompanion extends UpdateCompanion<BudgetRow> {
       deletedAt: deletedAt ?? this.deletedAt,
       serverUpdatedAt: serverUpdatedAt ?? this.serverUpdatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      agentProposalId: agentProposalId ?? this.agentProposalId,
       month: month ?? this.month,
       categoryId: categoryId ?? this.categoryId,
       limitMinor: limitMinor ?? this.limitMinor,
@@ -2782,6 +3390,15 @@ class BudgetsCompanion extends UpdateCompanion<BudgetRow> {
         $BudgetsTable.$convertersyncStatus.toSql(syncStatus.value),
       );
     }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (agentProposalId.present) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId.value);
+    }
     if (month.present) {
       map['month'] = Variable<String>(
         $BudgetsTable.$convertermonth.toSql(month.value),
@@ -2809,6 +3426,9 @@ class BudgetsCompanion extends UpdateCompanion<BudgetRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('month: $month, ')
           ..write('categoryId: $categoryId, ')
           ..write('limitMinor: $limitMinor, ')
@@ -2894,6 +3514,43 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, GoalRow> {
     requiredDuringInsert: false,
     defaultValue: Constant(SyncStatus.pending.index),
   ).withConverter<SyncStatus>($GoalsTable.$convertersyncStatus);
+  static const VerificationMeta _createdByMeta = const VerificationMeta(
+    'createdBy',
+  );
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    false,
+    check: () => createdBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _updatedByMeta = const VerificationMeta(
+    'updatedBy',
+  );
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+    'updated_by',
+    aliasedName,
+    false,
+    check: () => updatedBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _agentProposalIdMeta = const VerificationMeta(
+    'agentProposalId',
+  );
+  @override
+  late final GeneratedColumn<String> agentProposalId = GeneratedColumn<String>(
+    'agent_proposal_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -2955,6 +3612,9 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, GoalRow> {
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     name,
     targetMinor,
     deadlineOn,
@@ -3014,6 +3674,27 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, GoalRow> {
         serverUpdatedAt.isAcceptableOrUnknown(
           data['server_updated_at']!,
           _serverUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(
+        _updatedByMeta,
+        updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta),
+      );
+    }
+    if (data.containsKey('agent_proposal_id')) {
+      context.handle(
+        _agentProposalIdMeta,
+        agentProposalId.isAcceptableOrUnknown(
+          data['agent_proposal_id']!,
+          _agentProposalIdMeta,
         ),
       );
     }
@@ -3091,6 +3772,18 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, GoalRow> {
           data['${effectivePrefix}sync_status'],
         )!,
       ),
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      )!,
+      updatedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_by'],
+      )!,
+      agentProposalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}agent_proposal_id'],
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -3150,6 +3843,16 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
 
   /// `pending` after a local write, `synced` after a successful push. Local only.
   final SyncStatus syncStatus;
+
+  /// Who created the row: [ChangeSource.user] or [ChangeSource.agent] (M10.14). Never changes.
+  final String createdBy;
+
+  /// Who made the last change. Local edits reset it to [ChangeSource.user] (trigger in
+  /// `change_source.drift`); the agent's changes arrive by sync as [ChangeSource.agent].
+  final String updatedBy;
+
+  /// The approved agent proposal behind the last change; null when the user made it.
+  final String? agentProposalId;
   final String name;
   final int targetMinor;
   final DateTime? deadlineOn;
@@ -3165,6 +3868,9 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
     this.deletedAt,
     this.serverUpdatedAt,
     required this.syncStatus,
+    required this.createdBy,
+    required this.updatedBy,
+    this.agentProposalId,
     required this.name,
     required this.targetMinor,
     this.deadlineOn,
@@ -3189,6 +3895,11 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
         $GoalsTable.$convertersyncStatus.toSql(syncStatus),
       );
     }
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    if (!nullToAbsent || agentProposalId != null) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId);
+    }
     map['name'] = Variable<String>(name);
     map['target_minor'] = Variable<int>(targetMinor);
     if (!nullToAbsent || deadlineOn != null) {
@@ -3212,6 +3923,11 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
           ? const Value.absent()
           : Value(serverUpdatedAt),
       syncStatus: Value(syncStatus),
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      agentProposalId: agentProposalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(agentProposalId),
       name: Value(name),
       targetMinor: Value(targetMinor),
       deadlineOn: deadlineOn == null && nullToAbsent ? const Value.absent() : Value(deadlineOn),
@@ -3235,6 +3951,9 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
       syncStatus: $GoalsTable.$convertersyncStatus.fromJson(
         serializer.fromJson<int>(json['syncStatus']),
       ),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      agentProposalId: serializer.fromJson<String?>(json['agentProposalId']),
       name: serializer.fromJson<String>(json['name']),
       targetMinor: serializer.fromJson<int>(json['targetMinor']),
       deadlineOn: serializer.fromJson<DateTime?>(json['deadlineOn']),
@@ -3255,6 +3974,9 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
       'syncStatus': serializer.toJson<int>(
         $GoalsTable.$convertersyncStatus.toJson(syncStatus),
       ),
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'agentProposalId': serializer.toJson<String?>(agentProposalId),
       'name': serializer.toJson<String>(name),
       'targetMinor': serializer.toJson<int>(targetMinor),
       'deadlineOn': serializer.toJson<DateTime?>(deadlineOn),
@@ -3271,6 +3993,9 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
     Value<DateTime?> deletedAt = const Value.absent(),
     Value<DateTime?> serverUpdatedAt = const Value.absent(),
     SyncStatus? syncStatus,
+    String? createdBy,
+    String? updatedBy,
+    Value<String?> agentProposalId = const Value.absent(),
     String? name,
     int? targetMinor,
     Value<DateTime?> deadlineOn = const Value.absent(),
@@ -3284,6 +4009,9 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     serverUpdatedAt: serverUpdatedAt.present ? serverUpdatedAt.value : this.serverUpdatedAt,
     syncStatus: syncStatus ?? this.syncStatus,
+    createdBy: createdBy ?? this.createdBy,
+    updatedBy: updatedBy ?? this.updatedBy,
+    agentProposalId: agentProposalId.present ? agentProposalId.value : this.agentProposalId,
     name: name ?? this.name,
     targetMinor: targetMinor ?? this.targetMinor,
     deadlineOn: deadlineOn.present ? deadlineOn.value : this.deadlineOn,
@@ -3301,6 +4029,11 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
           ? data.serverUpdatedAt.value
           : this.serverUpdatedAt,
       syncStatus: data.syncStatus.present ? data.syncStatus.value : this.syncStatus,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      agentProposalId: data.agentProposalId.present
+          ? data.agentProposalId.value
+          : this.agentProposalId,
       name: data.name.present ? data.name.value : this.name,
       targetMinor: data.targetMinor.present ? data.targetMinor.value : this.targetMinor,
       deadlineOn: data.deadlineOn.present ? data.deadlineOn.value : this.deadlineOn,
@@ -3319,6 +4052,9 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('name: $name, ')
           ..write('targetMinor: $targetMinor, ')
           ..write('deadlineOn: $deadlineOn, ')
@@ -3337,6 +4073,9 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     name,
     targetMinor,
     deadlineOn,
@@ -3354,6 +4093,9 @@ class GoalRow extends DataClass implements Insertable<GoalRow> {
           other.deletedAt == this.deletedAt &&
           other.serverUpdatedAt == this.serverUpdatedAt &&
           other.syncStatus == this.syncStatus &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.agentProposalId == this.agentProposalId &&
           other.name == this.name &&
           other.targetMinor == this.targetMinor &&
           other.deadlineOn == this.deadlineOn &&
@@ -3369,6 +4111,9 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
   final Value<DateTime?> deletedAt;
   final Value<DateTime?> serverUpdatedAt;
   final Value<SyncStatus> syncStatus;
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<String?> agentProposalId;
   final Value<String> name;
   final Value<int> targetMinor;
   final Value<DateTime?> deadlineOn;
@@ -3383,6 +4128,9 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     this.name = const Value.absent(),
     this.targetMinor = const Value.absent(),
     this.deadlineOn = const Value.absent(),
@@ -3398,6 +4146,9 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     required String name,
     required int targetMinor,
     this.deadlineOn = const Value.absent(),
@@ -3420,6 +4171,9 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
     Expression<DateTime>? deletedAt,
     Expression<DateTime>? serverUpdatedAt,
     Expression<int>? syncStatus,
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<String>? agentProposalId,
     Expression<String>? name,
     Expression<int>? targetMinor,
     Expression<String>? deadlineOn,
@@ -3435,6 +4189,9 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (serverUpdatedAt != null) 'server_updated_at': serverUpdatedAt,
       if (syncStatus != null) 'sync_status': syncStatus,
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (agentProposalId != null) 'agent_proposal_id': agentProposalId,
       if (name != null) 'name': name,
       if (targetMinor != null) 'target_minor': targetMinor,
       if (deadlineOn != null) 'deadline_on': deadlineOn,
@@ -3452,6 +4209,9 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
     Value<DateTime?>? deletedAt,
     Value<DateTime?>? serverUpdatedAt,
     Value<SyncStatus>? syncStatus,
+    Value<String>? createdBy,
+    Value<String>? updatedBy,
+    Value<String?>? agentProposalId,
     Value<String>? name,
     Value<int>? targetMinor,
     Value<DateTime?>? deadlineOn,
@@ -3467,6 +4227,9 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
       deletedAt: deletedAt ?? this.deletedAt,
       serverUpdatedAt: serverUpdatedAt ?? this.serverUpdatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      agentProposalId: agentProposalId ?? this.agentProposalId,
       name: name ?? this.name,
       targetMinor: targetMinor ?? this.targetMinor,
       deadlineOn: deadlineOn ?? this.deadlineOn,
@@ -3502,6 +4265,15 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
         $GoalsTable.$convertersyncStatus.toSql(syncStatus.value),
       );
     }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (agentProposalId.present) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId.value);
+    }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
@@ -3535,6 +4307,9 @@ class GoalsCompanion extends UpdateCompanion<GoalRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('name: $name, ')
           ..write('targetMinor: $targetMinor, ')
           ..write('deadlineOn: $deadlineOn, ')
@@ -3623,6 +4398,43 @@ class $GoalContributionsTable extends GoalContributions
     requiredDuringInsert: false,
     defaultValue: Constant(SyncStatus.pending.index),
   ).withConverter<SyncStatus>($GoalContributionsTable.$convertersyncStatus);
+  static const VerificationMeta _createdByMeta = const VerificationMeta(
+    'createdBy',
+  );
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    false,
+    check: () => createdBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _updatedByMeta = const VerificationMeta(
+    'updatedBy',
+  );
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+    'updated_by',
+    aliasedName,
+    false,
+    check: () => updatedBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _agentProposalIdMeta = const VerificationMeta(
+    'agentProposalId',
+  );
+  @override
+  late final GeneratedColumn<String> agentProposalId = GeneratedColumn<String>(
+    'agent_proposal_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _goalIdMeta = const VerificationMeta('goalId');
   @override
   late final GeneratedColumn<String> goalId = GeneratedColumn<String>(
@@ -3677,6 +4489,9 @@ class $GoalContributionsTable extends GoalContributions
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     goalId,
     amountMinor,
     contributedOn,
@@ -3735,6 +4550,27 @@ class $GoalContributionsTable extends GoalContributions
         serverUpdatedAt.isAcceptableOrUnknown(
           data['server_updated_at']!,
           _serverUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(
+        _updatedByMeta,
+        updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta),
+      );
+    }
+    if (data.containsKey('agent_proposal_id')) {
+      context.handle(
+        _agentProposalIdMeta,
+        agentProposalId.isAcceptableOrUnknown(
+          data['agent_proposal_id']!,
+          _agentProposalIdMeta,
         ),
       );
     }
@@ -3802,6 +4638,18 @@ class $GoalContributionsTable extends GoalContributions
           data['${effectivePrefix}sync_status'],
         )!,
       ),
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      )!,
+      updatedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_by'],
+      )!,
+      agentProposalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}agent_proposal_id'],
+      ),
       goalId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}goal_id'],
@@ -3854,6 +4702,16 @@ class GoalContributionRow extends DataClass implements Insertable<GoalContributi
 
   /// `pending` after a local write, `synced` after a successful push. Local only.
   final SyncStatus syncStatus;
+
+  /// Who created the row: [ChangeSource.user] or [ChangeSource.agent] (M10.14). Never changes.
+  final String createdBy;
+
+  /// Who made the last change. Local edits reset it to [ChangeSource.user] (trigger in
+  /// `change_source.drift`); the agent's changes arrive by sync as [ChangeSource.agent].
+  final String updatedBy;
+
+  /// The approved agent proposal behind the last change; null when the user made it.
+  final String? agentProposalId;
   final String goalId;
   final int amountMinor;
   final DateTime contributedOn;
@@ -3866,6 +4724,9 @@ class GoalContributionRow extends DataClass implements Insertable<GoalContributi
     this.deletedAt,
     this.serverUpdatedAt,
     required this.syncStatus,
+    required this.createdBy,
+    required this.updatedBy,
+    this.agentProposalId,
     required this.goalId,
     required this.amountMinor,
     required this.contributedOn,
@@ -3888,6 +4749,11 @@ class GoalContributionRow extends DataClass implements Insertable<GoalContributi
       map['sync_status'] = Variable<int>(
         $GoalContributionsTable.$convertersyncStatus.toSql(syncStatus),
       );
+    }
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    if (!nullToAbsent || agentProposalId != null) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId);
     }
     map['goal_id'] = Variable<String>(goalId);
     map['amount_minor'] = Variable<int>(amountMinor);
@@ -3913,6 +4779,11 @@ class GoalContributionRow extends DataClass implements Insertable<GoalContributi
           ? const Value.absent()
           : Value(serverUpdatedAt),
       syncStatus: Value(syncStatus),
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      agentProposalId: agentProposalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(agentProposalId),
       goalId: Value(goalId),
       amountMinor: Value(amountMinor),
       contributedOn: Value(contributedOn),
@@ -3935,6 +4806,9 @@ class GoalContributionRow extends DataClass implements Insertable<GoalContributi
       syncStatus: $GoalContributionsTable.$convertersyncStatus.fromJson(
         serializer.fromJson<int>(json['syncStatus']),
       ),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      agentProposalId: serializer.fromJson<String?>(json['agentProposalId']),
       goalId: serializer.fromJson<String>(json['goalId']),
       amountMinor: serializer.fromJson<int>(json['amountMinor']),
       contributedOn: serializer.fromJson<DateTime>(json['contributedOn']),
@@ -3954,6 +4828,9 @@ class GoalContributionRow extends DataClass implements Insertable<GoalContributi
       'syncStatus': serializer.toJson<int>(
         $GoalContributionsTable.$convertersyncStatus.toJson(syncStatus),
       ),
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'agentProposalId': serializer.toJson<String?>(agentProposalId),
       'goalId': serializer.toJson<String>(goalId),
       'amountMinor': serializer.toJson<int>(amountMinor),
       'contributedOn': serializer.toJson<DateTime>(contributedOn),
@@ -3969,6 +4846,9 @@ class GoalContributionRow extends DataClass implements Insertable<GoalContributi
     Value<DateTime?> deletedAt = const Value.absent(),
     Value<DateTime?> serverUpdatedAt = const Value.absent(),
     SyncStatus? syncStatus,
+    String? createdBy,
+    String? updatedBy,
+    Value<String?> agentProposalId = const Value.absent(),
     String? goalId,
     int? amountMinor,
     DateTime? contributedOn,
@@ -3981,6 +4861,9 @@ class GoalContributionRow extends DataClass implements Insertable<GoalContributi
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     serverUpdatedAt: serverUpdatedAt.present ? serverUpdatedAt.value : this.serverUpdatedAt,
     syncStatus: syncStatus ?? this.syncStatus,
+    createdBy: createdBy ?? this.createdBy,
+    updatedBy: updatedBy ?? this.updatedBy,
+    agentProposalId: agentProposalId.present ? agentProposalId.value : this.agentProposalId,
     goalId: goalId ?? this.goalId,
     amountMinor: amountMinor ?? this.amountMinor,
     contributedOn: contributedOn ?? this.contributedOn,
@@ -3997,6 +4880,11 @@ class GoalContributionRow extends DataClass implements Insertable<GoalContributi
           ? data.serverUpdatedAt.value
           : this.serverUpdatedAt,
       syncStatus: data.syncStatus.present ? data.syncStatus.value : this.syncStatus,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      agentProposalId: data.agentProposalId.present
+          ? data.agentProposalId.value
+          : this.agentProposalId,
       goalId: data.goalId.present ? data.goalId.value : this.goalId,
       amountMinor: data.amountMinor.present ? data.amountMinor.value : this.amountMinor,
       contributedOn: data.contributedOn.present ? data.contributedOn.value : this.contributedOn,
@@ -4014,6 +4902,9 @@ class GoalContributionRow extends DataClass implements Insertable<GoalContributi
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('goalId: $goalId, ')
           ..write('amountMinor: $amountMinor, ')
           ..write('contributedOn: $contributedOn, ')
@@ -4031,6 +4922,9 @@ class GoalContributionRow extends DataClass implements Insertable<GoalContributi
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     goalId,
     amountMinor,
     contributedOn,
@@ -4047,6 +4941,9 @@ class GoalContributionRow extends DataClass implements Insertable<GoalContributi
           other.deletedAt == this.deletedAt &&
           other.serverUpdatedAt == this.serverUpdatedAt &&
           other.syncStatus == this.syncStatus &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.agentProposalId == this.agentProposalId &&
           other.goalId == this.goalId &&
           other.amountMinor == this.amountMinor &&
           other.contributedOn == this.contributedOn &&
@@ -4061,6 +4958,9 @@ class GoalContributionsCompanion extends UpdateCompanion<GoalContributionRow> {
   final Value<DateTime?> deletedAt;
   final Value<DateTime?> serverUpdatedAt;
   final Value<SyncStatus> syncStatus;
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<String?> agentProposalId;
   final Value<String> goalId;
   final Value<int> amountMinor;
   final Value<DateTime> contributedOn;
@@ -4074,6 +4974,9 @@ class GoalContributionsCompanion extends UpdateCompanion<GoalContributionRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     this.goalId = const Value.absent(),
     this.amountMinor = const Value.absent(),
     this.contributedOn = const Value.absent(),
@@ -4088,6 +4991,9 @@ class GoalContributionsCompanion extends UpdateCompanion<GoalContributionRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     required String goalId,
     required int amountMinor,
     required DateTime contributedOn,
@@ -4108,6 +5014,9 @@ class GoalContributionsCompanion extends UpdateCompanion<GoalContributionRow> {
     Expression<DateTime>? deletedAt,
     Expression<DateTime>? serverUpdatedAt,
     Expression<int>? syncStatus,
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<String>? agentProposalId,
     Expression<String>? goalId,
     Expression<int>? amountMinor,
     Expression<String>? contributedOn,
@@ -4122,6 +5031,9 @@ class GoalContributionsCompanion extends UpdateCompanion<GoalContributionRow> {
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (serverUpdatedAt != null) 'server_updated_at': serverUpdatedAt,
       if (syncStatus != null) 'sync_status': syncStatus,
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (agentProposalId != null) 'agent_proposal_id': agentProposalId,
       if (goalId != null) 'goal_id': goalId,
       if (amountMinor != null) 'amount_minor': amountMinor,
       if (contributedOn != null) 'contributed_on': contributedOn,
@@ -4138,6 +5050,9 @@ class GoalContributionsCompanion extends UpdateCompanion<GoalContributionRow> {
     Value<DateTime?>? deletedAt,
     Value<DateTime?>? serverUpdatedAt,
     Value<SyncStatus>? syncStatus,
+    Value<String>? createdBy,
+    Value<String>? updatedBy,
+    Value<String?>? agentProposalId,
     Value<String>? goalId,
     Value<int>? amountMinor,
     Value<DateTime>? contributedOn,
@@ -4152,6 +5067,9 @@ class GoalContributionsCompanion extends UpdateCompanion<GoalContributionRow> {
       deletedAt: deletedAt ?? this.deletedAt,
       serverUpdatedAt: serverUpdatedAt ?? this.serverUpdatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      agentProposalId: agentProposalId ?? this.agentProposalId,
       goalId: goalId ?? this.goalId,
       amountMinor: amountMinor ?? this.amountMinor,
       contributedOn: contributedOn ?? this.contributedOn,
@@ -4186,6 +5104,15 @@ class GoalContributionsCompanion extends UpdateCompanion<GoalContributionRow> {
         $GoalContributionsTable.$convertersyncStatus.toSql(syncStatus.value),
       );
     }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (agentProposalId.present) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId.value);
+    }
     if (goalId.present) {
       map['goal_id'] = Variable<String>(goalId.value);
     }
@@ -4218,6 +5145,9 @@ class GoalContributionsCompanion extends UpdateCompanion<GoalContributionRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('goalId: $goalId, ')
           ..write('amountMinor: $amountMinor, ')
           ..write('contributedOn: $contributedOn, ')
@@ -4304,6 +5234,43 @@ class $RemindersTable extends Reminders with TableInfo<$RemindersTable, Reminder
     requiredDuringInsert: false,
     defaultValue: Constant(SyncStatus.pending.index),
   ).withConverter<SyncStatus>($RemindersTable.$convertersyncStatus);
+  static const VerificationMeta _createdByMeta = const VerificationMeta(
+    'createdBy',
+  );
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    false,
+    check: () => createdBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _updatedByMeta = const VerificationMeta(
+    'updatedBy',
+  );
+  @override
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+    'updated_by',
+    aliasedName,
+    false,
+    check: () => updatedBy.isIn(ChangeSource.values),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(ChangeSource.user),
+  );
+  static const VerificationMeta _agentProposalIdMeta = const VerificationMeta(
+    'agentProposalId',
+  );
+  @override
+  late final GeneratedColumn<String> agentProposalId = GeneratedColumn<String>(
+    'agent_proposal_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -4388,6 +5355,9 @@ class $RemindersTable extends Reminders with TableInfo<$RemindersTable, Reminder
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     title,
     timeOfDay,
     repeatRule,
@@ -4448,6 +5418,27 @@ class $RemindersTable extends Reminders with TableInfo<$RemindersTable, Reminder
         serverUpdatedAt.isAcceptableOrUnknown(
           data['server_updated_at']!,
           _serverUpdatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(
+        _updatedByMeta,
+        updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta),
+      );
+    }
+    if (data.containsKey('agent_proposal_id')) {
+      context.handle(
+        _agentProposalIdMeta,
+        agentProposalId.isAcceptableOrUnknown(
+          data['agent_proposal_id']!,
+          _agentProposalIdMeta,
         ),
       );
     }
@@ -4535,6 +5526,18 @@ class $RemindersTable extends Reminders with TableInfo<$RemindersTable, Reminder
           data['${effectivePrefix}sync_status'],
         )!,
       ),
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      )!,
+      updatedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_by'],
+      )!,
+      agentProposalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}agent_proposal_id'],
+      ),
       title: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}title'],
@@ -4592,6 +5595,16 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
 
   /// `pending` after a local write, `synced` after a successful push. Local only.
   final SyncStatus syncStatus;
+
+  /// Who created the row: [ChangeSource.user] or [ChangeSource.agent] (M10.14). Never changes.
+  final String createdBy;
+
+  /// Who made the last change. Local edits reset it to [ChangeSource.user] (trigger in
+  /// `change_source.drift`); the agent's changes arrive by sync as [ChangeSource.agent].
+  final String updatedBy;
+
+  /// The approved agent proposal behind the last change; null when the user made it.
+  final String? agentProposalId;
   final String title;
 
   /// Local wall-clock time as `HH:mm`. Shape-checked here; the repository validates the range.
@@ -4612,6 +5625,9 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     this.deletedAt,
     this.serverUpdatedAt,
     required this.syncStatus,
+    required this.createdBy,
+    required this.updatedBy,
+    this.agentProposalId,
     required this.title,
     required this.timeOfDay,
     required this.repeatRule,
@@ -4637,6 +5653,11 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
         $RemindersTable.$convertersyncStatus.toSql(syncStatus),
       );
     }
+    map['created_by'] = Variable<String>(createdBy);
+    map['updated_by'] = Variable<String>(updatedBy);
+    if (!nullToAbsent || agentProposalId != null) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId);
+    }
     map['title'] = Variable<String>(title);
     map['time_of_day'] = Variable<String>(timeOfDay);
     map['repeat_rule'] = Variable<String>(repeatRule);
@@ -4661,6 +5682,11 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           ? const Value.absent()
           : Value(serverUpdatedAt),
       syncStatus: Value(syncStatus),
+      createdBy: Value(createdBy),
+      updatedBy: Value(updatedBy),
+      agentProposalId: agentProposalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(agentProposalId),
       title: Value(title),
       timeOfDay: Value(timeOfDay),
       repeatRule: Value(repeatRule),
@@ -4685,6 +5711,9 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       syncStatus: $RemindersTable.$convertersyncStatus.fromJson(
         serializer.fromJson<int>(json['syncStatus']),
       ),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      updatedBy: serializer.fromJson<String>(json['updatedBy']),
+      agentProposalId: serializer.fromJson<String?>(json['agentProposalId']),
       title: serializer.fromJson<String>(json['title']),
       timeOfDay: serializer.fromJson<String>(json['timeOfDay']),
       repeatRule: serializer.fromJson<String>(json['repeatRule']),
@@ -4706,6 +5735,9 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       'syncStatus': serializer.toJson<int>(
         $RemindersTable.$convertersyncStatus.toJson(syncStatus),
       ),
+      'createdBy': serializer.toJson<String>(createdBy),
+      'updatedBy': serializer.toJson<String>(updatedBy),
+      'agentProposalId': serializer.toJson<String?>(agentProposalId),
       'title': serializer.toJson<String>(title),
       'timeOfDay': serializer.toJson<String>(timeOfDay),
       'repeatRule': serializer.toJson<String>(repeatRule),
@@ -4723,6 +5755,9 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     Value<DateTime?> deletedAt = const Value.absent(),
     Value<DateTime?> serverUpdatedAt = const Value.absent(),
     SyncStatus? syncStatus,
+    String? createdBy,
+    String? updatedBy,
+    Value<String?> agentProposalId = const Value.absent(),
     String? title,
     String? timeOfDay,
     String? repeatRule,
@@ -4737,6 +5772,9 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     serverUpdatedAt: serverUpdatedAt.present ? serverUpdatedAt.value : this.serverUpdatedAt,
     syncStatus: syncStatus ?? this.syncStatus,
+    createdBy: createdBy ?? this.createdBy,
+    updatedBy: updatedBy ?? this.updatedBy,
+    agentProposalId: agentProposalId.present ? agentProposalId.value : this.agentProposalId,
     title: title ?? this.title,
     timeOfDay: timeOfDay ?? this.timeOfDay,
     repeatRule: repeatRule ?? this.repeatRule,
@@ -4755,6 +5793,11 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           ? data.serverUpdatedAt.value
           : this.serverUpdatedAt,
       syncStatus: data.syncStatus.present ? data.syncStatus.value : this.syncStatus,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      agentProposalId: data.agentProposalId.present
+          ? data.agentProposalId.value
+          : this.agentProposalId,
       title: data.title.present ? data.title.value : this.title,
       timeOfDay: data.timeOfDay.present ? data.timeOfDay.value : this.timeOfDay,
       repeatRule: data.repeatRule.present ? data.repeatRule.value : this.repeatRule,
@@ -4774,6 +5817,9 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('title: $title, ')
           ..write('timeOfDay: $timeOfDay, ')
           ..write('repeatRule: $repeatRule, ')
@@ -4793,6 +5839,9 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     deletedAt,
     serverUpdatedAt,
     syncStatus,
+    createdBy,
+    updatedBy,
+    agentProposalId,
     title,
     timeOfDay,
     repeatRule,
@@ -4811,6 +5860,9 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           other.deletedAt == this.deletedAt &&
           other.serverUpdatedAt == this.serverUpdatedAt &&
           other.syncStatus == this.syncStatus &&
+          other.createdBy == this.createdBy &&
+          other.updatedBy == this.updatedBy &&
+          other.agentProposalId == this.agentProposalId &&
           other.title == this.title &&
           other.timeOfDay == this.timeOfDay &&
           other.repeatRule == this.repeatRule &&
@@ -4827,6 +5879,9 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
   final Value<DateTime?> deletedAt;
   final Value<DateTime?> serverUpdatedAt;
   final Value<SyncStatus> syncStatus;
+  final Value<String> createdBy;
+  final Value<String> updatedBy;
+  final Value<String?> agentProposalId;
   final Value<String> title;
   final Value<String> timeOfDay;
   final Value<String> repeatRule;
@@ -4842,6 +5897,9 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     this.title = const Value.absent(),
     this.timeOfDay = const Value.absent(),
     this.repeatRule = const Value.absent(),
@@ -4858,6 +5916,9 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     this.deletedAt = const Value.absent(),
     this.serverUpdatedAt = const Value.absent(),
     this.syncStatus = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.agentProposalId = const Value.absent(),
     required String title,
     required String timeOfDay,
     required String repeatRule,
@@ -4880,6 +5941,9 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     Expression<DateTime>? deletedAt,
     Expression<DateTime>? serverUpdatedAt,
     Expression<int>? syncStatus,
+    Expression<String>? createdBy,
+    Expression<String>? updatedBy,
+    Expression<String>? agentProposalId,
     Expression<String>? title,
     Expression<String>? timeOfDay,
     Expression<String>? repeatRule,
@@ -4896,6 +5960,9 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (serverUpdatedAt != null) 'server_updated_at': serverUpdatedAt,
       if (syncStatus != null) 'sync_status': syncStatus,
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (agentProposalId != null) 'agent_proposal_id': agentProposalId,
       if (title != null) 'title': title,
       if (timeOfDay != null) 'time_of_day': timeOfDay,
       if (repeatRule != null) 'repeat_rule': repeatRule,
@@ -4914,6 +5981,9 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     Value<DateTime?>? deletedAt,
     Value<DateTime?>? serverUpdatedAt,
     Value<SyncStatus>? syncStatus,
+    Value<String>? createdBy,
+    Value<String>? updatedBy,
+    Value<String?>? agentProposalId,
     Value<String>? title,
     Value<String>? timeOfDay,
     Value<String>? repeatRule,
@@ -4930,6 +6000,9 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
       deletedAt: deletedAt ?? this.deletedAt,
       serverUpdatedAt: serverUpdatedAt ?? this.serverUpdatedAt,
       syncStatus: syncStatus ?? this.syncStatus,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+      agentProposalId: agentProposalId ?? this.agentProposalId,
       title: title ?? this.title,
       timeOfDay: timeOfDay ?? this.timeOfDay,
       repeatRule: repeatRule ?? this.repeatRule,
@@ -4966,6 +6039,15 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
         $RemindersTable.$convertersyncStatus.toSql(syncStatus.value),
       );
     }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (agentProposalId.present) {
+      map['agent_proposal_id'] = Variable<String>(agentProposalId.value);
+    }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
@@ -5000,6 +6082,9 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
           ..write('deletedAt: $deletedAt, ')
           ..write('serverUpdatedAt: $serverUpdatedAt, ')
           ..write('syncStatus: $syncStatus, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('agentProposalId: $agentProposalId, ')
           ..write('title: $title, ')
           ..write('timeOfDay: $timeOfDay, ')
           ..write('repeatRule: $repeatRule, ')
@@ -5447,25 +6532,63 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ProfilesTable profiles = $ProfilesTable(this);
+  late final Trigger profilesLocalChangeSource = Trigger(
+    'CREATE TRIGGER profiles_local_change_source AFTER UPDATE OF updated_at ON profiles WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at AND(NEW.updated_by <> \'user\' OR NEW.agent_proposal_id IS NOT NULL)BEGIN UPDATE profiles SET updated_by = \'user\', agent_proposal_id = NULL WHERE id = NEW.id;END',
+    'profiles_local_change_source',
+  );
   late final $CategoriesTable categories = $CategoriesTable(this);
+  late final Trigger categoriesLocalChangeSource = Trigger(
+    'CREATE TRIGGER categories_local_change_source AFTER UPDATE OF updated_at ON categories WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at AND(NEW.updated_by <> \'user\' OR NEW.agent_proposal_id IS NOT NULL)BEGIN UPDATE categories SET updated_by = \'user\', agent_proposal_id = NULL WHERE id = NEW.id;END',
+    'categories_local_change_source',
+  );
   late final $TransactionsTable transactions = $TransactionsTable(this);
+  late final Trigger transactionsLocalChangeSource = Trigger(
+    'CREATE TRIGGER transactions_local_change_source AFTER UPDATE OF updated_at ON transactions WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at AND(NEW.updated_by <> \'user\' OR NEW.agent_proposal_id IS NOT NULL)BEGIN UPDATE transactions SET updated_by = \'user\', agent_proposal_id = NULL WHERE id = NEW.id;END',
+    'transactions_local_change_source',
+  );
   late final $BudgetsTable budgets = $BudgetsTable(this);
+  late final Trigger budgetsLocalChangeSource = Trigger(
+    'CREATE TRIGGER budgets_local_change_source AFTER UPDATE OF updated_at ON budgets WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at AND(NEW.updated_by <> \'user\' OR NEW.agent_proposal_id IS NOT NULL)BEGIN UPDATE budgets SET updated_by = \'user\', agent_proposal_id = NULL WHERE id = NEW.id;END',
+    'budgets_local_change_source',
+  );
   late final $GoalsTable goals = $GoalsTable(this);
+  late final Trigger goalsLocalChangeSource = Trigger(
+    'CREATE TRIGGER goals_local_change_source AFTER UPDATE OF updated_at ON goals WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at AND(NEW.updated_by <> \'user\' OR NEW.agent_proposal_id IS NOT NULL)BEGIN UPDATE goals SET updated_by = \'user\', agent_proposal_id = NULL WHERE id = NEW.id;END',
+    'goals_local_change_source',
+  );
   late final $GoalContributionsTable goalContributions = $GoalContributionsTable(this);
+  late final Trigger goalContributionsLocalChangeSource = Trigger(
+    'CREATE TRIGGER goal_contributions_local_change_source AFTER UPDATE OF updated_at ON goal_contributions WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at AND(NEW.updated_by <> \'user\' OR NEW.agent_proposal_id IS NOT NULL)BEGIN UPDATE goal_contributions SET updated_by = \'user\', agent_proposal_id = NULL WHERE id = NEW.id;END',
+    'goal_contributions_local_change_source',
+  );
   late final $RemindersTable reminders = $RemindersTable(this);
-  late final $SyncStateTable syncState = $SyncStateTable(this);
-  late final $AppSettingsTable appSettings = $AppSettingsTable(this);
-  late final Index profilesSyncStatusIdx = Index(
-    'profiles_sync_status_idx',
-    'CREATE INDEX profiles_sync_status_idx ON profiles (sync_status)',
+  late final Trigger remindersLocalChangeSource = Trigger(
+    'CREATE TRIGGER reminders_local_change_source AFTER UPDATE OF updated_at ON reminders WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at AND(NEW.updated_by <> \'user\' OR NEW.agent_proposal_id IS NOT NULL)BEGIN UPDATE reminders SET updated_by = \'user\', agent_proposal_id = NULL WHERE id = NEW.id;END',
+    'reminders_local_change_source',
   );
-  late final Index categoriesUserTypeIdx = Index(
-    'categories_user_type_idx',
-    'CREATE INDEX categories_user_type_idx ON categories (user_id, type)',
+  late final Index remindersSyncStatusIdx = Index(
+    'reminders_sync_status_idx',
+    'CREATE INDEX reminders_sync_status_idx ON reminders (sync_status)',
   );
-  late final Index categoriesSyncStatusIdx = Index(
-    'categories_sync_status_idx',
-    'CREATE INDEX categories_sync_status_idx ON categories (sync_status)',
+  late final Index goalContributionsGoalIdx = Index(
+    'goal_contributions_goal_idx',
+    'CREATE INDEX goal_contributions_goal_idx ON goal_contributions (goal_id)',
+  );
+  late final Index goalContributionsSyncStatusIdx = Index(
+    'goal_contributions_sync_status_idx',
+    'CREATE INDEX goal_contributions_sync_status_idx ON goal_contributions (sync_status)',
+  );
+  late final Index goalsSyncStatusIdx = Index(
+    'goals_sync_status_idx',
+    'CREATE INDEX goals_sync_status_idx ON goals (sync_status)',
+  );
+  late final Index budgetsUserMonthIdx = Index(
+    'budgets_user_month_idx',
+    'CREATE INDEX budgets_user_month_idx ON budgets (user_id, month)',
+  );
+  late final Index budgetsSyncStatusIdx = Index(
+    'budgets_sync_status_idx',
+    'CREATE INDEX budgets_sync_status_idx ON budgets (sync_status)',
   );
   late final Index transactionsUserOccurredIdx = Index(
     'transactions_user_occurred_idx',
@@ -5479,30 +6602,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'transactions_sync_status_idx',
     'CREATE INDEX transactions_sync_status_idx ON transactions (sync_status)',
   );
-  late final Index budgetsUserMonthIdx = Index(
-    'budgets_user_month_idx',
-    'CREATE INDEX budgets_user_month_idx ON budgets (user_id, month)',
+  late final Index categoriesUserTypeIdx = Index(
+    'categories_user_type_idx',
+    'CREATE INDEX categories_user_type_idx ON categories (user_id, type)',
   );
-  late final Index budgetsSyncStatusIdx = Index(
-    'budgets_sync_status_idx',
-    'CREATE INDEX budgets_sync_status_idx ON budgets (sync_status)',
+  late final Index categoriesSyncStatusIdx = Index(
+    'categories_sync_status_idx',
+    'CREATE INDEX categories_sync_status_idx ON categories (sync_status)',
   );
-  late final Index goalsSyncStatusIdx = Index(
-    'goals_sync_status_idx',
-    'CREATE INDEX goals_sync_status_idx ON goals (sync_status)',
+  late final Index profilesSyncStatusIdx = Index(
+    'profiles_sync_status_idx',
+    'CREATE INDEX profiles_sync_status_idx ON profiles (sync_status)',
   );
-  late final Index goalContributionsGoalIdx = Index(
-    'goal_contributions_goal_idx',
-    'CREATE INDEX goal_contributions_goal_idx ON goal_contributions (goal_id)',
-  );
-  late final Index goalContributionsSyncStatusIdx = Index(
-    'goal_contributions_sync_status_idx',
-    'CREATE INDEX goal_contributions_sync_status_idx ON goal_contributions (sync_status)',
-  );
-  late final Index remindersSyncStatusIdx = Index(
-    'reminders_sync_status_idx',
-    'CREATE INDEX reminders_sync_status_idx ON reminders (sync_status)',
-  );
+  late final $SyncStateTable syncState = $SyncStateTable(this);
+  late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final AppSettingsDao appSettingsDao = AppSettingsDao(
     this as AppDatabase,
   );
@@ -5520,27 +6633,86 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     profiles,
+    profilesLocalChangeSource,
     categories,
+    categoriesLocalChangeSource,
     transactions,
+    transactionsLocalChangeSource,
     budgets,
+    budgetsLocalChangeSource,
     goals,
+    goalsLocalChangeSource,
     goalContributions,
+    goalContributionsLocalChangeSource,
     reminders,
-    syncState,
-    appSettings,
-    profilesSyncStatusIdx,
-    categoriesUserTypeIdx,
-    categoriesSyncStatusIdx,
+    remindersLocalChangeSource,
+    remindersSyncStatusIdx,
+    goalContributionsGoalIdx,
+    goalContributionsSyncStatusIdx,
+    goalsSyncStatusIdx,
+    budgetsUserMonthIdx,
+    budgetsSyncStatusIdx,
     transactionsUserOccurredIdx,
     transactionsCategoryIdx,
     transactionsSyncStatusIdx,
-    budgetsUserMonthIdx,
-    budgetsSyncStatusIdx,
-    goalsSyncStatusIdx,
-    goalContributionsGoalIdx,
-    goalContributionsSyncStatusIdx,
-    remindersSyncStatusIdx,
+    categoriesUserTypeIdx,
+    categoriesSyncStatusIdx,
+    profilesSyncStatusIdx,
+    syncState,
+    appSettings,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'profiles',
+        limitUpdateKind: UpdateKind.update,
+      ),
+      result: [TableUpdate('profiles', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'categories',
+        limitUpdateKind: UpdateKind.update,
+      ),
+      result: [TableUpdate('categories', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'transactions',
+        limitUpdateKind: UpdateKind.update,
+      ),
+      result: [TableUpdate('transactions', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'budgets',
+        limitUpdateKind: UpdateKind.update,
+      ),
+      result: [TableUpdate('budgets', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'goals',
+        limitUpdateKind: UpdateKind.update,
+      ),
+      result: [TableUpdate('goals', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'goal_contributions',
+        limitUpdateKind: UpdateKind.update,
+      ),
+      result: [TableUpdate('goal_contributions', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'reminders',
+        limitUpdateKind: UpdateKind.update,
+      ),
+      result: [TableUpdate('reminders', kind: UpdateKind.update)],
+    ),
+  ]);
   @override
   DriftDatabaseOptions get options => const DriftDatabaseOptions(storeDateTimeAsText: true);
 }
@@ -5554,6 +6726,9 @@ typedef $$ProfilesTableCreateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       Value<String?> displayName,
       Value<String?> currencyCode,
       Value<String?> locale,
@@ -5569,6 +6744,9 @@ typedef $$ProfilesTableUpdateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       Value<String?> displayName,
       Value<String?> currencyCode,
       Value<String?> locale,
@@ -5617,6 +6795,21 @@ class $$ProfilesTableFilterComposer extends Composer<_$AppDatabase, $ProfilesTab
   ColumnWithTypeConverterFilters<SyncStatus, SyncStatus, int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<String> get displayName => $composableBuilder(
@@ -5683,6 +6876,21 @@ class $$ProfilesTableOrderingComposer extends Composer<_$AppDatabase, $ProfilesT
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get displayName => $composableBuilder(
     column: $table.displayName,
     builder: (column) => ColumnOrderings(column),
@@ -5734,6 +6942,17 @@ class $$ProfilesTableAnnotationComposer extends Composer<_$AppDatabase, $Profile
 
   GeneratedColumnWithTypeConverter<SyncStatus, int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
     builder: (column) => column,
   );
 
@@ -5790,6 +7009,9 @@ class $$ProfilesTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 Value<String?> displayName = const Value.absent(),
                 Value<String?> currencyCode = const Value.absent(),
                 Value<String?> locale = const Value.absent(),
@@ -5803,6 +7025,9 @@ class $$ProfilesTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 displayName: displayName,
                 currencyCode: currencyCode,
                 locale: locale,
@@ -5818,6 +7043,9 @@ class $$ProfilesTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 Value<String?> displayName = const Value.absent(),
                 Value<String?> currencyCode = const Value.absent(),
                 Value<String?> locale = const Value.absent(),
@@ -5831,6 +7059,9 @@ class $$ProfilesTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 displayName: displayName,
                 currencyCode: currencyCode,
                 locale: locale,
@@ -5867,6 +7098,9 @@ typedef $$CategoriesTableCreateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       required String name,
       required String icon,
       required int color,
@@ -5884,6 +7118,9 @@ typedef $$CategoriesTableUpdateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       Value<String> name,
       Value<String> icon,
       Value<int> color,
@@ -5980,6 +7217,21 @@ class $$CategoriesTableFilterComposer extends Composer<_$AppDatabase, $Categorie
   ColumnWithTypeConverterFilters<SyncStatus, SyncStatus, int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<String> get name => $composableBuilder(
@@ -6104,6 +7356,21 @@ class $$CategoriesTableOrderingComposer extends Composer<_$AppDatabase, $Categor
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get name => $composableBuilder(
     column: $table.name,
     builder: (column) => ColumnOrderings(column),
@@ -6165,6 +7432,17 @@ class $$CategoriesTableAnnotationComposer extends Composer<_$AppDatabase, $Categ
 
   GeneratedColumnWithTypeConverter<SyncStatus, int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
     builder: (column) => column,
   );
 
@@ -6268,6 +7546,9 @@ class $$CategoriesTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> icon = const Value.absent(),
                 Value<int> color = const Value.absent(),
@@ -6283,6 +7564,9 @@ class $$CategoriesTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 name: name,
                 icon: icon,
                 color: color,
@@ -6300,6 +7584,9 @@ class $$CategoriesTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 required String name,
                 required String icon,
                 required int color,
@@ -6315,6 +7602,9 @@ class $$CategoriesTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 name: name,
                 icon: icon,
                 color: color,
@@ -6402,6 +7692,9 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       required String type,
       required int amountMinor,
       required String categoryId,
@@ -6418,6 +7711,9 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       Value<String> type,
       Value<int> amountMinor,
       Value<String> categoryId,
@@ -6490,6 +7786,21 @@ class $$TransactionsTableFilterComposer extends Composer<_$AppDatabase, $Transac
   ColumnWithTypeConverterFilters<SyncStatus, SyncStatus, int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<String> get type => $composableBuilder(
@@ -6578,6 +7889,21 @@ class $$TransactionsTableOrderingComposer extends Composer<_$AppDatabase, $Trans
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get type => $composableBuilder(
     column: $table.type,
     builder: (column) => ColumnOrderings(column),
@@ -6654,6 +7980,17 @@ class $$TransactionsTableAnnotationComposer extends Composer<_$AppDatabase, $Tra
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
 
@@ -6726,6 +8063,9 @@ class $$TransactionsTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 Value<String> type = const Value.absent(),
                 Value<int> amountMinor = const Value.absent(),
                 Value<String> categoryId = const Value.absent(),
@@ -6740,6 +8080,9 @@ class $$TransactionsTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 type: type,
                 amountMinor: amountMinor,
                 categoryId: categoryId,
@@ -6756,6 +8099,9 @@ class $$TransactionsTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 required String type,
                 required int amountMinor,
                 required String categoryId,
@@ -6770,6 +8116,9 @@ class $$TransactionsTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 type: type,
                 amountMinor: amountMinor,
                 categoryId: categoryId,
@@ -6852,6 +8201,9 @@ typedef $$BudgetsTableCreateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       required DateTime month,
       Value<String?> categoryId,
       required int limitMinor,
@@ -6866,6 +8218,9 @@ typedef $$BudgetsTableUpdateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       Value<DateTime> month,
       Value<String?> categoryId,
       Value<int> limitMinor,
@@ -6936,6 +8291,21 @@ class $$BudgetsTableFilterComposer extends Composer<_$AppDatabase, $BudgetsTable
   ColumnWithTypeConverterFilters<SyncStatus, SyncStatus, int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnWithTypeConverterFilters<DateTime, DateTime, String> get month => $composableBuilder(
@@ -7014,6 +8384,21 @@ class $$BudgetsTableOrderingComposer extends Composer<_$AppDatabase, $BudgetsTab
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get month => $composableBuilder(
     column: $table.month,
     builder: (column) => ColumnOrderings(column),
@@ -7077,6 +8462,17 @@ class $$BudgetsTableAnnotationComposer extends Composer<_$AppDatabase, $BudgetsT
 
   GeneratedColumnWithTypeConverter<SyncStatus, int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
     builder: (column) => column,
   );
 
@@ -7144,6 +8540,9 @@ class $$BudgetsTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 Value<DateTime> month = const Value.absent(),
                 Value<String?> categoryId = const Value.absent(),
                 Value<int> limitMinor = const Value.absent(),
@@ -7156,6 +8555,9 @@ class $$BudgetsTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 month: month,
                 categoryId: categoryId,
                 limitMinor: limitMinor,
@@ -7170,6 +8572,9 @@ class $$BudgetsTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 required DateTime month,
                 Value<String?> categoryId = const Value.absent(),
                 required int limitMinor,
@@ -7182,6 +8587,9 @@ class $$BudgetsTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 month: month,
                 categoryId: categoryId,
                 limitMinor: limitMinor,
@@ -7260,6 +8668,9 @@ typedef $$GoalsTableCreateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       required String name,
       required int targetMinor,
       Value<DateTime?> deadlineOn,
@@ -7276,6 +8687,9 @@ typedef $$GoalsTableUpdateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       Value<String> name,
       Value<int> targetMinor,
       Value<DateTime?> deadlineOn,
@@ -7352,6 +8766,21 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
   ColumnWithTypeConverterFilters<SyncStatus, SyncStatus, int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<String> get name => $composableBuilder(
@@ -7447,6 +8876,21 @@ class $$GoalsTableOrderingComposer extends Composer<_$AppDatabase, $GoalsTable> 
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get name => $composableBuilder(
     column: $table.name,
     builder: (column) => ColumnOrderings(column),
@@ -7503,6 +8947,17 @@ class $$GoalsTableAnnotationComposer extends Composer<_$AppDatabase, $GoalsTable
 
   GeneratedColumnWithTypeConverter<SyncStatus, int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
     builder: (column) => column,
   );
 
@@ -7582,6 +9037,9 @@ class $$GoalsTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<int> targetMinor = const Value.absent(),
                 Value<DateTime?> deadlineOn = const Value.absent(),
@@ -7596,6 +9054,9 @@ class $$GoalsTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 name: name,
                 targetMinor: targetMinor,
                 deadlineOn: deadlineOn,
@@ -7612,6 +9073,9 @@ class $$GoalsTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 required String name,
                 required int targetMinor,
                 Value<DateTime?> deadlineOn = const Value.absent(),
@@ -7626,6 +9090,9 @@ class $$GoalsTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 name: name,
                 targetMinor: targetMinor,
                 deadlineOn: deadlineOn,
@@ -7691,6 +9158,9 @@ typedef $$GoalContributionsTableCreateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       required String goalId,
       required int amountMinor,
       required DateTime contributedOn,
@@ -7706,6 +9176,9 @@ typedef $$GoalContributionsTableUpdateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       Value<String> goalId,
       Value<int> amountMinor,
       Value<DateTime> contributedOn,
@@ -7782,6 +9255,21 @@ class $$GoalContributionsTableFilterComposer
   ColumnWithTypeConverterFilters<SyncStatus, SyncStatus, int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<int> get amountMinor => $composableBuilder(
@@ -7867,6 +9355,21 @@ class $$GoalContributionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get amountMinor => $composableBuilder(
     column: $table.amountMinor,
     builder: (column) => ColumnOrderings(column),
@@ -7936,6 +9439,17 @@ class $$GoalContributionsTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<SyncStatus, int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
     builder: (column) => column,
   );
 
@@ -8014,6 +9528,9 @@ class $$GoalContributionsTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 Value<String> goalId = const Value.absent(),
                 Value<int> amountMinor = const Value.absent(),
                 Value<DateTime> contributedOn = const Value.absent(),
@@ -8027,6 +9544,9 @@ class $$GoalContributionsTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 goalId: goalId,
                 amountMinor: amountMinor,
                 contributedOn: contributedOn,
@@ -8042,6 +9562,9 @@ class $$GoalContributionsTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 required String goalId,
                 required int amountMinor,
                 required DateTime contributedOn,
@@ -8055,6 +9578,9 @@ class $$GoalContributionsTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 goalId: goalId,
                 amountMinor: amountMinor,
                 contributedOn: contributedOn,
@@ -8138,6 +9664,9 @@ typedef $$RemindersTableCreateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       required String title,
       required String timeOfDay,
       required String repeatRule,
@@ -8155,6 +9684,9 @@ typedef $$RemindersTableUpdateCompanionBuilder =
       Value<DateTime?> deletedAt,
       Value<DateTime?> serverUpdatedAt,
       Value<SyncStatus> syncStatus,
+      Value<String> createdBy,
+      Value<String> updatedBy,
+      Value<String?> agentProposalId,
       Value<String> title,
       Value<String> timeOfDay,
       Value<String> repeatRule,
@@ -8205,6 +9737,21 @@ class $$RemindersTableFilterComposer extends Composer<_$AppDatabase, $RemindersT
   ColumnWithTypeConverterFilters<SyncStatus, SyncStatus, int> get syncStatus => $composableBuilder(
     column: $table.syncStatus,
     builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnFilters(column),
   );
 
   ColumnFilters<String> get title => $composableBuilder(
@@ -8281,6 +9828,21 @@ class $$RemindersTableOrderingComposer extends Composer<_$AppDatabase, $Reminder
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get updatedBy => $composableBuilder(
+    column: $table.updatedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get title => $composableBuilder(
     column: $table.title,
     builder: (column) => ColumnOrderings(column),
@@ -8345,6 +9907,17 @@ class $$RemindersTableAnnotationComposer extends Composer<_$AppDatabase, $Remind
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<String> get agentProposalId => $composableBuilder(
+    column: $table.agentProposalId,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
@@ -8404,6 +9977,9 @@ class $$RemindersTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String> timeOfDay = const Value.absent(),
                 Value<String> repeatRule = const Value.absent(),
@@ -8419,6 +9995,9 @@ class $$RemindersTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 title: title,
                 timeOfDay: timeOfDay,
                 repeatRule: repeatRule,
@@ -8436,6 +10015,9 @@ class $$RemindersTableTableManager
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<DateTime?> serverUpdatedAt = const Value.absent(),
                 Value<SyncStatus> syncStatus = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<String> updatedBy = const Value.absent(),
+                Value<String?> agentProposalId = const Value.absent(),
                 required String title,
                 required String timeOfDay,
                 required String repeatRule,
@@ -8451,6 +10033,9 @@ class $$RemindersTableTableManager
                 deletedAt: deletedAt,
                 serverUpdatedAt: serverUpdatedAt,
                 syncStatus: syncStatus,
+                createdBy: createdBy,
+                updatedBy: updatedBy,
+                agentProposalId: agentProposalId,
                 title: title,
                 timeOfDay: timeOfDay,
                 repeatRule: repeatRule,

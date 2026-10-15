@@ -46,6 +46,7 @@ part 'app_database.g.dart';
     RemindersDao,
     TransactionsDao,
   ],
+  include: {'change_source.drift'},
 )
 class AppDatabase extends _$AppDatabase {
   /// The app opens it with `EncryptedDatabase.executor` (M11.8); tests pass an in-memory one.
@@ -54,7 +55,7 @@ class AppDatabase extends _$AppDatabase {
   static const databaseName = 'expense_tracker';
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -63,6 +64,33 @@ class AppDatabase extends _$AppDatabase {
     onUpgrade: stepByStep(
       // v2 (M8.2): monthly reminders store their day of the month.
       from1To2: (m, schema) => m.addColumn(schema.reminders, schema.reminders.dayOfMonth),
+      // v3 (M10.14): who made each row and change (user / agent), plus the local-edit triggers.
+      from2To3: (m, schema) async {
+        for (final table in [
+          schema.profiles,
+          schema.categories,
+          schema.transactions,
+          schema.budgets,
+          schema.goals,
+          schema.goalContributions,
+          schema.reminders,
+        ]) {
+          for (final name in const ['created_by', 'updated_by', 'agent_proposal_id']) {
+            await m.addColumn(table, table.columnsByName[name]!);
+          }
+        }
+        for (final trigger in [
+          schema.profilesLocalChangeSource,
+          schema.categoriesLocalChangeSource,
+          schema.transactionsLocalChangeSource,
+          schema.budgetsLocalChangeSource,
+          schema.goalsLocalChangeSource,
+          schema.goalContributionsLocalChangeSource,
+          schema.remindersLocalChangeSource,
+        ]) {
+          await m.createTrigger(trigger);
+        }
+      },
     ),
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

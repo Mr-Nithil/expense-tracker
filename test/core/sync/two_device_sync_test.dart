@@ -252,6 +252,52 @@ void main() {
     },
   );
 
+  test(
+    'an agent change arrives marked; a user edit marks it as the user\'s again (M10.14)',
+    () async {
+      // The agent service writes a sealed category, marked as its change.
+      final payload = await RowCipher(
+        server.keys.keyOf(_user),
+      ).seal({'name': 'Coffee'}, table: 'categories', id: 'coffee', userId: _user);
+      server._tables.putIfAbsent('categories', () => {})['coffee'] = {
+        'id': 'coffee',
+        'user_id': _user,
+        'name': null,
+        'payload_enc': payload,
+        'icon': 'coffee',
+        'color': 0,
+        'type': 'expense',
+        'is_default': false,
+        'sort_order': 0,
+        'created_at': t0.toIso8601String(),
+        'updated_at': t0.toIso8601String(),
+        'deleted_at': null,
+        'created_by': 'agent',
+        'updated_by': 'agent',
+        'agent_proposal_id': 'proposal-1',
+        'server_updated_at': server._stamp(),
+      };
+
+      await b.syncOk();
+      final pulled = (await b.category('coffee'))!;
+      expect(pulled.name, 'Coffee');
+      expect(
+        (pulled.createdBy, pulled.updatedBy, pulled.agentProposalId),
+        ('agent', 'agent', 'proposal-1'),
+      );
+
+      await b.saveCategory('coffee', name: 'Coffee & tea', at: t0.add(const Duration(hours: 1)));
+      await b.syncOk();
+
+      final stored = server.row('categories', 'coffee')!;
+      expect(
+        (stored['created_by'], stored['updated_by'], stored['agent_proposal_id']),
+        ('agent', 'user', null),
+      );
+      expect((await server.opened('categories', 'coffee'))?['name'], 'Coffee & tea');
+    },
+  );
+
   group('re-encrypting existing data (M11.7)', () {
     /// A row stored in plain text, as before M11 (or by an old app version).
     void storePlain(String id, String name, DateTime at) =>

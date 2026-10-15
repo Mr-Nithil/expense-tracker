@@ -37,8 +37,8 @@ void main() {
         occurredOn: DateTime(2026, 10, 3),
       );
 
-  test('schema version is 2', () {
-    expect(db.schemaVersion, 2);
+  test('schema version is 3', () {
+    expect(db.schemaVersion, 3);
   });
 
   test('new synced rows default to pending with no server timestamp or deletion', () async {

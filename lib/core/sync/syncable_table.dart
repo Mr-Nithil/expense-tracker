@@ -63,12 +63,21 @@ class SyncableTable<T extends Table, R extends DataClass> {
         if (column.type == DriftSqlType.dateTime) column.name,
     };
     final data = <String, Object?>{
+      // Rows from a server without `0006` (or older fixtures) carry no change source: the user's,
+      // like the server's own defaults.
+      for (final MapEntry(:key, :value) in _changeSourceDefaults.entries)
+        if (columns.contains(key)) key: value,
       for (final MapEntry(:key, :value) in json.entries)
         if (columns.contains(key)) key: _decode(value, isDateTime: dateTimes.contains(key)),
       syncStatusColumn: SyncStatus.synced.index,
     };
     return table.map(data);
   }
+
+  static const _changeSourceDefaults = {
+    'created_by': ChangeSource.user,
+    'updated_by': ChangeSource.user,
+  };
 
   /// Rows of [userId] waiting to be pushed, soft-deleted ones included (a deletion must reach
   /// the server too). Oldest change first, so batches are stable.

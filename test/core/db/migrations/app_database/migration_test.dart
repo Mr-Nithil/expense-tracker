@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'generated/schema.dart';
 import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
+import 'generated/schema_v3.dart' as v3;
 
 /// Verifies every migration against the schema dumps in `drift_schemas/`.
 ///
@@ -72,6 +73,47 @@ void main() {
           timeOfDay: '20:30',
           repeatRule: 'weekly',
           weekdays: 0x1F,
+          enabled: true,
+        ),
+      ]),
+    );
+  });
+
+  test('v2 → v3 keeps existing rows and marks them as the user\'s', () async {
+    final at = DateTime.utc(2026, 10, 1, 8);
+    await verifier.testWithDataIntegrity(
+      oldVersion: 2,
+      newVersion: 3,
+      createOld: v2.DatabaseAtV2.new,
+      createNew: v3.DatabaseAtV3.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) => batch.insertAll(oldDb.reminders, [
+        v2.RemindersData(
+          id: 'r1',
+          userId: 'u1',
+          createdAt: at,
+          updatedAt: at,
+          syncStatus: 1,
+          title: 'Pay rent',
+          timeOfDay: '09:00',
+          repeatRule: 'monthly',
+          dayOfMonth: 31,
+          enabled: true,
+        ),
+      ]),
+      validateItems: (newDb) async => expect(await newDb.select(newDb.reminders).get(), [
+        v3.RemindersData(
+          id: 'r1',
+          userId: 'u1',
+          createdAt: at,
+          updatedAt: at,
+          syncStatus: 1,
+          createdBy: 'user',
+          updatedBy: 'user',
+          title: 'Pay rent',
+          timeOfDay: '09:00',
+          repeatRule: 'monthly',
+          dayOfMonth: 31,
           enabled: true,
         ),
       ]),

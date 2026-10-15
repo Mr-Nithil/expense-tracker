@@ -1,0 +1,63 @@
+-- M10.14: a local edit marks the row as the user's again (ARCHITECTURE §14).
+--
+-- A local edit = `updated_at` changed while the row is `pending` (sync_status 0). Sync merges
+-- write `synced`, and re-sealing (M11.7) leaves `updated_at` alone, so neither touches the marks:
+-- rows changed by the agent keep `updated_by = 'agent'` until the user edits them here.
+-- The inner UPDATE doesn't change `updated_at`, so it can't fire the trigger again.
+
+import 'tables/profiles.dart';
+import 'tables/categories.dart';
+import 'tables/transactions.dart';
+import 'tables/budgets.dart';
+import 'tables/goals.dart';
+import 'tables/goal_contributions.dart';
+import 'tables/reminders.dart';
+
+CREATE TRIGGER profiles_local_change_source AFTER UPDATE OF updated_at ON profiles
+  WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at
+    AND (NEW.updated_by <> 'user' OR NEW.agent_proposal_id IS NOT NULL)
+BEGIN
+  UPDATE profiles SET updated_by = 'user', agent_proposal_id = NULL WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER categories_local_change_source AFTER UPDATE OF updated_at ON categories
+  WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at
+    AND (NEW.updated_by <> 'user' OR NEW.agent_proposal_id IS NOT NULL)
+BEGIN
+  UPDATE categories SET updated_by = 'user', agent_proposal_id = NULL WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER transactions_local_change_source AFTER UPDATE OF updated_at ON transactions
+  WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at
+    AND (NEW.updated_by <> 'user' OR NEW.agent_proposal_id IS NOT NULL)
+BEGIN
+  UPDATE transactions SET updated_by = 'user', agent_proposal_id = NULL WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER budgets_local_change_source AFTER UPDATE OF updated_at ON budgets
+  WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at
+    AND (NEW.updated_by <> 'user' OR NEW.agent_proposal_id IS NOT NULL)
+BEGIN
+  UPDATE budgets SET updated_by = 'user', agent_proposal_id = NULL WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER goals_local_change_source AFTER UPDATE OF updated_at ON goals
+  WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at
+    AND (NEW.updated_by <> 'user' OR NEW.agent_proposal_id IS NOT NULL)
+BEGIN
+  UPDATE goals SET updated_by = 'user', agent_proposal_id = NULL WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER goal_contributions_local_change_source AFTER UPDATE OF updated_at ON goal_contributions
+  WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at
+    AND (NEW.updated_by <> 'user' OR NEW.agent_proposal_id IS NOT NULL)
+BEGIN
+  UPDATE goal_contributions SET updated_by = 'user', agent_proposal_id = NULL WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER reminders_local_change_source AFTER UPDATE OF updated_at ON reminders
+  WHEN NEW.sync_status = 0 AND NEW.updated_at IS NOT OLD.updated_at
+    AND (NEW.updated_by <> 'user' OR NEW.agent_proposal_id IS NOT NULL)
+BEGIN
+  UPDATE reminders SET updated_by = 'user', agent_proposal_id = NULL WHERE id = NEW.id;
+END;
