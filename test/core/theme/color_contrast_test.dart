@@ -32,12 +32,42 @@ void main() {
         'onSurfaceVariant': scheme.onSurfaceVariant,
         'primary': scheme.primary,
         'error': scheme.error,
+        'onSurface': scheme.onSurface,
+        'link': colors.link,
+        'accentInk': colors.accentInk,
       };
 
       final failing = [
         for (final MapEntry(key: text, value: fg) in texts.entries)
           for (final MapEntry(key: surface, value: bg) in surfaces.entries)
             if (contrast(fg, bg) < 4.5) '$text on $surface: ${contrast(fg, bg).toStringAsFixed(2)}',
+      ];
+
+      expect(failing, isEmpty);
+    });
+
+    test('$name: text on primary and on the tinted cards reaches 4.5:1', () {
+      final scheme = theme.colorScheme;
+      final colors = theme.extension<AppColors>()!;
+      final pairs = {
+        'onPrimary on primary': (scheme.onPrimary, scheme.primary),
+        for (final (tint, bg) in [
+          ('soft', colors.soft),
+          ('accentSoft', colors.accentSoft),
+          ('dangerSoft', colors.dangerSoft),
+        ])
+          for (final (text, fg) in [
+            ('ink', scheme.onSurface),
+            ('ink2', scheme.onSurfaceVariant),
+            ('link', colors.link),
+            ('accentInk', colors.accentInk),
+          ])
+            '$text on $tint': (fg, bg),
+      };
+
+      final failing = [
+        for (final MapEntry(key: name, value: (fg, bg)) in pairs.entries)
+          if (contrast(fg, bg) < 4.5) '$name: ${contrast(fg, bg).toStringAsFixed(2)}',
       ];
 
       expect(failing, isEmpty);

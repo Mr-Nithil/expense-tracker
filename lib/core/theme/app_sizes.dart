@@ -20,7 +20,7 @@ abstract final class AppSizes {
   static const double fabClearance = 80;
 
   /// Calendar day row (day number + net amount), before text scaling.
-  static const double calendarRowHeight = 56;
+  static const double calendarRowHeight = 60;
 
   /// Calendar weekday labels row, before text scaling.
   static const double calendarDaysOfWeekHeight = 20;

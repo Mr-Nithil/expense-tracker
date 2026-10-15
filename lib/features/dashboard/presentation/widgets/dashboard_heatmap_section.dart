@@ -73,17 +73,16 @@ class DashboardHeatmapSection extends ConsumerWidget {
   }
 }
 
-/// Colors of the heatmap: the empty shade for level 0, then one hue from light to dark.
+/// Colors of the heatmap (Sprout design): `field` for level 0, then `primary` mixed into `field`
+/// at 28 %, 52 %, 76 % and 100 % for levels 1–4. Each day also has a semantics label with its
+/// exact amount, so the light first step is not the only way to tell days apart.
 abstract final class _Shades {
-  /// Where the ramp starts between `primaryContainer` and `primary`: lower and the lightest
-  /// shade disappears into the background (checked against both themes for >= 2:1 contrast).
-  static const _start = 0.4;
+  static const _mix = [0.28, 0.52, 0.76, 1.0];
 
   static Color of(BuildContext context, int level) {
-    final scheme = context.colorScheme;
-    if (level == 0) return scheme.surfaceContainerHighest;
-    final t = _start + (1 - _start) * (level - 1) / (SpendingLevels.count - 1);
-    return Color.lerp(scheme.primaryContainer, scheme.primary, t)!;
+    final field = context.colors.field;
+    if (level == 0) return field;
+    return Color.lerp(field, context.colorScheme.primary, _mix[level - 1])!;
   }
 }
 
