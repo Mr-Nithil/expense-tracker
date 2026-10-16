@@ -104,6 +104,8 @@ void main() {
 
     await reveal(tester, findText(l10n.settingsManageLabel));
     expect(findText(l10n.categoriesTitle), findsOneWidget);
+    // Debug builds (tests included) also offer the design gallery.
+    await reveal(tester, findText(l10n.designGalleryTitle));
     await reveal(tester, findWidgetWithText(FilledButton, l10n.settingsLogout));
     expect(findText(l10n.settingsAccountLabel), findsOneWidget);
   });

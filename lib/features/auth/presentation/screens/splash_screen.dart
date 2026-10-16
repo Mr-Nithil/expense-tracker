@@ -3,6 +3,7 @@ import 'package:expense_tracker/core/sync/initial_sync.dart';
 import 'package:expense_tracker/core/theme/app_sizes.dart';
 import 'package:expense_tracker/core/theme/app_spacing.dart';
 import 'package:expense_tracker/core/widgets/message_layout.dart';
+import 'package:expense_tracker/core/widgets/sprout_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -29,13 +30,7 @@ class SplashScreen extends ConsumerWidget {
           const Gap(AppSpacing.md),
           Text(l10n.appTitle, style: context.text.headlineSmall, textAlign: TextAlign.center),
           const Gap(AppSpacing.xl),
-          SizedBox.square(
-            dimension: AppSizes.progressSm,
-            child: CircularProgressIndicator(
-              strokeWidth: AppSizes.progressStroke,
-              semanticsLabel: l10n.commonLoading,
-            ),
-          ),
+          SproutLoader(size: AppSizes.loaderSplash, semanticsLabel: l10n.commonLoading),
           if (syncing) ...[
             const Gap(AppSpacing.md),
             Semantics(

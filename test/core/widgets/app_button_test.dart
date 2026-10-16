@@ -1,5 +1,6 @@
 import 'package:expense_tracker/core/widgets/app_button.dart';
 import 'package:expense_tracker/core/widgets/chunky_pressable.dart';
+import 'package:expense_tracker/core/widgets/sprout_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -42,7 +43,7 @@ void main() {
     await tester.pumpApp(
       AppButton.primary(label: 'Save', onPressed: () => taps++, isLoading: true),
     );
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(SproutLoader), findsOneWidget);
     await tester.tap(findText('Save'));
     expect(taps, 0);
   });

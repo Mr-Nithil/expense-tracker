@@ -4,6 +4,7 @@ import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
 import 'package:expense_tracker/core/utils/clock.dart';
 import 'package:expense_tracker/core/widgets/category_chip.dart';
+import 'package:expense_tracker/core/widgets/sprout_loader.dart';
 import 'package:expense_tracker/features/categories/domain/entities/category.dart';
 import 'package:expense_tracker/features/categories/presentation/providers/categories_providers.dart';
 import 'package:expense_tracker/features/transactions/domain/entities/transaction.dart';
@@ -160,7 +161,7 @@ void main() {
       await tester.tap(findText(l10n.transactionsFilterAllCategories));
       await tester.pump();
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(SproutLoader), findsOneWidget);
       expect(findText(l10n.categoriesEmptyTitle), findsNothing);
     });
 

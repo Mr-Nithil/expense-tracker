@@ -19,6 +19,7 @@ import 'package:expense_tracker/features/profile/presentation/providers/theme_mo
 import 'package:expense_tracker/features/security/presentation/shared/security_settings_section.dart';
 import 'package:expense_tracker/features/settings/presentation/widgets/settings_language_tile.dart';
 import 'package:expense_tracker/features/settings/presentation/widgets/settings_profile_section.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -138,6 +139,13 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.pushNamed(Routes.reminders),
           ),
+          if (kDebugMode)
+            ListTile(
+              leading: const Icon(Icons.palette_outlined),
+              title: Text(l10n.designGalleryTitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.pushNamed(Routes.designGallery),
+            ),
           const Gap(AppSpacing.lg),
           SectionHeader(title: l10n.settingsSyncLabel),
           if (ref.watch(syncStatusProvider).value case final sync?)

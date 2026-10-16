@@ -53,6 +53,10 @@ abstract final class Routes {
   static const reminders = 'reminders';
   static const remindersPath = '/settings/reminders';
 
+  /// Debug builds only, nested under settings: previews the mascot, loaders and plants.
+  static const designGallery = 'designGallery';
+  static const designGalleryPath = '/settings/design-gallery';
+
   /// Routes of the auth flow. A signed-in user is sent from these to the dashboard.
   static const authPaths = {
     splashPath,

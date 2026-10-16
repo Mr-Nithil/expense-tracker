@@ -1,5 +1,6 @@
 import 'package:expense_tracker/core/utils/money.dart';
 import 'package:expense_tracker/features/goals/domain/entities/goal.dart';
+import 'package:expense_tracker/features/goals/domain/entities/goal_stage.dart';
 import 'package:expense_tracker/features/goals/domain/services/goal_calculator.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -19,4 +20,7 @@ abstract class GoalProgress with _$GoalProgress {
   Money get remaining => GoalCalculator.remaining(goal.target, saved);
 
   bool get isCompleted => GoalCalculator.isCompleted(goal.target, saved);
+
+  /// How grown the goal's plant is.
+  GoalStage get stage => GoalStage.of(percent);
 }

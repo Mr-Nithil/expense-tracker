@@ -4,6 +4,7 @@ import 'package:expense_tracker/core/widgets/async_value_view.dart';
 import 'package:expense_tracker/core/widgets/empty_state.dart';
 import 'package:expense_tracker/core/widgets/error_view.dart';
 import 'package:expense_tracker/core/widgets/loading_view.dart';
+import 'package:expense_tracker/core/widgets/sprout_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -40,7 +41,7 @@ void main() {
   group('LoadingView', () {
     testWidgetsBothThemes('shows a labelled spinner and message', (tester, brightness) async {
       await tester.pumpApp(const LoadingView(message: 'Syncing'), brightness: brightness);
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(SproutLoader), findsOneWidget);
       expect(find.bySemanticsLabel(l10n.commonLoading), findsOneWidget);
       expect(findText('Syncing'), findsOneWidget);
     });

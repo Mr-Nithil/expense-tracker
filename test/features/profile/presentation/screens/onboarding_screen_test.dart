@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
+import 'package:expense_tracker/core/widgets/sprout_loader.dart';
 import 'package:expense_tracker/features/categories/presentation/providers/default_categories_seeder.dart';
 import 'package:expense_tracker/features/profile/data/profile_repository_provider.dart';
 import 'package:expense_tracker/features/profile/domain/entities/profile.dart';
@@ -97,7 +98,7 @@ void main() {
     await tester.pump();
 
     expect(
-      find.descendant(of: continueButton(), matching: find.byType(CircularProgressIndicator)),
+      find.descendant(of: continueButton(), matching: find.byType(SproutLoader)),
       findsOneWidget,
     );
     completer.complete(const Result.success(Profile(id: 'u1', currencyCode: 'EUR')));

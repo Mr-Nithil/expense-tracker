@@ -24,6 +24,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.leafDeep,
     required this.cheek,
     required this.pipInk,
+    required this.pipShine,
   });
 
   /// The extension for one [MeadowPalette].
@@ -47,6 +48,7 @@ class AppColors extends ThemeExtension<AppColors> {
     leafDeep: p.leafDeep,
     cheek: p.cheek,
     pipInk: p.pipInk,
+    pipShine: p.pipShine,
   );
 
   static final light = AppColors.of(ColorTokens.light);
@@ -110,6 +112,9 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Pip's eyes and mouth (same in both themes).
   final Color pipInk;
 
+  /// Pip's eye highlights and belly (white in both themes).
+  final Color pipShine;
+
   @override
   AppColors copyWith({
     Color? income,
@@ -131,6 +136,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? leafDeep,
     Color? cheek,
     Color? pipInk,
+    Color? pipShine,
   }) => AppColors(
     income: income ?? this.income,
     expense: expense ?? this.expense,
@@ -151,6 +157,7 @@ class AppColors extends ThemeExtension<AppColors> {
     leafDeep: leafDeep ?? this.leafDeep,
     cheek: cheek ?? this.cheek,
     pipInk: pipInk ?? this.pipInk,
+    pipShine: pipShine ?? this.pipShine,
   );
 
   @override
@@ -176,6 +183,7 @@ class AppColors extends ThemeExtension<AppColors> {
       leafDeep: Color.lerp(leafDeep, other.leafDeep, t)!,
       cheek: Color.lerp(cheek, other.cheek, t)!,
       pipInk: Color.lerp(pipInk, other.pipInk, t)!,
+      pipShine: Color.lerp(pipShine, other.pipShine, t)!,
     );
   }
 }

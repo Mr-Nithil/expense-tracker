@@ -522,6 +522,9 @@ class AppLocalizationsSi extends AppLocalizations {
   String get dashboardTitle => 'උපකරණ පුවරුව';
 
   @override
+  String get designGalleryTitle => 'නිර්මාණ ගැලරිය';
+
+  @override
   String get errorAmountInvalid => '0ට වැඩි මුදලක් ඇතුළත් කරන්න.';
 
   @override

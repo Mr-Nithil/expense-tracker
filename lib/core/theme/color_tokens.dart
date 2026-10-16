@@ -29,6 +29,7 @@ class MeadowPalette {
     required this.leafDeep,
     required this.cheek,
     required this.pipInk,
+    required this.pipShine,
   });
 
   /// Scaffold background.
@@ -96,6 +97,9 @@ class MeadowPalette {
 
   /// Pip's eyes and mouth (same in both themes).
   final Color pipInk;
+
+  /// Pip's eye highlights and belly (white in both themes).
+  final Color pipShine;
 }
 
 /// Raw color values. **The only place in the app with color literals.**
@@ -127,6 +131,7 @@ abstract final class ColorTokens {
     leafDeep: Color(0xFF3E7232),
     cheek: Color(0xFFF8A49D),
     pipInk: Color(0xFF162C20),
+    pipShine: Color(0xFFFFFFFF),
   );
 
   static const dark = MeadowPalette(
@@ -152,6 +157,7 @@ abstract final class ColorTokens {
     leafDeep: Color(0xFF4C8141),
     cheek: Color(0xFFE3928B),
     pipInk: Color(0xFF162C20),
+    pipShine: Color(0xFFFFFFFF),
   );
 
   /// Fully transparent: no Material 3 tint on raised surfaces.

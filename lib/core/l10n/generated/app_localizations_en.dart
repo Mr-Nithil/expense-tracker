@@ -522,6 +522,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardTitle => 'Dashboard';
 
   @override
+  String get designGalleryTitle => 'Design gallery';
+
+  @override
   String get errorAmountInvalid => 'Enter an amount greater than 0.';
 
   @override

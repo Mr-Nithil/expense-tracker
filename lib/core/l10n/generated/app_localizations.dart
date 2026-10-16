@@ -897,6 +897,12 @@ abstract class AppLocalizations {
   /// **'Dashboard'**
   String get dashboardTitle;
 
+  /// Developer-only (debug builds): title of the screen previewing the mascot, loaders, progress bars and plants, and its row in Settings
+  ///
+  /// In en, this message translates to:
+  /// **'Design gallery'**
+  String get designGalleryTitle;
+
   /// Amount field error when the value is zero or can't be read
   ///
   /// In en, this message translates to:

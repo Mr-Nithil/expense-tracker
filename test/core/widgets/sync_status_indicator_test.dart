@@ -1,6 +1,7 @@
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
 import 'package:expense_tracker/core/sync/sync_status.dart';
 import 'package:expense_tracker/core/theme/app_theme.dart';
+import 'package:expense_tracker/core/widgets/sprout_loader.dart';
 import 'package:expense_tracker/core/widgets/sync_status_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -37,7 +38,7 @@ void main() {
   testWidgets('syncing shows a spinner', (tester) async {
     await pumpIndicator(tester, SyncIndicator.syncing);
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(SproutLoader), findsOneWidget);
     expect(find.byTooltip(l10n.syncStatusSyncing), findsOneWidget);
   });
 

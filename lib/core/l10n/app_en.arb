@@ -364,6 +364,8 @@
   "dashboardTitle": "Dashboard",
   "@dashboardTitle": { "description": "Title of the dashboard tab and its bottom navigation label" },
 
+  "designGalleryTitle": "Design gallery",
+  "@designGalleryTitle": { "description": "Developer-only (debug builds): title of the screen previewing the mascot, loaders, progress bars and plants, and its row in Settings" },
   "errorAmountInvalid": "Enter an amount greater than 0.",
   "@errorAmountInvalid": { "description": "Amount field error when the value is zero or can't be read" },
   "errorAuth": "Authentication failed. Please sign in again.",

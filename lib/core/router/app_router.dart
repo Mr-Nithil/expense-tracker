@@ -15,6 +15,7 @@ import 'package:expense_tracker/features/goals/presentation/screens/goal_detail_
 import 'package:expense_tracker/features/goals/presentation/screens/goals_screen.dart';
 import 'package:expense_tracker/features/profile/presentation/screens/onboarding_screen.dart';
 import 'package:expense_tracker/features/reminders/presentation/screens/reminders_screen.dart';
+import 'package:expense_tracker/features/settings/presentation/screens/design_gallery_screen.dart';
 import 'package:expense_tracker/features/settings/presentation/screens/settings_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/screens/transaction_detail_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/screens/transactions_screen.dart';
@@ -153,6 +154,13 @@ GoRouter router(Ref ref) {
                     path: Routes.remindersPath.substring(Routes.settingsPath.length + 1),
                     builder: (context, state) => const RemindersScreen(),
                   ),
+                  if (kDebugMode)
+                    GoRoute(
+                      name: Routes.designGallery,
+                      // Relative to settings: the full path is Routes.designGalleryPath.
+                      path: Routes.designGalleryPath.substring(Routes.settingsPath.length + 1),
+                      builder: (context, state) => const DesignGalleryScreen(),
+                    ),
                 ],
               ),
             ],

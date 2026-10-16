@@ -1,6 +1,7 @@
 import 'package:expense_tracker/core/extensions/build_context_x.dart';
 import 'package:expense_tracker/core/sync/sync_status.dart';
 import 'package:expense_tracker/core/theme/app_sizes.dart';
+import 'package:expense_tracker/core/widgets/sprout_loader.dart';
 import 'package:flutter/material.dart';
 
 /// Compact sync state for an app bar: an icon per [SyncIndicator], the pending count as a badge,
@@ -35,13 +36,7 @@ class SyncStatusIndicator extends StatelessWidget {
     final scheme = context.colorScheme;
     final icon = switch (indicator) {
       SyncIndicator.synced => const Icon(Icons.cloud_done_outlined),
-      SyncIndicator.syncing => const SizedBox.square(
-        dimension: AppSizes.iconMd,
-        child: Padding(
-          padding: EdgeInsets.all(AppSizes.progressStroke),
-          child: CircularProgressIndicator(strokeWidth: AppSizes.progressStroke),
-        ),
-      ),
+      SyncIndicator.syncing => const SproutLoader(size: AppSizes.iconMd),
       SyncIndicator.pending => Badge.count(
         count: pendingCount,
         child: const Icon(Icons.cloud_upload_outlined),

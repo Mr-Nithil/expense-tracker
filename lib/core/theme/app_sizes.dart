@@ -25,8 +25,12 @@ abstract final class AppSizes {
 
   /// Circular avatar in list rows (e.g. `CategoryIcon`).
   static const double avatarMd = 40;
-  static const double progressSm = 20;
-  static const double progressStroke = 2;
+
+  /// `SproutLoader` sizes: a page, the splash screen, inside a button, Pip's typing row.
+  static const double loaderPage = 72;
+  static const double loaderSplash = 64;
+  static const double loaderButton = 34;
+  static const double loaderTyping = 26;
 
   /// Thickness of `ProgressBar` (budget and goal progress).
   static const double progressBarHeight = 8;
@@ -43,12 +47,11 @@ abstract final class AppSizes {
   /// One day of the dashboard's compact spending heatmap (7 per row).
   static const double heatmapCell = 32;
 
-  /// Diameter and thickness of `ProgressRing` (goal progress).
+  /// Diameter of `ProgressRing` (goal progress).
   static const double progressRing = 48;
 
   /// The big ring at the top of a goal's page.
   static const double progressRingLarge = 120;
-  static const double progressRingStroke = 4;
 
   /// Ring around the selected option in pickers (icons, colors).
   static const double selectionBorder = 2;

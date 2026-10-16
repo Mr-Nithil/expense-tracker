@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
+import 'package:expense_tracker/core/widgets/sprout_loader.dart';
 import 'package:expense_tracker/features/auth/data/auth_repository_provider.dart';
 import 'package:expense_tracker/features/auth/domain/auth_repository.dart';
 import 'package:expense_tracker/features/auth/domain/entities/auth_user.dart';
@@ -97,7 +98,7 @@ void main() {
 
     verify(() => repository.signIn(email: email, password: password)).called(1);
     expect(
-      find.descendant(of: submitButton(), matching: find.byType(CircularProgressIndicator)),
+      find.descendant(of: submitButton(), matching: find.byType(SproutLoader)),
       findsOneWidget,
     );
     expect(tester.widget<TextFormField>(field(l10n.authEmailLabel)).enabled, isFalse);
@@ -105,7 +106,7 @@ void main() {
     completer.complete(const Result.success(testUser));
     await tester.pumpAndSettle();
     expect(
-      find.descendant(of: submitButton(), matching: find.byType(CircularProgressIndicator)),
+      find.descendant(of: submitButton(), matching: find.byType(SproutLoader)),
       findsNothing,
     );
   });

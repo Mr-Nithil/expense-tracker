@@ -4,6 +4,7 @@ import 'package:expense_tracker/core/error/app_failure.dart';
 import 'package:expense_tracker/core/error/result.dart';
 import 'package:expense_tracker/core/l10n/generated/app_localizations_en.dart';
 import 'package:expense_tracker/core/router/routes.dart';
+import 'package:expense_tracker/core/widgets/sprout_loader.dart';
 import 'package:expense_tracker/features/auth/data/auth_repository_provider.dart';
 import 'package:expense_tracker/features/auth/domain/auth_repository.dart';
 import 'package:expense_tracker/features/auth/domain/entities/sign_up_outcome.dart';
@@ -141,7 +142,7 @@ void main() {
       () => repository.signUp(email: email, password: password, displayName: 'Me'),
     ).called(1);
     expect(
-      find.descendant(of: submitButton(), matching: find.byType(CircularProgressIndicator)),
+      find.descendant(of: submitButton(), matching: find.byType(SproutLoader)),
       findsOneWidget,
     );
 
